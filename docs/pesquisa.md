@@ -5,6 +5,8 @@ O descarte inadequado de medicamentos vencidos e outros resíduos de saúde (com
 
 O grande problema é que as estações de tratamento de esgoto não conseguem filtrar totalmente os princípios ativos dos medicamentos, como hormônios, antibióticos e analgésicos. Isso afeta diretamente a vida aquática e pode gerar bactérias super-resistentes. Apesar de o Brasil possuir legislação para a logística reversa de medicamentos, a adesão ainda é baixa porque as pessoas simplesmente não sabem o que fazer com a "farmacinha" de casa quando o remédio vence ou sobra.
 
+Para se ter ideia do tamanho do problema, pesquisas acadêmicas recentes apontam que cerca de 81% das pessoas fazem o descarte incorreto em casa. Mesmo com a Política Nacional de Resíduos Sólidos, a logística reversa ainda esbarra na falta de conhecimento da população sobre onde levar a "farmacinha" vencida.
+
 ## 2. Público e usuários
 Com base no estudo de caso do EcoMonitor, os usuários do nosso aplicativo se dividem em dois grandes grupos:
 * **Usuários sazonais (Cidadãos comuns e donas de casa):** São as pessoas que acumulam remédios, pilhas ou eletrônicos em casa e precisam, de vez em quando, fazer o descarte de tudo que venceu.
@@ -57,5 +59,6 @@ Durante o levantamento, encontramos dados e normas que vão influenciar diretame
 * REASE (Revista Ibero-Americana de Humanidades, Ciências e Educação). *Estudo do descarte residencial de medicamentos vencidos por uma comunidade acadêmica* (2025). Disponível em: https://periodicorease.pro.br/rease/article/download/20200/12118/54432
 
 * ANVISA - Agência Nacional de Vigilância Sanitária. *Resolução RDC nº 222, de 28 de março de 2018 (Boas Práticas de Gerenciamento dos Resíduos de Serviços de Saúde)*. Disponível nas cartilhas de descarte da USP: https://www.fm.usp.br/pgrss/conteudo/cartilha_residuos_final.pdf
+
 
 _Última atualização: 2026-09-08_
