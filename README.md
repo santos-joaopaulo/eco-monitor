@@ -22,8 +22,8 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 
 # 📃 Responsabilidade de Cada Integrante
 ## Carlos Kayky de Oliveira Silva
-* Responsabilidade: [descreva a atividade realizada pelo integrante].
-* Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
+* Responsabilidade: [Desenvolver o estudo de caso e a pesquisa].
+* Atividades desenvolvidas: [Criação de 6 sessões no estudo de caso e desenvolveu o problema, público e usuários, necessidade e dificuldades do usuários e dados relevantes para o projeto na pesquisa].
 ## Enrico de Andrade Rodrigues Holanda
 * Responsabilidade: Construção das personas do projeto.
 * Atividades desenvolvidas: Criação das personas Marta Almeida (cidadã comum, prioritária) e Rafael Souza (farmacêutico), com base no estudo de caso e nas descobertas da pesquisa do grupo; definição e justificativa da persona prioritária; redação e commit do arquivo `docs/personas.md`.
