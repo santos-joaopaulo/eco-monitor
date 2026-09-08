@@ -25,8 +25,8 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 * Responsabilidade: [descreva a atividade realizada pelo integrante].
 * Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
 ## Enrico de Andrade Rodrigues Holanda
-* Responsabilidade: [descreva a atividade realizada pelo integrante].
-* Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
+* Responsabilidade: Construção das personas do projeto.
+* Atividades desenvolvidas: Criação das personas Marta Almeida (cidadã comum, prioritária) e Rafael Souza (farmacêutico), com base no estudo de caso e nas descobertas da pesquisa do grupo; definição e justificativa da persona prioritária; redação e commit do arquivo `docs/personas.md`.
 ## Matheus Gabriel Freire dos Santos
 * Responsabilidade: [descreva a atividade realizada pelo integrante].
 * Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
