@@ -34,5 +34,5 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 * Responsabilidade: [descreva a atividade realizada pelo integrante].
 * Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
 ## Victor Rafael Ferreira Feitosa
-* Responsabilidade: [descreva a atividade realizada pelo integrante].
-* Atividades desenvolvidas: [exemplo: desenvolvimento do front-end, criação das telas e organização da interface].
+* Responsabilidade: [Desenvolvimento do Readme, benchmark acerca do aplicativo.].
+* Atividades desenvolvidas: [Criação introdutória do readme acerca do projeto que será desenvolvido, pesquisa inicial de benchmark comparando aplicativos e sites disponveis no mercado, visando complementar, aprimorar e adicionar funcionalidades ao EcoMonitor].
