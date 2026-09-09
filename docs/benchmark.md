@@ -63,3 +63,36 @@ Traz uma combinação entre informação educativa, notícias e ferramenta prát
     * 🔋 Pilha / eletrônico
     * 💉 Seringa / perfurocortante
 
+# 3. RecyclingLocator
+
+O aplicativo tem como foco a localização de pontos de reciclagem por meio de visualização em lista e mapa. A plataforma também oferece navegação integrada usando aplicativos externos, opções de busca por localização (na versão PRO) e a possibilidade colaborativa do usuário relatar pontos faltantes.
+
+### ⚙️ Principais funcionalidades
+
+* Localização de pontos de reciclagem com visualização via lista e mapa.
+* Integração de navegação usando aplicativos de mapa externos.
+* Busca detalhada por localização (recurso da versão PRO).
+* Ferramenta colaborativa para o usuário relatar pontos de descarte faltantes.
+
+### 👍 Pontos positivos
+
+* O aplicativo é leve e possui uma interface elegante.
+* Não exige login para a realização da maioria das tarefas, garantindo um acesso direto e sem atritos.
+* Permite que os próprios usuários enriqueçam o banco de dados com novos locais.
+
+### 👎 Pontos negativos
+
+* O banco de dados apresenta-se incompleto na prática.
+* Há muito ruído visual no mapa, que exibe ícones irrelevantes para o descarte (como restaurantes e lojas).
+* Ausência de um modo offline para consulta da lista de pontos.
+* Não oferece absolutamente nada de conteúdo educativo sobre o gerenciamento e descarte correto de resíduos.
+
+### 📖 Aspectos de interface/experiência
+
+Embora o design seja simples e funcional, ele falha em termos de intuitividade. O mapa poluído com informações externas faz com que o usuário não entenda facilmente qual é o tipo de ponto de descarte que está sendo exibido, prejudicando a clareza da experiência.
+
+### 🚀 O que pode ser aproveitado ou melhorar no EcoMonitor
+
+* A simplicidade de interação desde o primeiro uso (evitando a barreira de um login obrigatório).
+* A oportunidade de engajar a comunidade permitindo que relatem e adicionem novos pontos.
+* A necessidade de uma curadoria rigorosa dos ícones do mapa, garantindo que o visual fique limpo e focado 100% no propósito do aplicativo (sem ruído visual).
