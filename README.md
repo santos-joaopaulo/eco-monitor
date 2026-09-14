@@ -27,6 +27,8 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 ## Enrico de Andrade Rodrigues Holanda
 * Responsabilidade: Construção das personas do projeto.
 * Atividades desenvolvidas: Criação das personas Marta Almeida (cidadã comum, prioritária) e Rafael Souza (farmacêutico), com base no estudo de caso e nas descobertas da pesquisa do grupo; definição e justificativa da persona prioritária; redação e commit do arquivo `docs/personas.md`.
+* Responsabilidade: Elaborar Funcionalidades.
+* Atividades desenvolvidas: Elaborar uma lista de funcionalidades com base no estudo de caso e nas descobertas da pesquisa do grupo; redação e commit do arquivo `docs/funcionalidades.md`.
 ## Matheus Gabriel Freire dos Santos
 * Responsabilidade: [Pesquisa sobre levantamento de informações e identificação das principais descobertas que orientaram o projeto].
 * Atividades desenvolvidas: [Realização da pesquisa sobre descarte de medicamentos e resíduos, análise das necessidades dos usuários, levantamento de fontes confiáveis e elaboração das 3 principais descobertas da pesquisa, relacionando os resultados às decisões de desenvolvimento do aplicativo].
