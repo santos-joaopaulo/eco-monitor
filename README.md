@@ -33,6 +33,7 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 * Responsabilidade: [Pesquisa sobre levantamento de informações e identificação das principais descobertas que orientaram o projeto].
 * Atividades desenvolvidas: [Realização da pesquisa sobre descarte de medicamentos e resíduos, análise das necessidades dos usuários, levantamento de fontes confiáveis e elaboração das 3 principais descobertas da pesquisa, relacionando os resultados às decisões de desenvolvimento do aplicativo].
 * Responsabilidade: [Elaboração dos requisitos não funcionais do aplicativo EcoMonitor].
+  
 Atividades desenvolvidas: [Definição dos requisitos não funcionais relacionados à usabilidade, facilidade de aprendizado, acessibilidade, privacidade, LGPD, ausência de login, desempenho, funcionamento offline, compatibilidade, geolocalização, segurança, atualização e confiabilidade das informações].
 ## João Paulo Caetano dos Santos
 * Responsabilidade: [Documentação e análise de referências para o projeto].
