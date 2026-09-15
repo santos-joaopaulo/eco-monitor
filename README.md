@@ -36,7 +36,7 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 * Atividades desenvolvidas: [Definição dos requisitos não funcionais relacionados à usabilidade, facilidade de aprendizado, acessibilidade, privacidade, LGPD, ausência de login, desempenho, funcionamento offline, compatibilidade, geolocalização, segurança, atualização e confiabilidade das informações`docs/requisitos.md`].
 ## João Paulo Caetano dos Santos
 * Responsabilidade: [Documentação e análise de referências para o projeto].
-* Atividades desenvolvidas: [Adicionou as sessões “Visão geral”, “Problema” e “Pontos de Atenção” ao documento `estudo-de-caso.md`; criou o arquivo `CHANGELOG.md` com o registro da atividade inicial; e realizou a análise do aplicativo “RecyclingLocator” no arquivo `benchmarks.md`].
+* Atividades desenvolvidas: [Adicionou as sessões “Visão geral”, “Problema” e “Pontos de Atenção” ao documento `estudo-de-caso.md`; criou o arquivo `CHANGELOG.md` com o registro da atividade inicial; realizou a análise do aplicativo “RecyclingLocator” no arquivo `benchmarks.md`; e adicionou a sessão “CRUD” ao documento `docs/requisitos.md`].
 ## Victor Rafael Ferreira Feitosa
 * Responsabilidade: [Desenvolvimento do Readme, benchmark acerca do aplicativo.].
 * Atividades desenvolvidas: [Criação introdutória do readme acerca do projeto que será desenvolvido, pesquisa inicial de benchmark comparando aplicativos e sites disponveis no mercado, visando complementar, aprimorar e adicionar funcionalidades ao EcoMonitor].
