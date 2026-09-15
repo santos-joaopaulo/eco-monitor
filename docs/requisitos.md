@@ -105,3 +105,30 @@ RF14 — Ponto de coleta mais próximo: O sistema deve permitir que o usuário s
 **RNF17 — Clareza das informações:** O aplicativo deve diferenciar claramente informações confirmadas, desatualizadas ou indisponíveis, evitando que o usuário interprete uma informação incerta como uma orientação oficial.
 
 **RNF18 — Responsividade:** A interface deve se adaptar a diferentes tamanhos e resoluções de telas de dispositivos móveis, mantendo a legibilidade e o acesso às funcionalidades principais.
+
+## 2.4 CRUD
+
+**Pontos de Coleta:**
+- **C — Criadas:** O sistema deve permitir a criação de novos pontos de coleta por administradores.
+- **R — Consultadas:** O sistema deve permitir a consulta dos pontos de coleta pelos usuários no mapa.
+- **U — Atualizadas:** O sistema deve permitir a atualização das informações de um ponto de coleta (horário, status, tipo de resíduo aceito).
+- **D — Excluídas:** O sistema deve permitir a exclusão de pontos de coleta desativados ou inexistentes.
+
+**Guia de Classificação de Resíduos:**
+- **C — Criadas:** O sistema deve permitir a inclusão de novas orientações de descarte.
+- **R — Consultadas:** O sistema deve permitir a consulta das orientações pelos usuários.
+- **U — Atualizadas:** O sistema deve permitir a atualização das orientações de descarte existentes.
+- **D — Excluídas:** O sistema deve permitir a remoção de orientações obsoletas.
+
+**Alertas de Campanha de Coleta:**
+- **C — Criadas:** O sistema deve permitir a criação de alertas de campanha por administradores.
+- **R — Consultadas:** O sistema deve permitir a consulta dos alertas pelos usuários.
+- **U — Atualizadas:** O sistema deve permitir a atualização de datas, locais e detalhes das campanhas.
+- **D — Excluídas:** O sistema deve permitir a exclusão de campanhas finalizadas ou canceladas.
+
+**Formulário de Sugestão de Ponto de Coleta:**
+- **C — Criadas:** O sistema deve permitir a criação de novas solicitações de ponto de coleta pelos usuários.
+- **R — Consultadas:** O sistema deve permitir a consulta das solicitações enviadas pelos administradores.
+- **U — Atualizadas:** O sistema deve permitir a atualização do status da solicitação (Ex: "Em análise", "Aprovado", "Concluído").
+- **D — Excluídas:** O sistema deve permitir a exclusão de solicitações inválidas ou duplicadas.
+  
