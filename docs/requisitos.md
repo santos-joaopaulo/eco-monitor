@@ -131,4 +131,20 @@ RF14 — Ponto de coleta mais próximo: O sistema deve permitir que o usuário s
 - **R — Consultadas:** O sistema deve permitir a consulta das solicitações enviadas pelos administradores.
 - **U — Atualizadas:** O sistema deve permitir a atualização do status da solicitação (Ex: "Em análise", "Aprovado", "Concluído").
 - **D — Excluídas:** O sistema deve permitir a exclusão de solicitações inválidas ou duplicadas.
-  
+
+## 2.5 Priorização
+
+### **Essenciais**
+
+*   **Mapa de pontos de coleta:** É a funcionalidade central. Sem a geolocalização dos pontos (farmácias, UBS, ecopontos), o usuário não tem como executar a ação física do descarte correto.
+*   **Guia de classificação de resíduos:** Fundamental para a missão educativa. O usuário precisa identificar a natureza do resíduo (ex: diferenciar pilha de remédio) antes de buscar o local, sob risco de contaminação cruzada ou recusa no ponto de coleta.
+*   **Acesso sem login:** Requisito mandatório definido no estudo de caso para garantir a usabilidade ("aprender em 1 minuto") e remover barreiras de entrada para usuários ocasionais.
+
+### **Importantes**
+
+*   **Filtro de busca por resíduo:** Evita o deslocamento inútil do usuário. Embora o mapa mostre os pontos, o filtro garante que a rota traçada seja para um local que *efetivamente* aceite aquele tipo específico de resíduo (ex: não adianta ir à farmácia mais próxima se ela não aceita lixo eletrônico).
+*   **Solicitação de novo ponto de coleta:** Permite que a comunidade atue na expansão da rede de logística reversa, ajudando a resolver o problema de "vazios sanitários" em bairros carentes.
+
+### **Secundárias**
+
+*   **Alertas de campanha de coleta:** Funcionalidade de engajamento e retenção. Embora útil para mutirões, o descarte de resíduos domésticos (como uma caixa de remédios vencidos) é uma necessidade imediata e individual que não depende de campanhas temporárias para ser atendida.
