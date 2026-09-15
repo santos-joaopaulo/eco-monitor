@@ -40,6 +40,33 @@
 
 ## 2.2 Requisitos funcionais
 
+RF01 — Exibição do mapa: O sistema deve exibir os pontos de coleta de resíduos disponíveis por meio de um mapa.
+
+RF02 — Identificação de proximidade: O sistema deve utilizar a localização atual do dispositivo do usuário para identificar e exibir os pontos de coleta mais próximos.
+
+RF03 — Detalhamento do ponto de coleta: O sistema deve apresentar as informações de um ponto de coleta selecionado, detalhando especificamente quais tipos de resíduos são aceitos no local.
+
+RF04 — Rota de deslocamento: O sistema deve traçar e abrir a rota de navegação a partir da localização do usuário até o ponto de coleta selecionado.
+
+RF05 — Consulta offline: O sistema deve permitir consultar as informações e localizações dos pontos de coleta previamente disponibilizados para acesso offline.
+
+RF06 — Catálogo de resíduos: O sistema deve listar as diferentes categorias de resíduos, diferenciando itens como medicamentos, pilhas, seringas e lixo eletrônico.
+
+RF07 — Orientações de descarte: O sistema deve apresentar instruções específicas sobre como preparar e realizar o descarte adequado para cada tipo de resíduo selecionado no guia.
+
+RF08 — Lista de campanhas: O sistema deve exibir as campanhas de coleta de resíduos que estejam ativas ou programadas.
+
+RF09 — Detalhamento da campanha: O sistema deve apresentar as informações disponíveis sobre uma campanha de coleta selecionada, incluindo o tipo de resíduo coletado e o local da campanha.
+
+RF10 — Formulário de sugestão: O sistema deve disponibilizar um formulário para que o usuário sugira a localização para a criação de um novo ponto de coleta.
+
+RF11 — Envio anônimo: O sistema deve enviar a solicitação de sugestão de um novo ponto de coleta de forma anônima, sem registrar dados de identificação do usuário.
+
+RF12 — Filtragem por tipo de resíduo: O sistema deve permitir que o usuário selecione categorias específicas de resíduos para realizar buscas direcionadas.
+
+RF13 — Atualização de resultados por filtro: O sistema deve atualizar os resultados exibidos no mapa, restringindo-os aos pontos que aceitam o tipo de resíduo filtrado pelo usuário.
+
+RF14 — Ponto de coleta mais próximo: O sistema deve permitir que o usuário solicite a identificação do ponto de coleta mais próximo com base em sua localização atual.
 
 ## 2.3 Requisitos não funcionais
 
