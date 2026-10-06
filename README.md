@@ -23,8 +23,8 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 # 📃 Responsabilidade de Cada Integrante
 
 ## Carlos Kayky de Oliveira Silva
-* Responsabilidade: [Desenvolver o estudo de caso, pesquisa, justificativas, requisitos funcionais, apresentação final e parcial].
-* Atividades desenvolvidas: [Criação de 6 seções do estudo de caso, incluindo o desenvolvimento do problema, público e usuários, necessidades e dificuldades dos usuários e dados relevantes para o projeto. Realização e organização da pesquisa utilizada como base para o desenvolvimento do projeto. Elaboração da apresentação final e parcial do projeto. Desenvolvimento e documentação dos requisitos funcionais do sistema, definindo e descrevendo as principais funções que o EcoMonitor deverá oferecer. Também elaborou as justificativas do projeto].
+* Responsabilidade: [Desenvolvimento do estudo de caso, pesquisa, justificativas, requisitos funcionais e estruturação das apresentações final e parcial do projeto.].
+* Atividades desenvolvidas: [Criação de seis seções do estudo de caso, abordando o problema da invisibilidade dos ecopontos, o público-alvo, as necessidades e dificuldades dos usuários e dados relevantes para o projeto, incluindo informações provenientes de fontes como SINIR+ e SciELO. Realização e organização da pesquisa utilizada como base para o desenvolvimento do projeto. Elaboração e organização visual das apresentações final e parcial, incluindo a estruturação dos slides e a organização da demonstração das funcionalidades e dos fluxos do protótipo. Desenvolvimento e documentação dos requisitos funcionais do sistema (RF01 a RF14), definindo e descrevendo as principais funcionalidades do EcoMonitor. Elaboração das justificativas técnicas e de design do projeto.].
 
 ## Enrico de Andrade Rodrigues Holanda
 * Responsabilidade: Construção das personas do projeto.
