@@ -31,3 +31,15 @@ O EcoMonitor vai ser usado por pessoas que estão com o lixo especial na mão, p
 ## 8. Arquitetura do sistema
 
 O projeto funciona como um aplicativo mobile que trabalha em conjunto com o GPS do celular para encontrar as coordenadas de onde a pessoa está e traçar a distância até os ecopontos mais próximos. A principal escolha da arquitetura foi utilizar o cacheamento de dados locais no aparelho para garantir o requisito funcional de acesso offline aos pontos de coleta. Além disso, a funcionalidade de sugerir novos pontos usa um formulário que apenas envia os dados do local de forma anônima, dispensando a necessidade de criarmos uma estrutura de autenticação de usuários para essa funcionalidade.
+
+## 9. Alterações realizadas após recomendações
+
+Após algumas recomendações feitas pela professora e conversas internas da equipe, realizamos algumas alterações no protótipo de alta fidelidade com o objetivo de melhorar a compreensão das funcionalidades e tornar a interface mais intuitiva para os usuários.
+
+Uma das mudanças foi a alteração do ícone do botão principal da tela inicial. Inicialmente, utilizávamos o símbolo de mais (+), porém percebemos que ele poderia gerar dúvidas sobre sua função. Por isso, optamos por utilizar uma **bússola**, buscando representar de forma mais clara a ideia de exploração, localização e descoberta de pontos de descarte.
+
+Também retiramos o ícone que representava o dispositivo sem conexão com a internet. Após discussões internas, entendemos que a representação utilizada não estava suficientemente clara e, por isso, estamos avaliando qual será a melhor abordagem para comunicar essa situação ao usuário em uma próxima versão do protótipo.
+
+Outra alteração ocorreu na tela do guia de descarte. O aviso que anteriormente utilizava a cor laranja passou a utilizar o **vermelho**, por entendermos que essa cor transmite de maneira mais imediata a ideia de atenção e perigo. Essa mudança busca reforçar visualmente que as informações apresentadas naquele aviso estão relacionadas a cuidados importantes durante o descarte de determinados materiais.
+
+Por fim, estamos em processo de adicionar um **campo para inserção do horário de funcionamento** na tela de sugestão de novo ponto. A inclusão dessa informação tem como objetivo tornar os dados dos pontos sugeridos mais completos e úteis para os usuários, permitindo que eles saibam não apenas onde está o local, mas também em quais horários ele pode ser utilizado.
