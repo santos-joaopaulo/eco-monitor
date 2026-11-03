@@ -24,15 +24,27 @@ Estes padrões devem ser fornecidos ao LLM ao solicitar geração ou modificaç�
 - **Manter** comentários de estrutura que organizam o arquivo, no formato:
 
 ```dart
+
+
 // Section name ------------------------------------------------------------ //
+
+
 ```
 
 - Exemplos:
 
 ```dart
+
+
 // Init -------------------------------------------------------------------- //
+
+
 // Classes ----------------------------------------------------------------- //
+
+
 // Methods ----------------------------------------------------------------- //
+
+
 ```
 
 

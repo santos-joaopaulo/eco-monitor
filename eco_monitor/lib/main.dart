@@ -1,5 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'screens/events_screen.dart';
+import 'screens/guide_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/suggest_screen.dart';
 
 
 // Init -------------------------------------------------------------------- //
@@ -20,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'EcoMonitor',
+      title: "EcoMonitor",
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF58A29D)),
       ),
@@ -41,19 +45,76 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _selectedIndex = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    GuideScreen(),
+    EventsScreen(),
+    SuggestScreen(),
+  ];
+
+  Widget _buildNavButton({
+    required int index,
+    required String label,
+    required IconData icon,
+    required Color activeColor,
+    required Color inactiveColor,
+  }) {
+    final bool isSelected = _selectedIndex == index;
+    final Color color = isSelected ? activeColor : inactiveColor;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        debugPrint("Selected tab: $label (index: $index)");
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+
+      child: SizedBox(
+        width: 48,
+        height: 48,
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: color,
+            ),
+
+            SizedBox(height: 4),
+
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final Color activeColor = Color(0xFF58A29D);
+    const Color inactiveColor = Color(0xFF9CA3AF);
+
     return Scaffold(
+      extendBody: true,
+
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Color(0xFF58A29D),
         centerTitle: true,
 
         leading: const Padding(
@@ -61,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: SizedBox(
             width: 24,
             height: 24,
-            child: Image(image: AssetImage('assets/logo.png')),
+            child: Image(image: AssetImage("assets/logo.png")),
           ),
         ),
 
@@ -71,23 +132,73 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      bottomNavigationBar: SafeArea(
+        child: Center(
+          heightFactor: 1.0,
+
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+
+              child: Container(
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(32),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+                  children: [
+                    _buildNavButton(
+                      index: 0,
+                      label: "Home",
+                      icon: Icons.home_outlined,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                    ),
+                    _buildNavButton(
+                      index: 1,
+                      label: "Guia",
+                      icon: Icons.map_outlined,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                    ),
+                    _buildNavButton(
+                      index: 2,
+                      label: "Eventos",
+                      icon: Icons.calendar_today_outlined,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                    ),
+                    _buildNavButton(
+                      index: 3,
+                      label: "Sugerir",
+                      icon: Icons.add_location_alt_outlined,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
