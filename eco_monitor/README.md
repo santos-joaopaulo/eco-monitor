@@ -1,17 +1,44 @@
-# eco_monitor
+# EcoMonitor
 
-A new Flutter project.
+Aplicativo Flutter de educação ambiental para o descarte correto de medicamentos vencidos, seringas e pilhas.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Sobre o Projeto
 
-A few resources to get you started if this is your first Flutter project:
+O EcoMonitor é uma plataforma integrada que funciona como mapa de pontos de coleta e guia informativo de classificação de resíduos. O objetivo é transformar o descarte correto em uma ação simples e rápida, conectando o cidadão ao ponto de coleta mais próximo em poucas interações.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**Funcionalidades em desenvolvimento:**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Mapa de pontos de coleta (farmácias, UBS e ecopontos)
+- Guia visual de classificação de resíduos
+- Alertas de campanhas de coleta
+- Formulário de solicitação de novos pontos de coleta
+
+**Princípios:**
+
+- Funcionamento offline
+- Aprendizado em até 1 minuto de interação
+- Dados de localização usados exclusivamente para exibir pontos de coleta próximos
+
+
+## Como Executar
+
+### Pré-requisitos
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) instalado e no `PATH`
+
+### Rodando o Projeto
+
+```bash
+cd eco_monitor
+flutter pub get
+flutter run -d web-server --web-port 3000
+```
+
+O aplicativo será servido em `http://localhost:3000`.
+
+### Build de Produção
+
+```bash
+flutter build web
+```
