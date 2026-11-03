@@ -23,6 +23,13 @@ O EcoMonitor é uma plataforma integrada que funciona como mapa de pontos de col
 
 ## Como Executar
 
+### Clonando o Repositório
+
+```bash
+git clone https://github.com/santos-joaopaulo/eco-monitor.git
+cd eco-monitor
+```
+
 ### Pré-requisitos
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) instalado e no `PATH`
