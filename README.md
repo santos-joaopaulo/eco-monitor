@@ -20,6 +20,19 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 # 🛠️ Descrição do Projeto
 O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte correto de medicamentos vencidos, pilhas, seringas e lixo eletrônico. Ele facilita a localização de pontos de coleta, orienta os usuários de forma simples e rápida e divulga campanhas de recolhimento. Feito para cidadãos, farmacêuticos, agentes de vigilância sanitária e gestores municipais, o aplicativo conecta a população às práticas de logística reversa e ajuda a prevenir a contaminação ambiental, a experiência do EcoMonitor foca em ser didática, prática e acessível, permitindo encontrar o ponto mais próximo em poucas interações, mesmo em locais com conexão instável.
 
+## Executar o aplicativo com o mapa Mapbox
+
+É necessário ter o Flutter instalado, um dispositivo Android ou emulador configurado, acesso à internet e um token público Mapbox (`pk...`). Na pasta do projeto Flutter (`eco_monitor`), instale as dependências e execute:
+
+```bash
+flutter pub get
+flutter run --dart-define=ACCESS_TOKEN=pk.seu_token_publico
+```
+
+No VS Code, também é possível iniciar a configuração **EcoMonitor (Mapbox)** em **Run and Debug**. O arquivo `eco_monitor/.vscode/launch.json` solicita o token em um campo oculto e não armazena seu valor.
+
+Não use um token secreto (`sk...`) no aplicativo nem publique o token em arquivos versionados.
+
 # 📃 Responsabilidade de Cada Integrante
 
 ## Carlos Kayky de Oliveira Silva

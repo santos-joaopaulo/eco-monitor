@@ -10,13 +10,15 @@ AGENTS.md
 .atom/.cache
 .idea/
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/launch.json
 
 # Flutter/Dart
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
-pubspec.lock
 pubspec_overrides.yaml
 
 # Android
