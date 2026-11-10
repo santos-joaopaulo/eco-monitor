@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'screens/events_screen.dart';
 import 'screens/guide_screen.dart';
 import 'screens/home_screen.dart';
@@ -10,6 +11,11 @@ import 'screens/suggest_screen.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  const accessToken = String.fromEnvironment("ACCESS_TOKEN");
+  if (accessToken.isNotEmpty) {
+    MapboxOptions.setAccessToken(accessToken);
+  }
   runApp(const MyApp());
 }
 
@@ -167,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     _buildNavButton(
                       index: 0,
-                      label: "Home",
+                      label: "Início",
                       icon: Icons.home_outlined,
                       activeColor: activeColor,
                       inactiveColor: inactiveColor,

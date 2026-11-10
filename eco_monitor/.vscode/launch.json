@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "EcoMonitor (Mapbox)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=ACCESS_TOKEN=${input:mapboxAccessToken}"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "mapboxAccessToken",
+      "type": "promptString",
+      "description": "Digite o token público do Mapbox (pk...)",
+      "password": true
+    }
+  ]
+}
