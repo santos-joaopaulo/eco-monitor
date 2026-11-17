@@ -4,30 +4,30 @@ import "../theme/eco_theme.dart";
 import "eco_card.dart";
 
 
-/// Cartão de um resíduo na lista do guia: ícone, título, descrição,
-/// botão de ação e indicador lateral (tempo/passos ou progresso).
+/// Card of one residue in the guide list: icon, title, description, action
+/// button and side indicator (time/steps or progress).
 ///
-/// Com [onPressed] nulo o botão aparece desabilitado.
-class ResiduoCard extends StatelessWidget {
-  const ResiduoCard({
+/// With [onPressed] null the button appears disabled.
+class ResidueCard extends StatelessWidget {
+  const ResidueCard({
     super.key,
-    required this.icone,
-    required this.corIcone,
-    required this.titulo,
-    required this.descricao,
-    required this.rotuloBotao,
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.description,
+    required this.buttonLabel,
     required this.info,
-    this.infoComRelogio = false,
+    this.infoWithClock = false,
     this.onPressed,
   });
 
-  final IconData icone;
-  final Color corIcone;
-  final String titulo;
-  final String descricao;
-  final String rotuloBotao;
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String description;
+  final String buttonLabel;
   final String info;
-  final bool infoComRelogio;
+  final bool infoWithClock;
   final VoidCallback? onPressed;
 
   @override
@@ -44,10 +44,10 @@ class ResiduoCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: EcoColors.tintaIcone,
+                    color: EcoColors.iconTint,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(icone, size: 32, color: corIcone),
+                  child: Icon(icon, size: 32, color: iconColor),
                 ),
               ),
               const SizedBox(width: 16),
@@ -56,20 +56,20 @@ class ResiduoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      titulo,
+                      title,
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: EcoColors.textoPrincipal,
+                        color: EcoColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      descricao,
+                      description,
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.45,
-                        color: EcoColors.textoSecundario,
+                        color: EcoColors.textSecondary,
                       ),
                     ),
                   ],
@@ -78,8 +78,9 @@ class ResiduoCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Wrap: botão à esquerda e indicador à direita; se faltar espaço
-          // (tela estreita / fonte grande) o indicador desce para a linha de baixo.
+          // Wrap: button on the left and indicator on the right; if there is
+          // not enough space (narrow screen / large font) the indicator drops
+          // to the next line.
           SizedBox(
             width: double.infinity,
             child: Wrap(
@@ -88,8 +89,8 @@ class ResiduoCard extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: [
-                _BotaoAcao(rotulo: rotuloBotao, onPressed: onPressed),
-                _Indicador(texto: info, comRelogio: infoComRelogio),
+                _ActionButton(label: buttonLabel, onPressed: onPressed),
+                _Indicator(text: info, withClock: infoWithClock),
               ],
             ),
           ),
@@ -100,10 +101,10 @@ class ResiduoCard extends StatelessWidget {
 }
 
 
-class _BotaoAcao extends StatelessWidget {
-  const _BotaoAcao({required this.rotulo, required this.onPressed});
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({required this.label, required this.onPressed});
 
-  final String rotulo;
+  final String label;
   final VoidCallback? onPressed;
 
   @override
@@ -112,13 +113,15 @@ class _BotaoAcao extends StatelessWidget {
       onPressed: onPressed,
       iconAlignment: IconAlignment.end,
       icon: const Icon(Icons.arrow_forward, size: 20),
-      label: Text(rotulo),
+      label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: EcoColors.primaria,
+        backgroundColor: EcoColors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: EcoColors.tintaIcone,
-        disabledForegroundColor: EcoColors.textoSecundario,
-        minimumSize: const Size(120, 48), // alvo de toque confortável
+        disabledBackgroundColor: EcoColors.iconTint,
+        disabledForegroundColor: EcoColors.textSecondary,
+
+        // Comfortable touch target.
+        minimumSize: const Size(120, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -128,30 +131,30 @@ class _BotaoAcao extends StatelessWidget {
 }
 
 
-class _Indicador extends StatelessWidget {
-  const _Indicador({required this.texto, required this.comRelogio});
+class _Indicator extends StatelessWidget {
+  const _Indicator({required this.text, required this.withClock});
 
-  final String texto;
-  final bool comRelogio;
+  final String text;
+  final bool withClock;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (comRelogio) ...[
+        if (withClock) ...[
           const Icon(
             Icons.schedule_outlined,
             size: 18,
-            color: EcoColors.textoSecundario,
+            color: EcoColors.textSecondary,
           ),
           const SizedBox(width: 6),
         ],
         Text(
-          texto,
+          text,
           style: const TextStyle(
             fontSize: 13,
-            color: EcoColors.textoSecundario,
+            color: EcoColors.textSecondary,
           ),
         ),
       ],

@@ -1,10 +1,9 @@
-
 import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
-import "data/guia_repository_local.dart";
+import "data/disposal_guide_repository_local.dart";
 import "screens/events_screen.dart";
-import "screens/guia_navigator.dart";
+import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
 import "screens/suggest_screen.dart";
 import "widgets/custom_bottom_nav_bar.dart";
@@ -55,27 +54,29 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const int _abaHome = 0;
-  static const int _abaGuia = 1;
+  static const int _homeTab = 0;
+  static const int _guideTab = 1;
 
-  // Raiz de composição: é aqui que a camada Data é ligada à apresentação.
-  static const GuiaRepositoryLocal _guiaRepository = GuiaRepositoryLocal();
+  // Composition root: this is where the Data layer is wired to the
+  // presentation.
+  static const DisposalGuideRepositoryLocal _guideRepository =
+    DisposalGuideRepositoryLocal();
 
-  int _selectedIndex = _abaHome;
+  int _selectedIndex = _homeTab;
 
-  void _selecionarAba(int index) {
+  void _selectTab(int index) {
     debugPrint("Selected tab: $index");
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  /// Home, Eventos e Sugerir usam o AppBar padrão. A aba Guia não passa por
-  /// aqui: o GuiaNavigator desenha o próprio AppBar em cada tela.
-  Widget _comAppBar(Widget corpo) {
+  /// Home, Events and Suggest use the default AppBar. The Guia tab does not
+  /// go through here: GuideNavigator draws its own AppBar on each screen.
+  Widget _withAppBar(Widget body) {
     return Scaffold(
       appBar: EcoAppBar(title: widget.title),
-      body: corpo,
+      body: body,
     );
   }
 
@@ -87,20 +88,20 @@ class _MyHomePageState extends State<MyHomePage> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _comAppBar(const HomeScreen()),
-          GuiaNavigator(
-            repository: _guiaRepository,
-            ativo: _selectedIndex == _abaGuia,
-            onVerPontosNoMapa: () => _selecionarAba(_abaHome),
+          _withAppBar(const HomeScreen()),
+          GuideNavigator(
+            repository: _guideRepository,
+            active: _selectedIndex == _guideTab,
+            onShowCollectionPoints: () => _selectTab(_homeTab),
           ),
-          _comAppBar(const EventsScreen()),
-          _comAppBar(const SuggestScreen()),
+          _withAppBar(const EventsScreen()),
+          _withAppBar(const SuggestScreen()),
         ],
       ),
 
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
-        onTap: _selecionarAba,
+        onTap: _selectTab,
       ),
     );
   }

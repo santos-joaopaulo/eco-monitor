@@ -4,10 +4,10 @@ import "package:flutter/services.dart";
 import "../theme/eco_theme.dart";
 
 
-/// AppBar padrão do EcoMonitor: fundo verde-água, título branco centralizado.
+/// Default EcoMonitor AppBar: sea green background, centered white title.
 ///
-/// Sem [onBack] mostra o logo (ícone branco de reciclagem) à esquerda;
-/// com [onBack] mostra a seta de voltar.
+/// Without [onBack] it shows the logo (white recycling icon) on the left;
+/// with [onBack] it shows the back arrow.
 class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EcoAppBar({super.key, required this.title, this.onBack});
 
@@ -20,13 +20,14 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: EcoColors.primaria,
+      backgroundColor: EcoColors.primary,
       foregroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: true,
       systemOverlayStyle: SystemUiOverlayStyle.light,
+
       leading: onBack == null
           ? const _Logo()
           : IconButton(
@@ -35,6 +36,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
               tooltip: "Voltar",
               onPressed: onBack,
             ),
+
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       titleTextStyle: const TextStyle(
         color: Colors.white,

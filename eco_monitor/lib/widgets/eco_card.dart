@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "../theme/eco_theme.dart";
 
 
-/// Cartão branco com cantos arredondados e sombra suave, usado nas duas telas.
+/// White card with rounded corners and a soft shadow, used by both screens.
 class EcoCard extends StatelessWidget {
   const EcoCard({
     super.key,
@@ -20,7 +20,7 @@ class EcoCard extends StatelessWidget {
       margin: EdgeInsets.zero,
       elevation: 3,
       shadowColor: Colors.black.withAlpha(40),
-      color: EcoColors.superficie,
+      color: EcoColors.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(padding: padding, child: child),

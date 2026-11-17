@@ -3,25 +3,25 @@ import "package:flutter/material.dart";
 import "../theme/eco_theme.dart";
 
 
-/// Item de uma timeline vertical: círculo numerado verde-água à esquerda,
-/// título e descrição à direita, ligados por uma linha fina.
+/// Item of a vertical timeline: numbered sea-green circle on the left, title
+/// and description on the right, joined by a thin line.
 ///
-/// Marque o último item com [ultimo] para ocultar a linha de conexão.
+/// Mark the last item with [isLast] to hide the connector line.
 class StepTimelineItem extends StatelessWidget {
   const StepTimelineItem({
     super.key,
-    required this.numero,
-    required this.titulo,
-    required this.descricao,
-    this.ultimo = false,
+    required this.number,
+    required this.title,
+    required this.description,
+    this.isLast = false,
   });
 
-  final int numero;
-  final String titulo;
-  final String descricao;
-  final bool ultimo;
+  final int number;
+  final String title;
+  final String description;
+  final bool isLast;
 
-  static const double _diametro = 34;
+  static const double _diameter = 34;
 
   @override
   Widget build(BuildContext context) {
@@ -31,19 +31,19 @@ class StepTimelineItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              width: _diametro,
+              width: _diameter,
               child: Column(
                 children: [
                   Container(
-                    width: _diametro,
-                    height: _diametro,
+                    width: _diameter,
+                    height: _diameter,
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(
-                      color: EcoColors.primaria,
+                      color: EcoColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
-                      "$numero",
+                      "$number",
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -51,12 +51,12 @@ class StepTimelineItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!ultimo)
+                  if (!isLast)
                     Expanded(
                       child: Container(
                         width: 2,
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        color: EcoColors.linhaTimeline,
+                        color: EcoColors.timelineLine,
                       ),
                     ),
                 ],
@@ -65,25 +65,25 @@ class StepTimelineItem extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.only(top: 2, bottom: ultimo ? 0 : 24),
+                padding: EdgeInsets.only(top: 2, bottom: isLast ? 0 : 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      titulo,
+                      title,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: EcoColors.textoPrincipal,
+                        color: EcoColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      descricao,
+                      description,
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.4,
-                        color: EcoColors.textoSecundario,
+                        color: EcoColors.textSecondary,
                       ),
                     ),
                   ],
