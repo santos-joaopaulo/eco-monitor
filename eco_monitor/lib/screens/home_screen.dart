@@ -77,7 +77,11 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: const Color(0xFF58A29D),
                 shape: CircleBorder(),
 
-                onPressed: () { debugPrint("Botão pressionado!"); },
+                // TODO: obtain the device location (RF14) and fly the camera
+                // to the nearest collection point. Needs a location plugin
+                // (ex. geolocator) plus the runtime permission on Android and
+                // iOS.
+                onPressed: null,
                 
                 child: const Icon(
                   Icons.my_location,

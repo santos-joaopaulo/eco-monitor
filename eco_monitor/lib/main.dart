@@ -65,7 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = _homeTab;
 
   void _selectTab(int index) {
-    debugPrint("Selected tab: $index");
     setState(() {
       _selectedIndex = index;
     });
