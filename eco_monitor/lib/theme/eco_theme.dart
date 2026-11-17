@@ -14,6 +14,10 @@ const double kEcoMaxContentWidth = 560;
 abstract final class EcoColors {
   // Identity: sea green (clean rivers)
   static const Color primary = Color(0xFF58A29D);
+
+  /// Darker primary used behind small white text (contrast 5.4:1, WCAG AA).
+  static const Color primaryAccessible = Color(0xFF2F746E);
+
   static const Color background = Color(0xFFF6F9F8);
   static const Color surface = Colors.white;
   static const Color iconTint = Color(0xFFE3F1EF);

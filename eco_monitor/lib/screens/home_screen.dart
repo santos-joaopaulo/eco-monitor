@@ -2,12 +2,20 @@
 import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
+import "../domain/entities/residue.dart";
+import "../theme/eco_theme.dart";
+import "../widgets/residue_style.dart";
+
 
 // Home screen ------------------------------------------------------------- //
 
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.residueFilter, this.onClearFilter});
+
+  /// Residue type received from the guide tab; shows the active filter.
+  final ResidueType? residueFilter;
+  final VoidCallback? onClearFilter;
 
   static const _accessToken = String.fromEnvironment("ACCESS_TOKEN");
 
@@ -64,6 +72,20 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
 
+        // TODO: filter collection points by residue type.
+        if (residueFilter != null)
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Center(
+              child: _ResidueFilterChip(
+                type: residueFilter!,
+                onClear: onClearFilter,
+              ),
+            ),
+          ),
+
         Positioned(
           left: 0,
           right: 0,
@@ -92,6 +114,53 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+
+class _ResidueFilterChip extends StatelessWidget {
+  const _ResidueFilterChip({required this.type, this.onClear});
+
+  final ResidueType type;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: EcoColors.surface,
+      elevation: 3,
+      shadowColor: Colors.black.withAlpha(40),
+      borderRadius: BorderRadius.circular(24),
+
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 4, 4, 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(type.icon, size: 20, color: type.color),
+            const SizedBox(width: 8),
+            Text(
+              "Filtro: ${type.label}",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: EcoColors.textPrimary,
+              ),
+            ),
+            if (onClear != null)
+              IconButton(
+                onPressed: onClear,
+                icon: const Icon(
+                  Icons.close,
+                  size: 20,
+                  color: EcoColors.textSecondary,
+                ),
+                tooltip: "Limpar filtro",
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

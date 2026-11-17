@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "data/disposal_guide_repository_local.dart";
+import "domain/entities/residue.dart";
 import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
@@ -64,9 +65,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _selectedIndex = _homeTab;
 
+  /// Residue type selected in the guide tab and applied to the map (RF12).
+  ResidueType? _residueFilter;
+
   void _selectTab(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  /// Opens the map tab already filtered by the residue chosen in the guide.
+  void _showCollectionPoints(ResidueType type) {
+    setState(() {
+      _residueFilter = type;
+      _selectedIndex = _homeTab;
+    });
+  }
+
+  void _clearResidueFilter() {
+    setState(() {
+      _residueFilter = null;
     });
   }
 
@@ -87,11 +105,16 @@ class _MyHomePageState extends State<MyHomePage> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _withAppBar(const HomeScreen()),
+          _withAppBar(
+            HomeScreen(
+              residueFilter: _residueFilter,
+              onClearFilter: _clearResidueFilter,
+            ),
+          ),
           GuideNavigator(
             repository: _guideRepository,
             active: _selectedIndex == _guideTab,
-            onShowCollectionPoints: () => _selectTab(_homeTab),
+            onShowCollectionPoints: _showCollectionPoints,
           ),
           _withAppBar(const EventsScreen()),
           _withAppBar(const SuggestScreen()),

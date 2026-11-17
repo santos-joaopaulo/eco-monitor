@@ -18,4 +18,11 @@ extension ResidueStyle on ResidueType {
     ResidueType.battery => EcoColors.battery,
     ResidueType.sharps => EcoColors.sharps,
   };
+
+  /// Label shown to the user (filter of the map, for example).
+  String get label => switch (this) {
+    ResidueType.medicine => "Remédios",
+    ResidueType.battery => "Pilhas e baterias",
+    ResidueType.sharps => "Seringas e agulhas",
+  };
 }

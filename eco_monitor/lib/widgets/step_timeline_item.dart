@@ -39,7 +39,7 @@ class StepTimelineItem extends StatelessWidget {
                     height: _diameter,
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(
-                      color: EcoColors.primary,
+                      color: EcoColors.primaryAccessible,
                       shape: BoxShape.circle,
                     ),
                     child: Text(

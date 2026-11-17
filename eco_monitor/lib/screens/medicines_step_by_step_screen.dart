@@ -22,8 +22,8 @@ class MedicinesStepByStepScreen extends StatelessWidget {
 
   final DisposalGuideRepository repository;
 
-  /// Called when "Ver pontos no mapa" is tapped.
-  final VoidCallback onShowCollectionPoints;
+  /// Called with the residue type when "Ver pontos no mapa" is tapped.
+  final ValueChanged<ResidueType> onShowCollectionPoints;
 
   static const double _buttonHeight = 56;
 
@@ -58,7 +58,7 @@ class _Content extends StatelessWidget {
 
   final DisposalGuide guide;
   final double buttonHeight;
-  final VoidCallback onShowCollectionPoints;
+  final ValueChanged<ResidueType> onShowCollectionPoints;
 
   @override
   Widget build(BuildContext context) {
@@ -142,11 +142,11 @@ class _Content extends StatelessWidget {
               constraints:
                 const BoxConstraints(maxWidth: kEcoMaxContentWidth - 40),
               child: ElevatedButton.icon(
-                onPressed: onShowCollectionPoints,
+                onPressed: () => onShowCollectionPoints(type),
                 icon: const Icon(Icons.location_on_outlined, size: 26),
                 label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: EcoColors.primary,
+                  backgroundColor: EcoColors.primaryAccessible,
                   foregroundColor: Colors.white,
                   elevation: 6,
                   shadowColor: Colors.black.withAlpha(80),

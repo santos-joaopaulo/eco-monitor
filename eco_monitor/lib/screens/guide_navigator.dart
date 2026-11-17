@@ -23,7 +23,10 @@ class GuideNavigator extends StatefulWidget {
 
   /// `true` when the "guia" tab is visible (controls the back button).
   final bool active;
-  final VoidCallback onShowCollectionPoints;
+
+  /// Called with the residue type after leaving the guide tab, so the map can
+  /// filter the collection points (RF12/RF13).
+  final ValueChanged<ResidueType> onShowCollectionPoints;
 
   @override
   State<GuideNavigator> createState() => _GuideNavigatorState();
@@ -58,6 +61,16 @@ class _GuideNavigatorState extends State<GuideNavigator> {
       );
   }
 
+  /// Closes the internal route (when the step-by-step is open) and only then
+  /// hands the residue type to the shell, which switches to the map tab.
+  void _showCollectionPoints(ResidueType type) {
+    final NavigatorState? navigator = _navigatorKey.currentState;
+    if (navigator != null && navigator.canPop()) {
+      navigator.pop();
+    }
+    widget.onShowCollectionPoints(type);
+  }
+
   /// Android back button: closes the step-by-step; if already on the list,
   /// behaves like the system default (exits the app).
   void _onBack(bool didPop, Object? result) {
@@ -76,7 +89,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
       builder: (BuildContext context) => switch (settings.name) {
         _medicinesRoute => MedicinesStepByStepScreen(
           repository: widget.repository,
-          onShowCollectionPoints: widget.onShowCollectionPoints,
+          onShowCollectionPoints: _showCollectionPoints,
         ),
         _ => DisposalGuideScreen(
           repository: widget.repository,
