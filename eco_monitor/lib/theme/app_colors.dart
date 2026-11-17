@@ -29,6 +29,9 @@ abstract final class AppColors {
   static const Color inactive = Color(0xFF9CA3AF);
   static const Color inactiveBackground = Color(0xFFF3F4F6);
 
+  /// Classic blue of the user location puck (high contrast over light maps).
+  static const Color userLocation = Color(0xFF1E88E5);
+
   // Biosafety warning
   static const Color warningBackground = Color(0xFFFDE2E2);
   static const Color warningText = Color(0xFF9B1C1C);
