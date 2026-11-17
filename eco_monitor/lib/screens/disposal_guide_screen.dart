@@ -8,7 +8,6 @@ import "../widgets/eco_app_bar.dart";
 import "../widgets/residue_card.dart";
 import "../widgets/residue_style.dart";
 
-
 /// Screen 1: list of residues with the button that starts each guide.
 class DisposalGuideScreen extends StatelessWidget {
   const DisposalGuideScreen({
@@ -49,8 +48,7 @@ class DisposalGuideScreen extends StatelessWidget {
                   title: residue.title,
                   description: residue.description,
                   buttonLabel: "Iniciar",
-                  info:
-                      "${residue.minutes} min · ${residue.totalSteps} passos",
+                  info: "${residue.minutes} min · ${residue.totalSteps} passos",
                   infoWithClock: true,
                   // Progress resume does not exist yet: every category starts
                   // the guide from the first step.
@@ -65,7 +63,6 @@ class DisposalGuideScreen extends StatelessWidget {
     );
   }
 }
-
 
 class _Header extends StatelessWidget {
   const _Header();

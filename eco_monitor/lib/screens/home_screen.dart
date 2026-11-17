@@ -1,4 +1,3 @@
-
 import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
@@ -6,9 +5,7 @@ import "../domain/entities/residue.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/residue_style.dart";
 
-
 // Home screen ------------------------------------------------------------- //
-
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.residueFilter, this.onClearFilter});
@@ -25,23 +22,23 @@ class HomeScreen extends StatelessWidget {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(24),
-          
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-          
+
             children: [
               Icon(Icons.map_outlined, size: 56, color: Color(0xFF58A29D)),
-          
+
               SizedBox(height: 16),
-          
+
               Text(
                 "Configure o token do Mapbox",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-          
+
               SizedBox(height: 8),
-          
+
               Text(
                 "Execute o app passando --dart-define=ACCESS_TOKEN=seu_token_publico.",
                 style: TextStyle(color: Color(0xFF6B7280)),
@@ -65,9 +62,7 @@ class HomeScreen extends StatelessWidget {
           },
 
           viewport: CameraViewportState(
-            center: Point(
-              coordinates: Position(-37.067, -10.95),
-            ),
+            center: Point(coordinates: Position(-37.067, -10.95)),
             zoom: 10.7,
           ),
         ),
@@ -94,7 +89,7 @@ class HomeScreen extends StatelessWidget {
             child: SizedBox(
               width: 72,
               height: 72,
-              
+
               child: FloatingActionButton(
                 backgroundColor: const Color(0xFF58A29D),
                 shape: CircleBorder(),
@@ -104,20 +99,16 @@ class HomeScreen extends StatelessWidget {
                 // (ex. geolocator) plus the runtime permission on Android and
                 // iOS.
                 onPressed: null,
-                
-                child: const Icon(
-                  Icons.my_location,
-                  color: Colors.white,
-                ),
-              ),  
-            ), 
+
+                child: const Icon(Icons.my_location, color: Colors.white),
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 }
-
 
 class _ResidueFilterChip extends StatelessWidget {
   const _ResidueFilterChip({required this.type, this.onClear});

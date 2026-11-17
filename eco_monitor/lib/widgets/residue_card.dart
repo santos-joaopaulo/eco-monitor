@@ -3,7 +3,6 @@ import "package:flutter/material.dart";
 import "../theme/eco_theme.dart";
 import "eco_card.dart";
 
-
 /// Card of one residue in the guide list: icon, title, description, action
 /// button and side indicator (estimated time and number of steps).
 ///
@@ -100,7 +99,6 @@ class ResidueCard extends StatelessWidget {
   }
 }
 
-
 class _ActionButton extends StatelessWidget {
   const _ActionButton({required this.label, required this.onPressed});
 
@@ -130,7 +128,6 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-
 class _Indicator extends StatelessWidget {
   const _Indicator({required this.text, required this.withClock});
 
@@ -152,10 +149,7 @@ class _Indicator extends StatelessWidget {
         ],
         Text(
           text,
-          style: const TextStyle(
-            fontSize: 13,
-            color: EcoColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 13, color: EcoColors.textSecondary),
         ),
       ],
     );

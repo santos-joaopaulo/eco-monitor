@@ -6,7 +6,6 @@ class DisposalStep {
   final String description;
 }
 
-
 /// Full content of the step-by-step screen of a residue.
 class DisposalGuide {
   const DisposalGuide({

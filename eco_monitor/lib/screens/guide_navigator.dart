@@ -6,7 +6,6 @@ import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
 import "medicines_step_by_step_screen.dart";
 
-
 /// Nested navigator of the "guia" tab.
 ///
 /// Because the [Navigator] lives *inside* the tab, the shell bottom menu
@@ -32,7 +31,6 @@ class GuideNavigator extends StatefulWidget {
   State<GuideNavigator> createState() => _GuideNavigatorState();
 }
 
-
 class _GuideNavigatorState extends State<GuideNavigator> {
   static const String _medicinesRoute = "/remedios";
 
@@ -54,10 +52,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(message),
-        ),
+        SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
       );
   }
 

@@ -3,7 +3,6 @@ import "package:flutter/material.dart";
 import "../domain/entities/residue.dart";
 import "../theme/eco_theme.dart";
 
-
 /// Icon and color of each residue type (color code of the project:
 /// orange = medicines, green = batteries, bluish grey = syringes).
 extension ResidueStyle on ResidueType {

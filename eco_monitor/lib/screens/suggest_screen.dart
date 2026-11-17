@@ -1,9 +1,6 @@
-
 import 'package:flutter/material.dart';
 
-
 // Classes ----------------------------------------------------------------- //
-
 
 class SuggestScreen extends StatelessWidget {
   const SuggestScreen({super.key});

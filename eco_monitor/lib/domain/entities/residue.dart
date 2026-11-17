@@ -1,7 +1,6 @@
 /// Waste categories handled by the disposal guide.
 enum ResidueType { medicine, battery, sharps }
 
-
 /// Summary of a residue shown in the guide list.
 class Residue {
   const Residue({

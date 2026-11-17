@@ -6,7 +6,6 @@ import "package:eco_monitor/widgets/residue_card.dart";
 
 // Helpers ------------------------------------------------------------------ //
 
-
 /// Large surface so the whole guide list and the step-by-step are laid out.
 void useTallSurface(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1600);
@@ -33,9 +32,7 @@ Future<void> openMedicineGuide(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-
 // Tests -------------------------------------------------------------------- //
-
 
 void main() {
   testWidgets("guide list opens the medicine step-by-step", (

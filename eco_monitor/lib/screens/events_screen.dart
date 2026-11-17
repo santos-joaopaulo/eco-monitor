@@ -1,9 +1,6 @@
-
 import 'package:flutter/material.dart';
 
-
 // Classes ----------------------------------------------------------------- //
-
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});

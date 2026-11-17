@@ -9,10 +9,11 @@ void main() {
   test("listResidues returns the three residue categories", () {
     final List<Residue> residues = repository.listResidues();
 
-    expect(
-      residues.map((Residue residue) => residue.type),
-      [ResidueType.medicine, ResidueType.battery, ResidueType.sharps],
-    );
+    expect(residues.map((Residue residue) => residue.type), [
+      ResidueType.medicine,
+      ResidueType.battery,
+      ResidueType.sharps,
+    ]);
   });
 
   test("stepsGuideFor(medicine) returns the four steps", () {

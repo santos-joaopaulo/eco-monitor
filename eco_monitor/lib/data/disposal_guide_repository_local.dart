@@ -2,7 +2,6 @@ import "../domain/entities/disposal_guide.dart";
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 
-
 /// Local (in memory) implementation of [DisposalGuideRepository].
 class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
   const DisposalGuideRepositoryLocal();
@@ -11,8 +10,7 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
     Residue(
       type: ResidueType.medicine,
       title: "Remédios vencidos",
-      description:
-          "Comprimidos, xaropes e pomadas. Nunca jogue no lixo comum ou no vaso.",
+      description: "Comprimidos, xaropes e pomadas. Nunca jogue no lixo comum ou no vaso.",
       minutes: 2,
       totalSteps: 4,
     ),

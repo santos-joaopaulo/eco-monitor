@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 
 import "../theme/eco_theme.dart";
 
-
 /// Biosafety warning box (pink background, red icon and text).
 class WarningBox extends StatelessWidget {
   const WarningBox({super.key, required this.message});

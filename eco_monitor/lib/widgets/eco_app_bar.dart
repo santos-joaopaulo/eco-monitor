@@ -3,7 +3,6 @@ import "package:flutter/services.dart";
 
 import "../theme/eco_theme.dart";
 
-
 /// Default EcoMonitor AppBar: sea green background, centered white title.
 ///
 /// Without [onBack] it shows the logo (white recycling icon) on the left;
@@ -47,7 +46,6 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
 
 class _Logo extends StatelessWidget {
   const _Logo();

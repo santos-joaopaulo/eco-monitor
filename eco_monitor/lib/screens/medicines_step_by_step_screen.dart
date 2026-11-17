@@ -11,7 +11,6 @@ import "../widgets/residue_style.dart";
 import "../widgets/step_timeline_item.dart";
 import "../widgets/warning_box.dart";
 
-
 /// Screen 2: step-by-step disposal of expired medicines.
 class MedicinesStepByStepScreen extends StatelessWidget {
   const MedicinesStepByStepScreen({
@@ -38,16 +37,15 @@ class MedicinesStepByStepScreen extends StatelessWidget {
         onBack: () => Navigator.of(context).maybePop(),
       ),
       body: guide == null
-        ? const Center(child: Text("Guia indisponível no momento."))
-        : _Content(
-            guide: guide,
-            buttonHeight: _buttonHeight,
-            onShowCollectionPoints: onShowCollectionPoints,
-          ),
+          ? const Center(child: Text("Guia indisponível no momento."))
+          : _Content(
+              guide: guide,
+              buttonHeight: _buttonHeight,
+              onShowCollectionPoints: onShowCollectionPoints,
+            ),
     );
   }
 }
-
 
 class _Content extends StatelessWidget {
   const _Content({
@@ -139,8 +137,9 @@ class _Content extends StatelessWidget {
           bottom: navBarInset + 16,
           child: Center(
             child: ConstrainedBox(
-              constraints:
-                const BoxConstraints(maxWidth: kEcoMaxContentWidth - 40),
+              constraints: const BoxConstraints(
+                maxWidth: kEcoMaxContentWidth - 40,
+              ),
               child: ElevatedButton.icon(
                 onPressed: () => onShowCollectionPoints(type),
                 icon: const Icon(Icons.location_on_outlined, size: 26),

@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 
 import "../theme/eco_theme.dart";
 
-
 /// Item of a vertical timeline: numbered sea-green circle on the left, title
 /// and description on the right, joined by a thin line.
 ///

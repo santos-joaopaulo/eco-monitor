@@ -10,9 +10,7 @@ import "screens/suggest_screen.dart";
 import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
 
-
 // Init -------------------------------------------------------------------- //
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,9 +21,7 @@ void main() {
   runApp(const MyApp());
 }
 
-
 // Classes ----------------------------------------------------------------- //
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -43,7 +39,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -53,7 +48,6 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
 class _MyHomePageState extends State<MyHomePage> {
   static const int _homeTab = 0;
   static const int _guideTab = 1;
@@ -61,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Composition root: this is where the Data layer is wired to the
   // presentation.
   static const DisposalGuideRepositoryLocal _guideRepository =
-    DisposalGuideRepositoryLocal();
+      DisposalGuideRepositoryLocal();
 
   int _selectedIndex = _homeTab;
 

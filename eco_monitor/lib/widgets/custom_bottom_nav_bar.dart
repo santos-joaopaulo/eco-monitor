@@ -2,12 +2,10 @@ import "package:flutter/material.dart";
 
 import "../theme/eco_theme.dart";
 
-
 /// Height of the floating bar and bottom margin (used to reserve space in
 /// lists and buttons that sit "above" the menu).
 const double kEcoNavBarHeight = 64;
 const double kEcoNavBarMargin = 16;
-
 
 /// Floating bottom menu with the 4 tabs of the app: home, guia, eventos,
 /// sugerir.
@@ -83,14 +81,12 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 }
 
-
 class _NavItem {
   const _NavItem(this.label, this.icon);
 
   final String label;
   final IconData icon;
 }
-
 
 class _NavButton extends StatelessWidget {
   const _NavButton({
@@ -105,8 +101,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color =
-        selected ? EcoColors.primary : EcoColors.textSecondary;
+    final Color color = selected ? EcoColors.primary : EcoColors.textSecondary;
 
     return Semantics(
       button: true,

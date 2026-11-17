@@ -1,7 +1,6 @@
 import "../entities/disposal_guide.dart";
 import "../entities/residue.dart";
 
-
 /// Access contract for the disposal guide content.
 ///
 /// The presentation layer depends only on this interface. Today the
