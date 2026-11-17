@@ -1,9 +1,27 @@
+// Classes ----------------------------------------------------------------- //
+
 /// A single step of the disposal guide.
 class DisposalStep {
   const DisposalStep({required this.title, required this.description});
 
   final String title;
   final String description;
+
+  // Methods --------------------------------------------------------------- //
+
+  factory DisposalStep.fromJson(Map<String, dynamic> json) {
+    return DisposalStep(
+      title: json["title"] is String ? json["title"] as String : "",
+      description: json["description"] is String
+          ? json["description"] as String
+          : "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    "title": title,
+    "description": description,
+  };
 }
 
 /// Full content of the step-by-step screen of a residue.
@@ -21,4 +39,35 @@ class DisposalGuide {
   /// Biosafety notice shown at the top of the step list.
   final String warning;
   final List<DisposalStep> steps;
+
+  // Methods --------------------------------------------------------------- //
+
+  factory DisposalGuide.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> rawSteps = switch (json["steps"]) {
+      final List<dynamic> values => values,
+      _ => const <dynamic>[],
+    };
+
+    final List<DisposalStep> steps = rawSteps
+        .whereType<Map<dynamic, dynamic>>()
+        .map(
+          (Map<dynamic, dynamic> step) =>
+              DisposalStep.fromJson(step.cast<String, dynamic>()),
+        )
+        .toList();
+
+    return DisposalGuide(
+      title: json["title"] is String ? json["title"] as String : "",
+      subtitle: json["subtitle"] is String ? json["subtitle"] as String : "",
+      warning: json["warning"] is String ? json["warning"] as String : "",
+      steps: List<DisposalStep>.unmodifiable(steps),
+    );
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    "title": title,
+    "subtitle": subtitle,
+    "warning": warning,
+    "steps": steps.map((DisposalStep step) => step.toJson()).toList(),
+  };
 }

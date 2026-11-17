@@ -1,0 +1,44 @@
+{
+  "updatedAt": "2026-11-17T08:00:00Z",
+  "campaigns": [
+    {
+      "id": "mutirao-eletronicos-orla",
+      "title": "Mutirão de Lixo Eletrônico na Orla",
+      "description": "Coleta gratuita de celulares antigos, carregadores, pilhas e pequenos eletrodomésticos com destinação certificada.",
+      "wasteTypes": ["electronics", "batteries"],
+      "locationName": "Arcos da Orla de Atalaia",
+      "address": "Av. Santos Dumont, s/n — Atalaia, Aracaju",
+      "latitude": -10.9896,
+      "longitude": -37.0432,
+      "startDate": "2026-11-15T08:00:00Z",
+      "endDate": "2026-11-30T17:00:00Z",
+      "status": "active"
+    },
+    {
+      "id": "campanha-remedios-centro",
+      "title": "Semana do Descarte Seguro de Medicamentos",
+      "description": "Ação educativa com farmacêuticos para orientar e recolher medicamentos vencidos ou em desuso.",
+      "wasteTypes": ["medicines"],
+      "locationName": "Praça Fausto Cardoso",
+      "address": "Praça Fausto Cardoso, s/n — Centro, Aracaju",
+      "latitude": -10.9111,
+      "longitude": -37.0488,
+      "startDate": "2026-12-05T08:00:00Z",
+      "endDate": "2026-12-12T16:00:00Z",
+      "status": "upcoming"
+    },
+    {
+      "id": "coleta-pilhas-parque-sementeira",
+      "title": "Ponto Extra de Pilhas e Baterias",
+      "description": "Ecoponto temporário para recolhimento de pilhas alcalinas, baterias recarregáveis e baterias de celular.",
+      "wasteTypes": ["batteries"],
+      "locationName": "Parque da Sementeira",
+      "address": "Av. Jornalista Santos Santana, s/n — Jardins, Aracaju",
+      "latitude": -10.9412,
+      "longitude": -37.0537,
+      "startDate": "2026-11-10T08:00:00Z",
+      "endDate": "2026-11-25T17:00:00Z",
+      "status": "active"
+    }
+  ]
+}

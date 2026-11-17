@@ -16,6 +16,11 @@ const String _cacheLastUpdatedKey = "collect_points_last_updated";
 /// Maximum age before local data is considered out of date.
 const Duration kCollectPointsMaxAge = Duration(days: 7);
 
+// Enums ------------------------------------------------------------------- //
+
+/// Origin of the dataset currently held by a repository (RNF10, RNF17).
+enum DataSourceOrigin { bundledAsset, localCache, remoteServer }
+
 // Types ------------------------------------------------------------------- //
 
 /// Dataset returned by a remote refresh, with the timestamp from the source.
@@ -34,17 +39,17 @@ class CollectPointsRemoteSnapshot {
 
 /// Hook used by [CollectPointsRepository.refresh] to fetch a newer dataset.
 ///
-/// There is no backend yet, so production keeps it null and always falls back
-/// to the local data instead of faking an update. The future Firebase data
-/// source will implement this contract.
+/// When null, the repository always falls back to the local cache or bundled
+/// asset instead of faking an update.
 typedef CollectPointsFetcher = Future<CollectPointsRemoteSnapshot> Function();
 
 // Classes ----------------------------------------------------------------- //
 
 /// Source of the collection points shown on the home map.
 ///
-/// [loadOffline] reads the bundled asset (or the last downloaded cache) and
-/// [refresh] only updates the cache when a [CollectPointsFetcher] is provided.
+/// [loadOffline] reads the downloaded cache (or falls back to the bundled
+/// asset) and [refresh] updates the cache when a [CollectPointsFetcher] is
+/// provided.
 class CollectPointsRepository {
   CollectPointsRepository({
     AssetBundle? assetBundle,
@@ -58,16 +63,20 @@ class CollectPointsRepository {
 
   final AssetBundle _assetBundle;
 
-  /// Optional remote source; null while there is no backend.
+  /// Optional remote source; null while offline-only.
   final CollectPointsFetcher? fetcher;
 
   final Future<SharedPreferences> Function() _preferencesFactory;
   final DateTime Function() _clock;
 
   DateTime? _lastUpdated;
+  DataSourceOrigin? _sourceOrigin;
 
   /// Timestamp of the dataset currently loaded, or null before the first load.
   DateTime? get lastUpdated => _lastUpdated;
+
+  /// Where the most recently loaded dataset came from.
+  DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
   bool get hasRemoteSource => fetcher != null;
 
@@ -94,6 +103,7 @@ class CollectPointsRepository {
         _lastUpdated = cachedTimestamp == null
             ? cached.updatedAt
             : DateTime.fromMillisecondsSinceEpoch(cachedTimestamp, isUtc: true);
+        _sourceOrigin = DataSourceOrigin.localCache;
         return cached.points;
       }
     }
@@ -101,6 +111,7 @@ class CollectPointsRepository {
     final String assetJson = await _assetBundle.loadString(kCollectPointsAsset);
     final _ParsedCollectPoints local = _parsePointsJson(assetJson);
     _lastUpdated = local.updatedAt;
+    _sourceOrigin = DataSourceOrigin.bundledAsset;
 
     return local.points;
   }
@@ -117,11 +128,16 @@ class CollectPointsRepository {
 
     try {
       final CollectPointsRemoteSnapshot remote = await fetcher();
+      if (remote.points.isEmpty) {
+        return await loadOffline();
+      }
+
       final List<CollectionPoint> points = _sorted(remote.points);
       final DateTime updatedAt = remote.updatedAt.toUtc();
 
       await _writeCache(points, updatedAt);
       _lastUpdated = updatedAt;
+      _sourceOrigin = DataSourceOrigin.remoteServer;
 
       return points;
     } catch (_) {
@@ -144,7 +160,7 @@ class CollectPointsRepository {
 
     await preferences.setString(
       _cacheJsonKey,
-      jsonEncode({
+      jsonEncode(<String, dynamic>{
         "updatedAt": updatedAt.toIso8601String(),
         "points": points
             .map((CollectionPoint point) => point.toJson())

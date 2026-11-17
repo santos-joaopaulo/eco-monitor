@@ -1,9 +1,16 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+
+import "../data/app_data_sync.dart";
+import "../data/campaigns_repository.dart";
+import "../theme/app_colors.dart";
 
 // Classes ----------------------------------------------------------------- //
 
 class EventsScreen extends StatelessWidget {
-  const EventsScreen({super.key});
+  const EventsScreen({super.key, this.repository, this.dataSync});
+
+  final CampaignsRepository? repository;
+  final AppDataSync? dataSync;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,7 @@ class EventsScreen extends StatelessWidget {
           Icon(
             Icons.calendar_today_outlined,
             size: 64,
-            color: Color(0xFF58A29D),
+            color: AppColors.primary,
           ),
 
           SizedBox(height: 16),
@@ -29,7 +36,7 @@ class EventsScreen extends StatelessWidget {
 
           Text(
             "Mutirões e campanhas temporárias de descarte.",
-            style: TextStyle(color: Color(0xFF9CA3AF)),
+            style: TextStyle(color: AppColors.textMuted),
           ),
         ],
       ),

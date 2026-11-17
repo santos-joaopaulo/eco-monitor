@@ -1,9 +1,16 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+
+import "../data/app_data_sync.dart";
+import "../data/point_suggestions_repository.dart";
+import "../theme/app_colors.dart";
 
 // Classes ----------------------------------------------------------------- //
 
 class SuggestScreen extends StatelessWidget {
-  const SuggestScreen({super.key});
+  const SuggestScreen({super.key, this.repository, this.dataSync});
+
+  final PointSuggestionsRepository? repository;
+  final AppDataSync? dataSync;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,7 @@ class SuggestScreen extends StatelessWidget {
           Icon(
             Icons.add_location_alt_outlined,
             size: 64,
-            color: Color(0xFF58A29D),
+            color: AppColors.primary,
           ),
 
           SizedBox(height: 16),
@@ -29,7 +36,7 @@ class SuggestScreen extends StatelessWidget {
 
           Text(
             "Ajude a cadastrar novos pontos de coleta.",
-            style: TextStyle(color: Color(0xFF9CA3AF)),
+            style: TextStyle(color: AppColors.textMuted),
           ),
         ],
       ),
