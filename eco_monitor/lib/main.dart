@@ -1,10 +1,14 @@
 
-import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'screens/events_screen.dart';
-import 'screens/guide_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/suggest_screen.dart';
+import "package:flutter/material.dart";
+import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
+
+import "data/guia_repository_local.dart";
+import "screens/events_screen.dart";
+import "screens/guia_navigator.dart";
+import "screens/home_screen.dart";
+import "screens/suggest_screen.dart";
+import "widgets/custom_bottom_nav_bar.dart";
+import "widgets/eco_app_bar.dart";
 
 
 // Init -------------------------------------------------------------------- //
@@ -51,160 +55,52 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  static const int _abaHome = 0;
+  static const int _abaGuia = 1;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    GuideScreen(),
-    EventsScreen(),
-    SuggestScreen(),
-  ];
+  // Raiz de composição: é aqui que a camada Data é ligada à apresentação.
+  static const GuiaRepositoryLocal _guiaRepository = GuiaRepositoryLocal();
 
-  Widget _buildNavButton({
-    required int index,
-    required String label,
-    required IconData icon,
-    required Color activeColor,
-    required Color inactiveColor,
-  }) {
-    final bool isSelected = _selectedIndex == index;
-    final Color color = isSelected ? activeColor : inactiveColor;
+  int _selectedIndex = _abaHome;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        debugPrint("Selected tab: $label (index: $index)");
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
+  void _selecionarAba(int index) {
+    debugPrint("Selected tab: $index");
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
-      child: SizedBox(
-        width: 48,
-        height: 48,
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: color,
-            ),
-
-            SizedBox(height: 4),
-
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
+  /// Home, Eventos e Sugerir usam o AppBar padrão. A aba Guia não passa por
+  /// aqui: o GuiaNavigator desenha o próprio AppBar em cada tela.
+  Widget _comAppBar(Widget corpo) {
+    return Scaffold(
+      appBar: EcoAppBar(title: widget.title),
+      body: corpo,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = Color(0xFF58A29D);
-    const Color inactiveColor = Color(0xFF9CA3AF);
-
     return Scaffold(
       extendBody: true,
 
-      appBar: AppBar(
-        backgroundColor: Color(0xFF58A29D),
-        centerTitle: true,
-
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 24),
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Image(image: AssetImage("assets/logo.png")),
-          ),
-        ),
-
-        title: Text(
-          widget.title,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-
       body: IndexedStack(
         index: _selectedIndex,
-        children: _screens,
+        children: [
+          _comAppBar(const HomeScreen()),
+          GuiaNavigator(
+            repository: _guiaRepository,
+            ativo: _selectedIndex == _abaGuia,
+            onVerPontosNoMapa: () => _selecionarAba(_abaHome),
+          ),
+          _comAppBar(const EventsScreen()),
+          _comAppBar(const SuggestScreen()),
+        ],
       ),
 
-      bottomNavigationBar: SafeArea(
-        child: Center(
-          heightFactor: 1.0,
-
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-
-            child: Padding(
-              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-
-              child: Container(
-                height: 64,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(32),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-                  children: [
-                    _buildNavButton(
-                      index: 0,
-                      label: "Início",
-                      icon: Icons.home_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 1,
-                      label: "Guia",
-                      icon: Icons.map_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 2,
-                      label: "Eventos",
-                      icon: Icons.calendar_today_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 3,
-                      label: "Sugerir",
-                      icon: Icons.add_location_alt_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _selecionarAba,
       ),
     );
   }
