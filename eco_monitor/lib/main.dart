@@ -1,10 +1,14 @@
+import "package:flutter/material.dart";
+import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
-import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'screens/events_screen.dart';
-import 'screens/guide_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/suggest_screen.dart';
+import "data/disposal_guide_repository_local.dart";
+import "domain/entities/residue.dart";
+import "screens/events_screen.dart";
+import "screens/guide_navigator.dart";
+import "screens/home_screen.dart";
+import "screens/suggest_screen.dart";
+import "widgets/custom_bottom_nav_bar.dart";
+import "widgets/eco_app_bar.dart";
 
 
 // Init -------------------------------------------------------------------- //
@@ -51,160 +55,75 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  static const int _homeTab = 0;
+  static const int _guideTab = 1;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    GuideScreen(),
-    EventsScreen(),
-    SuggestScreen(),
-  ];
+  // Composition root: this is where the Data layer is wired to the
+  // presentation.
+  static const DisposalGuideRepositoryLocal _guideRepository =
+    DisposalGuideRepositoryLocal();
 
-  Widget _buildNavButton({
-    required int index,
-    required String label,
-    required IconData icon,
-    required Color activeColor,
-    required Color inactiveColor,
-  }) {
-    final bool isSelected = _selectedIndex == index;
-    final Color color = isSelected ? activeColor : inactiveColor;
+  int _selectedIndex = _homeTab;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        debugPrint("Selected tab: $label (index: $index)");
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
+  /// Residue type selected in the guide tab and applied to the map (RF12).
+  ResidueType? _residueFilter;
 
-      child: SizedBox(
-        width: 48,
-        height: 48,
+  void _selectTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  /// Opens the map tab already filtered by the residue chosen in the guide.
+  void _showCollectionPoints(ResidueType type) {
+    setState(() {
+      _residueFilter = type;
+      _selectedIndex = _homeTab;
+    });
+  }
 
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: color,
-            ),
+  void _clearResidueFilter() {
+    setState(() {
+      _residueFilter = null;
+    });
+  }
 
-            SizedBox(height: 4),
-
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
+  /// Home, Events and Suggest use the default AppBar. The Guia tab does not
+  /// go through here: GuideNavigator draws its own AppBar on each screen.
+  Widget _withAppBar(Widget body) {
+    return Scaffold(
+      appBar: EcoAppBar(title: widget.title),
+      body: body,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = Color(0xFF58A29D);
-    const Color inactiveColor = Color(0xFF9CA3AF);
-
     return Scaffold(
       extendBody: true,
 
-      appBar: AppBar(
-        backgroundColor: Color(0xFF58A29D),
-        centerTitle: true,
-
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 24),
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Image(image: AssetImage("assets/logo.png")),
-          ),
-        ),
-
-        title: Text(
-          widget.title,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-
       body: IndexedStack(
         index: _selectedIndex,
-        children: _screens,
-      ),
-
-      bottomNavigationBar: SafeArea(
-        child: Center(
-          heightFactor: 1.0,
-
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-
-            child: Padding(
-              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-
-              child: Container(
-                height: 64,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(32),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-                  children: [
-                    _buildNavButton(
-                      index: 0,
-                      label: "Início",
-                      icon: Icons.home_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 1,
-                      label: "Guia",
-                      icon: Icons.map_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 2,
-                      label: "Eventos",
-                      icon: Icons.calendar_today_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                    _buildNavButton(
-                      index: 3,
-                      label: "Sugerir",
-                      icon: Icons.add_location_alt_outlined,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                    ),
-                  ],
-                ),
-              ),
+        children: [
+          _withAppBar(
+            HomeScreen(
+              residueFilter: _residueFilter,
+              onClearFilter: _clearResidueFilter,
             ),
           ),
-        ),
+          GuideNavigator(
+            repository: _guideRepository,
+            active: _selectedIndex == _guideTab,
+            onShowCollectionPoints: _showCollectionPoints,
+          ),
+          _withAppBar(const EventsScreen()),
+          _withAppBar(const SuggestScreen()),
+        ],
+      ),
+
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _selectTab,
       ),
     );
   }
