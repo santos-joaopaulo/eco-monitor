@@ -22,7 +22,6 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
       description: "Contêm metais pesados que contaminam solo e água.",
       minutes: 2,
       totalSteps: 4,
-      completedSteps: 2,
     ),
     Residue(
       type: ResidueType.sharps,

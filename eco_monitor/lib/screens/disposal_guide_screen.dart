@@ -48,16 +48,13 @@ class DisposalGuideScreen extends StatelessWidget {
                   iconColor: residue.type.color,
                   title: residue.title,
                   description: residue.description,
-                  buttonLabel: residue.inProgress ? "Continuar" : "Iniciar",
-                  info: residue.inProgress
-                      ? "${residue.completedSteps} de ${residue.totalSteps} passos"
-                      : "${residue.minutes} min · ${residue.totalSteps} passos",
-                  infoWithClock: !residue.inProgress,
-                  // Prototype: "Continuar" is shown disabled (see
-                  // Guia-descarte.png). When progress resume exists, replace
-                  // `null` with `() => onStartGuide(residue)`.
-                  onPressed:
-                      residue.inProgress ? null : () => onStartGuide(residue),
+                  buttonLabel: "Iniciar",
+                  info:
+                      "${residue.minutes} min · ${residue.totalSteps} passos",
+                  infoWithClock: true,
+                  // Progress resume does not exist yet: every category starts
+                  // the guide from the first step.
+                  onPressed: () => onStartGuide(residue),
                 ),
                 const SizedBox(height: 16),
               ],

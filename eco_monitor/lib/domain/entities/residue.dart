@@ -10,7 +10,6 @@ class Residue {
     required this.description,
     required this.minutes,
     required this.totalSteps,
-    this.completedSteps = 0,
   });
 
   final ResidueType type;
@@ -20,9 +19,4 @@ class Residue {
   /// Estimated time to read the full guide.
   final int minutes;
   final int totalSteps;
-  final int completedSteps;
-
-  /// `true` when the user has completed part of the steps.
-  bool get inProgress =>
-      completedSteps > 0 && completedSteps < totalSteps;
 }

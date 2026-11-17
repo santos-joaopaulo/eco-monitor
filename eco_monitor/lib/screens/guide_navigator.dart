@@ -39,18 +39,23 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     switch (residue.type) {
       case ResidueType.medicine:
         _navigatorKey.currentState?.pushNamed(_medicinesRoute);
-      case ResidueType.sharps:
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            const SnackBar(
-              behavior: SnackBarBehavior.floating,
-              content: Text("O guia de seringas e agulhas chega em breve."),
-            ),
-          );
       case ResidueType.battery:
-        break; // Battery guide not implemented yet.
+        _showGuideUnavailable("O guia de pilhas e baterias chega em breve.");
+      case ResidueType.sharps:
+        _showGuideUnavailable("O guia de seringas e agulhas chega em breve.");
     }
+  }
+
+  /// Floating warning shown when the residue guide is not available yet.
+  void _showGuideUnavailable(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(message),
+        ),
+      );
   }
 
   /// Android back button: closes the step-by-step; if already on the list,

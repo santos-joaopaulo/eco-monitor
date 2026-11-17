@@ -5,7 +5,7 @@ import "eco_card.dart";
 
 
 /// Card of one residue in the guide list: icon, title, description, action
-/// button and side indicator (time/steps or progress).
+/// button and side indicator (estimated time and number of steps).
 ///
 /// With [onPressed] null the button appears disabled.
 class ResidueCard extends StatelessWidget {
