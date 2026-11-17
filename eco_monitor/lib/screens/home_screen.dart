@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "../domain/entities/residue.dart";
+import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/residue_style.dart";
 
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
-              Icon(Icons.map_outlined, size: 56, color: Color(0xFF58A29D)),
+              Icon(Icons.map_outlined, size: 56, color: AppColors.primary),
 
               SizedBox(height: 16),
 
@@ -41,7 +42,7 @@ class HomeScreen extends StatelessWidget {
 
               Text(
                 "Execute o app passando --dart-define=ACCESS_TOKEN=seu_token_publico.",
-                style: TextStyle(color: Color(0xFF6B7280)),
+                style: TextStyle(color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -91,7 +92,7 @@ class HomeScreen extends StatelessWidget {
               height: 72,
 
               child: FloatingActionButton(
-                backgroundColor: const Color(0xFF58A29D),
+                backgroundColor: AppColors.primary,
                 shape: CircleBorder(),
 
                 // TODO: obtain the device location (RF14) and fly the camera

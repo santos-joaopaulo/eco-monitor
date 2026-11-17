@@ -7,6 +7,7 @@ import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
 import "screens/suggest_screen.dart";
+import "theme/app_colors.dart";
 import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
 
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "EcoMonitor",
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF58A29D)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
       ),
       home: const MyHomePage(title: "ECOMONITOR"),
     );
