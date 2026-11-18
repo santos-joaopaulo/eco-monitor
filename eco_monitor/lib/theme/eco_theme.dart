@@ -1,15 +1,11 @@
 import "package:flutter/material.dart";
 
-
 // Layout constants -------------------------------------------------------- //
-
 
 /// Maximum content width on wide screens (tablet / web).
 const double kEcoMaxContentWidth = 560;
 
-
 // Palette ----------------------------------------------------------------- //
-
 
 abstract final class EcoColors {
   // Identity: sea green (clean rivers)
@@ -36,4 +32,5 @@ abstract final class EcoColors {
   static const Color medicine = Color(0xFFE65100); // orange
   static const Color battery = Color(0xFF2E7D32); // green
   static const Color sharps = Color(0xFF5B7C99); // bluish grey
+  static const Color electronics = Color(0xFF5E35B1); // deep purple
 }

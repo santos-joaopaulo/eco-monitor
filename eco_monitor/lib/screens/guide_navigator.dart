@@ -4,8 +4,7 @@ import "package:flutter/services.dart";
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
-import "medicines_step_by_step_screen.dart";
-
+import "disposal_step_by_step_screen.dart";
 
 /// Nested navigator of the "guia" tab.
 ///
@@ -32,20 +31,36 @@ class GuideNavigator extends StatefulWidget {
   State<GuideNavigator> createState() => _GuideNavigatorState();
 }
 
-
 class _GuideNavigatorState extends State<GuideNavigator> {
-  static const String _medicinesRoute = "/remedios";
+  static const Map<ResidueType, String> _routesByType = {
+    ResidueType.medicine: "/remedios",
+    ResidueType.battery: "/pilhas",
+    ResidueType.sharps: "/seringas",
+    ResidueType.electronics: "/eletronicos",
+  };
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
+  ResidueType? _typeForRoute(String? routeName) {
+    for (final MapEntry<ResidueType, String> entry in _routesByType.entries) {
+      if (entry.value == routeName) {
+        return entry.key;
+      }
+    }
+    return null;
+  }
+
   void _startGuide(Residue residue) {
-    switch (residue.type) {
-      case ResidueType.medicine:
-        _navigatorKey.currentState?.pushNamed(_medicinesRoute);
-      case ResidueType.battery:
-        _showGuideUnavailable("O guia de pilhas e baterias chega em breve.");
-      case ResidueType.sharps:
-        _showGuideUnavailable("O guia de seringas e agulhas chega em breve.");
+    if (widget.repository.stepsGuideFor(residue.type) == null) {
+      _showGuideUnavailable(
+        "O guia de ${residue.title.toLowerCase()} está indisponível no momento.",
+      );
+      return;
+    }
+
+    final String? routeName = _routesByType[residue.type];
+    if (routeName != null) {
+      _navigatorKey.currentState?.pushNamed(routeName);
     }
   }
 
@@ -54,10 +69,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(message),
-        ),
+        SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
       );
   }
 
@@ -84,17 +96,23 @@ class _GuideNavigatorState extends State<GuideNavigator> {
   }
 
   Route<void> _generateRoute(RouteSettings settings) {
+    final ResidueType? residueType = _typeForRoute(settings.name);
+
     return MaterialPageRoute<void>(
       settings: settings,
-      builder: (BuildContext context) => switch (settings.name) {
-        _medicinesRoute => MedicinesStepByStepScreen(
-          repository: widget.repository,
-          onShowCollectionPoints: _showCollectionPoints,
-        ),
-        _ => DisposalGuideScreen(
+      builder: (BuildContext context) {
+        if (residueType != null) {
+          return DisposalStepByStepScreen(
+            residueType: residueType,
+            repository: widget.repository,
+            onShowCollectionPoints: _showCollectionPoints,
+          );
+        }
+
+        return DisposalGuideScreen(
           repository: widget.repository,
           onStartGuide: _startGuide,
-        ),
+        );
       },
     );
   }

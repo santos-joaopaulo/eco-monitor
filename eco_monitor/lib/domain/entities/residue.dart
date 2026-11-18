@@ -1,6 +1,5 @@
 /// Waste categories handled by the disposal guide.
-enum ResidueType { medicine, battery, sharps }
-
+enum ResidueType { medicine, battery, sharps, electronics }
 
 /// Summary of a residue shown in the guide list.
 class Residue {

@@ -11,15 +11,18 @@ import "../widgets/residue_style.dart";
 import "../widgets/step_timeline_item.dart";
 import "../widgets/warning_box.dart";
 
+// Classes ----------------------------------------------------------------- //
 
-/// Screen 2: step-by-step disposal of expired medicines.
-class MedicinesStepByStepScreen extends StatelessWidget {
-  const MedicinesStepByStepScreen({
+/// Step-by-step disposal screen shared by every residue category (RF07).
+class DisposalStepByStepScreen extends StatelessWidget {
+  const DisposalStepByStepScreen({
     super.key,
+    required this.residueType,
     required this.repository,
     required this.onShowCollectionPoints,
   });
 
+  final ResidueType residueType;
   final DisposalGuideRepository repository;
 
   /// Called with the residue type when "Ver pontos no mapa" is tapped.
@@ -29,33 +32,37 @@ class MedicinesStepByStepScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DisposalGuide? guide = repository.stepsGuideFor(ResidueType.medicine);
+    final DisposalGuide? guide = repository.stepsGuideFor(residueType);
 
     return Scaffold(
       backgroundColor: EcoColors.background,
+
       appBar: EcoAppBar(
-        title: "REMÉDIOS",
+        title: residueType.appBarTitle,
         onBack: () => Navigator.of(context).maybePop(),
       ),
+
       body: guide == null
-        ? const Center(child: Text("Guia indisponível no momento."))
-        : _Content(
-            guide: guide,
-            buttonHeight: _buttonHeight,
-            onShowCollectionPoints: onShowCollectionPoints,
-          ),
+          ? const Center(child: Text("Guia indisponível no momento."))
+          : _Content(
+              residueType: residueType,
+              guide: guide,
+              buttonHeight: _buttonHeight,
+              onShowCollectionPoints: onShowCollectionPoints,
+            ),
     );
   }
 }
 
-
 class _Content extends StatelessWidget {
   const _Content({
+    required this.residueType,
     required this.guide,
     required this.buttonHeight,
     required this.onShowCollectionPoints,
   });
 
+  final ResidueType residueType;
   final DisposalGuide guide;
   final double buttonHeight;
   final ValueChanged<ResidueType> onShowCollectionPoints;
@@ -63,7 +70,6 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double navBarInset = CustomBottomNavBar.reservedBottomInset(context);
-    const ResidueType type = ResidueType.medicine;
 
     return Stack(
       children: [
@@ -83,7 +89,11 @@ class _Content extends StatelessWidget {
                 Row(
                   children: [
                     ExcludeSemantics(
-                      child: Icon(type.icon, size: 32, color: type.color),
+                      child: Icon(
+                        residueType.icon,
+                        size: 32,
+                        color: residueType.color,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -139,10 +149,11 @@ class _Content extends StatelessWidget {
           bottom: navBarInset + 16,
           child: Center(
             child: ConstrainedBox(
-              constraints:
-                const BoxConstraints(maxWidth: kEcoMaxContentWidth - 40),
+              constraints: const BoxConstraints(
+                maxWidth: kEcoMaxContentWidth - 40,
+              ),
               child: ElevatedButton.icon(
-                onPressed: () => onShowCollectionPoints(type),
+                onPressed: () => onShowCollectionPoints(residueType),
                 icon: const Icon(Icons.location_on_outlined, size: 26),
                 label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(
