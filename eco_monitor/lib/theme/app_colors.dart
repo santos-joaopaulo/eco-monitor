@@ -38,4 +38,5 @@ abstract final class AppColors {
   static const Color medicine = Color(0xFFE65100); // orange
   static const Color battery = Color(0xFF2E7D32); // green
   static const Color sharps = Color(0xFF5B7C99); // bluish grey
+  static const Color electronics = Color(0xFF5E35B1); // deep purple
 }

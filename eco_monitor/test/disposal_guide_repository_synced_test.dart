@@ -17,8 +17,11 @@ void main() {
     final DisposalGuideRepositorySynced repository =
         DisposalGuideRepositorySynced();
 
-    expect(repository.listResidues(), hasLength(3));
+    expect(repository.listResidues(), hasLength(4));
     expect(repository.stepsGuideFor(ResidueType.medicine), isNotNull);
+    expect(repository.stepsGuideFor(ResidueType.battery), isNotNull);
+    expect(repository.stepsGuideFor(ResidueType.sharps), isNotNull);
+    expect(repository.stepsGuideFor(ResidueType.electronics), isNotNull);
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 
@@ -98,10 +101,10 @@ void main() {
         );
 
     await repository.refresh();
-    expect(repository.stepsGuideFor(ResidueType.battery), isNotNull);
+    expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(1));
 
     await repository.clearCache();
-    expect(repository.stepsGuideFor(ResidueType.battery), isNull);
+    expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(4));
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 }

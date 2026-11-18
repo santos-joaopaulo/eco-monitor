@@ -28,4 +28,5 @@ abstract final class EcoColors {
   static const Color medicine = AppColors.medicine;
   static const Color battery = AppColors.battery;
   static const Color sharps = AppColors.sharps;
+  static const Color electronics = AppColors.electronics;
 }

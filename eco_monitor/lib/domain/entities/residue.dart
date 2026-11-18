@@ -1,7 +1,7 @@
 // Enums ------------------------------------------------------------------- //
 
 /// Waste categories handled by the disposal guide.
-enum ResidueType { medicine, battery, sharps }
+enum ResidueType { medicine, battery, sharps, electronics }
 
 // Classes ----------------------------------------------------------------- //
 
@@ -62,6 +62,7 @@ ResidueType? residueTypeByName(String name) {
     "medicine" || "medicines" => ResidueType.medicine,
     "battery" || "batteries" => ResidueType.battery,
     "sharps" => ResidueType.sharps,
+    "electronics" || "electronic" => ResidueType.electronics,
     _ => null,
   };
 }

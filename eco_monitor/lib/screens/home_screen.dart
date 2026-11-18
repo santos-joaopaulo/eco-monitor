@@ -273,6 +273,7 @@ WasteType? _wasteTypeFor(ResidueType? residue) {
     ResidueType.medicine => WasteType.medicines,
     ResidueType.battery => WasteType.batteries,
     ResidueType.sharps => WasteType.sharps,
+    ResidueType.electronics => WasteType.electronics,
     null => null,
   };
 }
