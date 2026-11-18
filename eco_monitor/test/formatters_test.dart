@@ -32,4 +32,43 @@ void main() {
     expect(formatDuration(65), "1 h 5 min");
     expect(formatDuration(125), "2 h 5 min");
   });
+
+  test(
+    "formatCampaignDateRange formats same day, same month, and cross-month",
+    () {
+      expect(
+        formatCampaignDateRange(DateTime(2026, 12, 5), DateTime(2026, 12, 5)),
+        "05/12",
+      );
+      expect(
+        formatCampaignDateRange(DateTime(2026, 11, 15), DateTime(2026, 11, 30)),
+        "15–30/11",
+      );
+      expect(
+        formatCampaignDateRange(DateTime(2026, 11, 28), DateTime(2026, 12, 5)),
+        "28/11–05/12",
+      );
+    },
+  );
+
+  test("formatCampaignPeriod includes dates and optional hours", () {
+    expect(
+      formatCampaignPeriod(DateTime(2026, 11, 15), DateTime(2026, 11, 30)),
+      "15/11/2026 a 30/11/2026",
+    );
+    expect(
+      formatCampaignPeriod(
+        DateTime(2026, 11, 15, 8, 0),
+        DateTime(2026, 11, 30, 17, 30),
+      ),
+      "15/11/2026 a 30/11/2026 · 08h às 17h30",
+    );
+    expect(
+      formatCampaignPeriod(
+        DateTime(2026, 12, 5, 9, 0),
+        DateTime(2026, 12, 5, 16, 0),
+      ),
+      "05/12/2026 · 09h às 16h",
+    );
+  });
 }

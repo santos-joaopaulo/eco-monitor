@@ -6,6 +6,7 @@ import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
 import "domain/entities/residue.dart";
+import "models/campaign.dart";
 import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
@@ -66,6 +67,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const int _homeTab = 0;
   static const int _guideTab = 1;
+  static const int _eventsTab = 2;
 
   // Composition root: wires the Firebase + offline Data layer to the
   // presentation layer.
@@ -76,6 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Residue type selected in the guide tab and applied to the map (RF12).
   ResidueType? _residueFilter;
+
+  /// Campaign selected in the events tab to focus on the map (RF09).
+  Campaign? _focusedCampaign;
 
   @override
   void initState() {
@@ -104,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showCollectionPoints(ResidueType type) {
     setState(() {
       _residueFilter = type;
+      _focusedCampaign = null;
       _selectedIndex = _homeTab;
     });
   }
@@ -114,11 +120,26 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  /// Home, Events and Suggest use the default AppBar. The Guia tab does not
-  /// go through here: GuideNavigator draws its own AppBar on each screen.
-  Widget _withAppBar(Widget body) {
+  /// Opens the map tab focused on the location of a campaign (RF09).
+  void _showCampaignLocation(Campaign campaign) {
+    setState(() {
+      _focusedCampaign = campaign;
+      _residueFilter = null;
+      _selectedIndex = _homeTab;
+    });
+  }
+
+  void _clearFocusedCampaign() {
+    setState(() {
+      _focusedCampaign = null;
+    });
+  }
+
+  /// Wraps a tab with the standard [EcoAppBar]. The Guia tab does not go
+  /// through here: GuideNavigator draws its own AppBar on each screen.
+  Widget _withAppBar(Widget body, {String? title}) {
     return Scaffold(
-      appBar: EcoAppBar(title: widget.title),
+      appBar: EcoAppBar(title: title ?? widget.title),
       body: body,
     );
   }
@@ -153,6 +174,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       HomeScreen(
                         residueFilter: _residueFilter,
                         onClearFilter: _clearResidueFilter,
+                        focusedCampaign: _focusedCampaign,
+                        onClearCampaign: _clearFocusedCampaign,
                         repository: _dataSync.collectPointsRepository,
                         dataSync: _dataSync,
                       ),
@@ -163,10 +186,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       onShowCollectionPoints: _showCollectionPoints,
                     ),
                     _withAppBar(
-                      EventsScreen(
-                        repository: _dataSync.campaignsRepository,
-                        dataSync: _dataSync,
+                      TickerMode(
+                        enabled: _selectedIndex == _eventsTab,
+                        child: EventsScreen(
+                          repository: _dataSync.campaignsRepository,
+                          dataSync: _dataSync,
+                          onShowCampaignLocation: _showCampaignLocation,
+                        ),
                       ),
+                      title: "CAMPANHAS ATIVAS",
                     ),
                     _withAppBar(
                       SuggestScreen(

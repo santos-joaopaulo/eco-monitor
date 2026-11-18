@@ -1,44 +1,509 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/campaigns_repository.dart";
+import "../models/campaign.dart";
 import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
+import "../widgets/campaign_card.dart";
+import "../widgets/campaign_details_sheet.dart";
+import "../widgets/custom_bottom_nav_bar.dart";
+
+// Enums ------------------------------------------------------------------- //
+
+/// Status filter chips shown at the top of the campaigns list (RF08).
+enum CampaignFilter { all, active, upcoming }
 
 // Classes ----------------------------------------------------------------- //
 
-class EventsScreen extends StatelessWidget {
-  const EventsScreen({super.key, this.repository, this.dataSync});
+/// Screen listing active and upcoming collection campaigns (RF08, RF09).
+class EventsScreen extends StatefulWidget {
+  const EventsScreen({
+    super.key,
+    this.repository,
+    this.dataSync,
+    this.onShowCampaignLocation,
+  });
 
   final CampaignsRepository? repository;
   final AppDataSync? dataSync;
 
+  /// Called when the user taps "Ver local" on a campaign card or detail sheet.
+  final ValueChanged<Campaign>? onShowCampaignLocation;
+
+  @override
+  State<EventsScreen> createState() => _EventsScreenState();
+}
+
+class _EventsScreenState extends State<EventsScreen> {
+  CampaignFilter _filter = CampaignFilter.all;
+  List<Campaign> _campaigns = const <Campaign>[];
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.dataSync?.addListener(_onSyncUpdated);
+    unawaited(_loadCampaigns());
+  }
+
+  @override
+  void didUpdateWidget(covariant EventsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataSync != widget.dataSync) {
+      oldWidget.dataSync?.removeListener(_onSyncUpdated);
+      widget.dataSync?.addListener(_onSyncUpdated);
+      _onSyncUpdated();
+    } else if (oldWidget.repository != widget.repository) {
+      unawaited(_loadCampaigns());
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.dataSync?.removeListener(_onSyncUpdated);
+    super.dispose();
+  }
+
+  void _onSyncUpdated() {
+    final AppDataSync? sync = widget.dataSync;
+    if (sync == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _campaigns = sync.campaigns;
+      if (_campaigns.isNotEmpty || !sync.isSyncing) {
+        _isLoading = false;
+        _hasError = false;
+      }
+    });
+  }
+
+  Future<void> _loadCampaigns() async {
+    final AppDataSync? sync = widget.dataSync;
+    if (sync != null && sync.campaigns.isNotEmpty) {
+      if (mounted) {
+        setState(() {
+          _campaigns = sync.campaigns;
+          _isLoading = false;
+          _hasError = false;
+        });
+      }
+      return;
+    }
+
+    final CampaignsRepository? repository =
+        widget.repository ?? sync?.campaignsRepository;
+    if (repository == null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = _campaigns.isEmpty;
+        _hasError = false;
+      });
+    }
+
+    try {
+      final List<Campaign> offline = await repository.loadOffline();
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _campaigns = offline;
+        _isLoading = false;
+        _hasError = false;
+      });
+
+      if (sync == null && repository.hasRemoteSource) {
+        final List<Campaign> refreshed = await repository.refresh();
+        if (mounted) {
+          setState(() {
+            _campaigns = refreshed;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = _campaigns.isEmpty;
+        });
+      }
+    }
+  }
+
+  Future<void> _refreshCampaigns() async {
+    final AppDataSync? sync = widget.dataSync;
+    if (sync != null) {
+      await sync.refreshAll();
+      return;
+    }
+
+    final CampaignsRepository? repository = widget.repository;
+    if (repository == null) {
+      return;
+    }
+
+    try {
+      final List<Campaign> refreshed = await repository.refresh();
+      if (mounted) {
+        setState(() {
+          _campaigns = refreshed;
+          _hasError = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _hasError = _campaigns.isEmpty;
+        });
+      }
+    }
+  }
+
+  List<Campaign> get _filteredCampaigns {
+    return switch (_filter) {
+      CampaignFilter.all => _campaigns,
+      CampaignFilter.active =>
+        _campaigns.where((Campaign c) => c.isActive).toList(),
+      CampaignFilter.upcoming =>
+        _campaigns.where((Campaign c) => c.isUpcoming).toList(),
+    };
+  }
+
+  void _openDetails(Campaign campaign) {
+    unawaited(
+      showCampaignDetailsSheet(
+        context: context,
+        campaign: campaign,
+        onViewLocation: () => _handleViewLocation(campaign),
+      ),
+    );
+  }
+
+  void _handleViewLocation(Campaign campaign) {
+    final ValueChanged<Campaign>? callback = widget.onShowCampaignLocation;
+    if (callback != null) {
+      callback(campaign);
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Local: ${campaign.locationName}"),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    final List<Campaign> visibleCampaigns = _filteredCampaigns;
+    final double bottomInset = CustomBottomNavBar.reservedBottomInset(context);
 
+    return ColoredBox(
+      color: AppColors.background,
+
+      child: Align(
+        alignment: Alignment.topCenter,
+
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+
+          child: Column(
+            children: [
+              _FilterChipBar(
+                selected: _filter,
+                onSelected: (CampaignFilter filter) {
+                  setState(() {
+                    _filter = filter;
+                  });
+                },
+              ),
+
+              Expanded(
+                child: _buildBody(
+                  visibleCampaigns: visibleCampaigns,
+                  bottomInset: bottomInset,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody({
+    required List<Campaign> visibleCampaigns,
+    required double bottomInset,
+  }) {
+    if (_isLoading && _campaigns.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primaryAccessible),
+      );
+    }
+
+    if (_hasError && _campaigns.isEmpty) {
+      return _FeedbackState(
+        icon: Icons.error_outline_rounded,
+        title: "Não foi possível carregar as campanhas",
+        subtitle: "Verifique sua conexão e tente novamente.",
+        actionLabel: "Tentar novamente",
+        onAction: _loadCampaigns,
+        bottomInset: bottomInset,
+      );
+    }
+
+    if (visibleCampaigns.isEmpty) {
+      final bool hasOtherCampaigns =
+          _filter != CampaignFilter.all && _campaigns.isNotEmpty;
+
+      final String emptyTitle = switch (_filter) {
+        CampaignFilter.all => "Nenhuma campanha disponível",
+        CampaignFilter.active => "Nenhuma campanha ativa no momento",
+        CampaignFilter.upcoming => "Nenhuma campanha programada",
+      };
+
+      final String emptySubtitle = hasOtherCampaigns
+          ? "Experimente alterar o filtro para ver outras campanhas."
+          : "Novos mutirões e pontos extras de coleta aparecerão aqui.";
+
+      return _FeedbackState(
+        icon: Icons.event_busy_outlined,
+        title: emptyTitle,
+        subtitle: emptySubtitle,
+        actionLabel: hasOtherCampaigns ? "Ver todas" : "Atualizar",
+        onAction: hasOtherCampaigns
+            ? () => setState(() => _filter = CampaignFilter.all)
+            : _refreshCampaigns,
+        bottomInset: bottomInset,
+      );
+    }
+
+    return RefreshIndicator(
+      color: AppColors.primaryAccessible,
+      onRefresh: _refreshCampaigns,
+
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(20, 8, 20, bottomInset + 16),
+        itemCount: visibleCampaigns.length,
+        separatorBuilder: (BuildContext context, int index) =>
+            const SizedBox(height: 16),
+        itemBuilder: (BuildContext context, int index) {
+          final Campaign campaign = visibleCampaigns[index];
+
+          return CampaignCard(
+            campaign: campaign,
+            onTap: () => _openDetails(campaign),
+            onViewLocation: () => _handleViewLocation(campaign),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _FilterChipBar extends StatelessWidget {
+  const _FilterChipBar({required this.selected, required this.onSelected});
+
+  final CampaignFilter selected;
+  final ValueChanged<CampaignFilter> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+
+      child: Row(
         children: [
-          Icon(
-            Icons.calendar_today_outlined,
-            size: 64,
-            color: AppColors.primary,
+          _FilterPill(
+            label: "Todas",
+            icon: Icons.grid_view_rounded,
+            selected: selected == CampaignFilter.all,
+            onTap: () => onSelected(CampaignFilter.all),
           ),
+          const SizedBox(width: 10),
 
-          SizedBox(height: 16),
-
-          Text(
-            "Campanhas Ativas",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          _FilterPill(
+            label: "Ativas",
+            icon: Icons.check_circle_outline_rounded,
+            selected: selected == CampaignFilter.active,
+            onTap: () => onSelected(CampaignFilter.active),
           ),
+          const SizedBox(width: 10),
 
-          SizedBox(height: 8),
-
-          Text(
-            "Mutirões e campanhas temporárias de descarte.",
-            style: TextStyle(color: AppColors.textMuted),
+          _FilterPill(
+            label: "Em breve",
+            icon: Icons.schedule_outlined,
+            selected: selected == CampaignFilter.upcoming,
+            onTap: () => onSelected(CampaignFilter.upcoming),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FilterPill extends StatelessWidget {
+  const _FilterPill({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color background = selected
+        ? AppColors.primaryAccessible
+        : AppColors.surface;
+    final Color foreground = selected ? Colors.white : AppColors.textPrimary;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+
+      child: Material(
+        color: background,
+        elevation: selected ? 2 : 1,
+        shadowColor: Colors.black.withAlpha(35),
+        borderRadius: BorderRadius.circular(24),
+
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 44),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 18,
+                  color: selected ? Colors.white : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: foreground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FeedbackState extends StatelessWidget {
+  const _FeedbackState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.onAction,
+    required this.bottomInset,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final VoidCallback onAction;
+  final double bottomInset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(28, 24, 28, bottomInset + 24),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.iconTint,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(icon, size: 32, color: AppColors.primaryAccessible),
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.45,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            FilledButton(
+              onPressed: onAction,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primaryAccessible,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(160, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              child: Text(actionLabel),
+            ),
+          ],
+        ),
       ),
     );
   }

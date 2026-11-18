@@ -1,9 +1,12 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
 import "../domain/entities/residue.dart";
+import "../models/campaign.dart";
 import "../models/collection_point.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -16,6 +19,8 @@ class HomeScreen extends StatefulWidget {
     super.key,
     this.residueFilter,
     this.onClearFilter,
+    this.focusedCampaign,
+    this.onClearCampaign,
     this.repository,
     this.dataSync,
   });
@@ -23,6 +28,10 @@ class HomeScreen extends StatefulWidget {
   /// Residue type received from the guide tab; shows the active filter.
   final ResidueType? residueFilter;
   final VoidCallback? onClearFilter;
+
+  /// Campaign received from the events tab to focus on the map (RF09).
+  final Campaign? focusedCampaign;
+  final VoidCallback? onClearCampaign;
 
   /// Offline-first repository for collection points (RF05, RNF11).
   final CollectPointsRepository? repository;
@@ -37,6 +46,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const _accessToken = String.fromEnvironment("ACCESS_TOKEN");
 
+  MapboxMap? _mapboxMap;
   List<CollectionPoint> _points = const <CollectionPoint>[];
 
   @override
@@ -54,6 +64,28 @@ class _HomeScreenState extends State<HomeScreen> {
       widget.dataSync?.addListener(_onSyncUpdated);
       _onSyncUpdated();
     }
+
+    final Campaign? nextCampaign = widget.focusedCampaign;
+    if (nextCampaign != null && nextCampaign != oldWidget.focusedCampaign) {
+      unawaited(_flyToCampaign(nextCampaign));
+    }
+  }
+
+  Future<void> _flyToCampaign(Campaign campaign) async {
+    final MapboxMap? map = _mapboxMap;
+    if (map == null) {
+      return;
+    }
+
+    await map.flyTo(
+      CameraOptions(
+        center: Point(
+          coordinates: Position(campaign.longitude, campaign.latitude),
+        ),
+        zoom: 15.0,
+      ),
+      MapAnimationOptions(duration: 800),
+    );
   }
 
   @override
@@ -119,35 +151,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Campaign? focusedCampaign = widget.focusedCampaign;
+
     if (_accessToken.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
+      return Stack(
+        children: [
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
 
-            children: [
-              Icon(Icons.map_outlined, size: 56, color: AppColors.primary),
+                children: [
+                  Icon(Icons.map_outlined, size: 56, color: AppColors.primary),
 
-              SizedBox(height: 16),
+                  SizedBox(height: 16),
 
-              Text(
-                "Configure o token do Mapbox",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+                  Text(
+                    "Configure o token do Mapbox",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+                    "Execute o app passando --dart-define=ACCESS_TOKEN=seu_token_publico.",
+                    style: TextStyle(color: AppColors.textMuted),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-
-              SizedBox(height: 8),
-
-              Text(
-                "Execute o app passando --dart-define=ACCESS_TOKEN=seu_token_publico.",
-                style: TextStyle(color: AppColors.textMuted),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        ),
+
+          if (focusedCampaign != null)
+            Positioned(
+              top: 16,
+              left: 16,
+              right: 16,
+              child: Center(
+                child: _FocusedCampaignChip(
+                  campaign: focusedCampaign,
+                  onClear: widget.onClearCampaign,
+                ),
+              ),
+            ),
+        ],
       );
     }
 
@@ -159,9 +210,13 @@ class _HomeScreenState extends State<HomeScreen> {
           key: const ValueKey("aracaju-map"),
 
           onMapCreated: (MapboxMap mapboxMap) async {
+            _mapboxMap = mapboxMap;
             await mapboxMap.scaleBar.updateSettings(
               ScaleBarSettings(enabled: false),
             );
+            if (focusedCampaign != null) {
+              await _flyToCampaign(focusedCampaign);
+            }
           },
 
           viewport: CameraViewportState(
@@ -170,7 +225,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
-        if (widget.residueFilter != null)
+        if (focusedCampaign != null)
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Center(
+              child: _FocusedCampaignChip(
+                campaign: focusedCampaign,
+                onClear: widget.onClearCampaign,
+              ),
+            ),
+          )
+        else if (widget.residueFilter != null)
           Positioned(
             top: 16,
             left: 16,
@@ -260,6 +327,81 @@ class _ResidueFilterChip extends StatelessWidget {
                 tooltip: "Limpar filtro",
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FocusedCampaignChip extends StatelessWidget {
+  const _FocusedCampaignChip({required this.campaign, this.onClear});
+
+  final Campaign campaign;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth - 32),
+
+      child: Material(
+        color: EcoColors.surface,
+        elevation: 4,
+        shadowColor: Colors.black.withAlpha(45),
+        borderRadius: BorderRadius.circular(18),
+
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+
+          child: Row(
+            children: [
+              const Icon(
+                Icons.event_available_rounded,
+                size: 22,
+                color: AppColors.primaryAccessible,
+              ),
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      campaign.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: EcoColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      campaign.locationName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: EcoColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (onClear != null)
+                IconButton(
+                  onPressed: onClear,
+                  icon: const Icon(
+                    Icons.close,
+                    size: 20,
+                    color: EcoColors.textSecondary,
+                  ),
+                  tooltip: "Fechar campanha",
+                ),
+            ],
+          ),
         ),
       ),
     );
