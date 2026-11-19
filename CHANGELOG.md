@@ -85,3 +85,20 @@
 
 - Remoção do progresso fictício das pilhas, com aviso de guia indisponível para pilhas e seringas.
 - Remoção de prints de debug e substituição do teste de template que falhava.
+
+## [19-11-2026]
+
+### Adicionado
+
+- Marcadores dos pontos de coleta no mapa com pin próprio por tipo (farmácia, UBS, ecoponto) e ocultação dos POIs do estilo Mapbox.
+- Filtros por resíduo na tela inicial como pills de seleção múltipla (Remédios, Seringas, Pilhas), com filtragem dos marcadores e estado vazio em português.
+- Card de detalhamento do ponto selecionado com tipo, distância, endereço, status, materiais aceitados, horário e botões Cancelar / Iniciar rota.
+- Rota aproximada até o ponto (polyline) com painel de Destino, Distância e Tempo estimado, e navegação externa via `url_launcher`.
+- Geolocalização do usuário com indicador azul, estados de permissão tratados e avisos de localização com ação.
+- Testes de filtragem de pontos, serviço de rota e aviso de localização.
+
+### Alterado
+
+- Paleta da tela inicial passou a usar os tokens de `AppColors`/`EcoColors`, sem cores hardcoded fora dos arquivos de tema.
+- Largura de conteúdo padronizada pela barra de navegação (`kEcoMaxContentWidth`), aplicada a guia, eventos, passo a passo, filtros, chip de campanha, card do ponto e painel de rota.
+- Rota exige conexão: o botão informa quando a rede está indisponível.

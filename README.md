@@ -3,9 +3,9 @@
 
 ### Ajustes e melhorias
 O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas para as seguintes tarefas:
-- [ ] Mapa de pontos de coleta
-- [ ] Guia visual de resíduos
-- [ ] Alertas de campanhas
+- [ ] Mapa de pontos de coleta (marcadores, filtros, geolocalização, card do ponto e rota aproximada prontos; falta a ação de ponto mais próximo, cache de tiles offline e testes da tela)
+- [x] Guia visual de resíduos (remédios, pilhas, seringas e lixo eletrônico)
+- [ ] Alertas de campanhas (lista, filtros, detalhe e vínculo com o mapa prontos; falta notificações)
 
 # 🤝 Integrantes 
 * Carlos Kayky de Oliveira Silva
