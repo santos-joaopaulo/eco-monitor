@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
@@ -9,12 +10,17 @@ import "../domain/entities/residue.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
+import "../services/route_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
+import "../utils/geo.dart";
 import "../utils/point_filters.dart";
+import "../widgets/collect_point_sheet.dart";
 import "../widgets/collect_points_layer.dart";
+import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/filter_bar.dart";
 import "../widgets/location_notice.dart";
+import "../widgets/route_summary_card.dart";
 
 // Home screen ------------------------------------------------------------- //
 
@@ -59,12 +65,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   static const _accessToken = String.fromEnvironment("ACCESS_TOKEN");
   static const double _userZoom = 14;
 
+  final RouteService _routeService = const RouteService();
+
   MapboxMap? _mapboxMap;
   CollectPointsLayer? _pointsLayer;
+  PolylineAnnotationManager? _routeManager;
 
   List<CollectionPoint> _points = const <CollectionPoint>[];
   Set<WasteType> _selectedWasteTypes = const <WasteType>{};
   CollectionPoint? _selectedPoint;
+  RouteSummary? _routeSummary;
+  bool _isRouteActive = false;
   bool _isLoadingPoints = true;
 
   LocationPermissionState? _permissionState;
@@ -94,6 +105,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _onSyncUpdated();
     }
 
+    if (oldWidget.isActive && !widget.isActive) {
+      unawaited(_dismissSelection());
+    }
+
     if (oldWidget.residueFilter != widget.residueFilter) {
       _applyWasteSelection(_selectionForResidue(widget.residueFilter));
     }
@@ -116,6 +131,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     widget.dataSync?.removeListener(_onSyncUpdated);
     _pointsLayer?.dispose();
+
+    final PolylineAnnotationManager? routeManager = _routeManager;
+    if (routeManager != null) {
+      unawaited(routeManager.deleteAll().catchError((Object _) {}));
+    }
+
     super.dispose();
   }
 
@@ -366,15 +387,145 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _handlePointSelected(CollectionPoint point) {
+  Future<void> _handlePointSelected(CollectionPoint point) async {
+    if (!mounted) {
+      return;
+    }
+
+    await _clearRouteLine();
     if (!mounted) {
       return;
     }
 
     setState(() {
       _selectedPoint = point;
+      _routeSummary = null;
+      _isRouteActive = false;
     });
     _syncPointsLayer();
+
+    await _focusPoint(point);
+  }
+
+  Future<void> _focusPoint(CollectionPoint point) async {
+    final MapboxMap? map = _mapboxMap;
+    if (map == null || !mounted) {
+      return;
+    }
+
+    final double bottomPadding =
+        CustomBottomNavBar.reservedBottomInset(context) + 240;
+
+    await map.easeTo(
+      CameraOptions(
+        center: Point(coordinates: Position(point.longitude, point.latitude)),
+        zoom: 15.5,
+        padding: MbxEdgeInsets(
+          top: 96,
+          left: 24,
+          bottom: bottomPadding,
+          right: 24,
+        ),
+      ),
+      MapAnimationOptions(duration: 600),
+    );
+  }
+
+  Future<void> _dismissSelection() async {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _selectedPoint = null;
+      _routeSummary = null;
+      _isRouteActive = false;
+    });
+    _syncPointsLayer();
+    await _clearRouteLine();
+  }
+
+  Future<void> _handleStartRoute() async {
+    final CollectionPoint? point = _selectedPoint;
+    if (point == null) {
+      return;
+    }
+
+    final AppDataSync? sync = widget.dataSync;
+    if (sync != null && !sync.isOnline) {
+      _showMessage("A rota exige conexão com a internet.");
+      return;
+    }
+
+    final UserLocation? userLocation = _userLocation;
+    final RouteSummary? summary = userLocation == null
+        ? null
+        : _routeService.buildRouteSummary(userLocation, point);
+
+    setState(() {
+      _isRouteActive = true;
+      _routeSummary = summary;
+    });
+
+    await _drawRouteLine(point);
+
+    final bool opened = await _routeService.openNavigation(point);
+    if (!mounted) {
+      return;
+    }
+
+    if (!opened) {
+      _showMessage("Não foi possível abrir o app de mapas.");
+    }
+  }
+
+  Future<void> _drawRouteLine(CollectionPoint point) async {
+    final MapboxMap? map = _mapboxMap;
+    final UserLocation? userLocation = _userLocation;
+
+    if (kIsWeb || map == null || userLocation == null) {
+      return;
+    }
+
+    try {
+      _routeManager ??= await map.annotations.createPolylineAnnotationManager();
+      final PolylineAnnotationManager? manager = _routeManager;
+      if (manager == null) {
+        return;
+      }
+
+      await manager.deleteAll();
+      await manager.create(
+        PolylineAnnotationOptions(
+          geometry: LineString(
+            coordinates: <Position>[
+              Position(userLocation.longitude, userLocation.latitude),
+              Position(point.longitude, point.latitude),
+            ],
+          ),
+          lineColor: AppColors.primary.toARGB32(),
+          lineWidth: 5,
+          lineBorderColor: Colors.white.toARGB32(),
+          lineBorderWidth: 3,
+          lineJoin: LineJoin.ROUND,
+        ),
+      );
+    } catch (_) {
+      // The route panel still informs the user when the line cannot be drawn.
+    }
+  }
+
+  Future<void> _clearRouteLine() async {
+    final PolylineAnnotationManager? manager = _routeManager;
+    if (manager == null) {
+      return;
+    }
+
+    try {
+      await manager.deleteAll();
+    } catch (_) {
+      // Nothing to clear when the map is not ready.
+    }
   }
 
   void _handleFilterChanged(Set<WasteType> selection) {
@@ -397,8 +548,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       if (hideSelection) {
         _selectedPoint = null;
+        _routeSummary = null;
+        _isRouteActive = false;
       }
     });
+
+    if (hideSelection) {
+      unawaited(_clearRouteLine());
+    }
 
     _syncPointsLayer();
   }
@@ -410,6 +567,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
 
     layer.update(_filteredPoints, selectedId: _selectedPoint?.id);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget? _buildLocationNotice() {
@@ -459,6 +622,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   List<CollectionPoint> get _filteredPoints {
     return filterCollectionPoints(_points, _selectedWasteTypes);
+  }
+
+  double? get _distanceToSelectedPoint {
+    final CollectionPoint? point = _selectedPoint;
+    final UserLocation? location = _userLocation;
+    if (point == null || location == null) {
+      return null;
+    }
+
+    return distanceInMeters(
+      location.latitude,
+      location.longitude,
+      point.latitude,
+      point.longitude,
+    );
   }
 
   // Build ----------------------------------------------------------------- //
@@ -519,6 +697,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     final List<CollectionPoint> visiblePoints = _filteredPoints;
     final Widget? locationNotice = _buildLocationNotice();
+    final CollectionPoint? selectedPoint = _selectedPoint;
+    final double cardBottom =
+        CustomBottomNavBar.reservedBottomInset(context) + 8;
 
     return Stack(
       children: [
@@ -567,7 +748,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       message: "Carregando pontos...",
                       isLoading: true,
                     ),
-                  ] else if (visiblePoints.isEmpty) ...[
+                  ] else if (visiblePoints.isEmpty &&
+                      selectedPoint == null) ...[
                     const SizedBox(height: 8),
 
                     _MapStatusPill(
@@ -593,27 +775,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
 
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: (80 + 32),
+        if (selectedPoint == null)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: (80 + 32),
 
-          child: Center(
-            child: SizedBox(
-              width: 72,
-              height: 72,
+            child: Center(
+              child: SizedBox(
+                width: 72,
+                height: 72,
 
-              child: FloatingActionButton(
-                backgroundColor: AppColors.primary,
-                shape: const CircleBorder(),
-                tooltip: "Centralizar na minha localização",
-                onPressed: _handleLocationAction,
+                child: FloatingActionButton(
+                  backgroundColor: AppColors.primary,
+                  shape: const CircleBorder(),
+                  tooltip: "Centralizar na minha localização",
+                  onPressed: _handleLocationAction,
 
-                child: const Icon(Icons.my_location, color: Colors.white),
+                  child: const Icon(Icons.my_location, color: Colors.white),
+                ),
               ),
             ),
           ),
-        ),
+
+        if (selectedPoint != null)
+          Positioned(
+            left: 12,
+            right: 12,
+            bottom: cardBottom,
+
+            child: _isRouteActive
+                ? RouteSummaryCard(
+                    point: selectedPoint,
+                    summary: _routeSummary,
+                    onClose: () => unawaited(_dismissSelection()),
+                  )
+                : CollectPointSheet(
+                    point: selectedPoint,
+                    distanceMeters: _distanceToSelectedPoint,
+                    activeFilter: _selectedWasteTypes,
+                    isDataStale: widget.dataSync?.isStale ?? false,
+                    onCancel: () => unawaited(_dismissSelection()),
+                    onStartRoute: () => unawaited(_handleStartRoute()),
+                  ),
+          ),
       ],
     );
   }

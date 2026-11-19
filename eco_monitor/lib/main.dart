@@ -178,6 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onClearCampaign: _clearFocusedCampaign,
                         repository: _dataSync.collectPointsRepository,
                         dataSync: _dataSync,
+                        isActive: _selectedIndex == _homeTab,
                       ),
                     ),
                     GuideNavigator(
