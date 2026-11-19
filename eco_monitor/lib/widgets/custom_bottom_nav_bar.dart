@@ -43,10 +43,15 @@ class CustomBottomNavBar extends StatelessWidget {
       top: false,
       child: Center(
         heightFactor: 1.0,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 500),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, kEcoNavBarMargin),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            kEcoContentHorizontalPadding,
+            0,
+            kEcoContentHorizontalPadding,
+            kEcoNavBarMargin,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
             child: Material(
               color: Colors.white,
               elevation: 8,

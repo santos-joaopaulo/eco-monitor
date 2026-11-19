@@ -28,35 +28,41 @@ class DisposalGuideScreen extends StatelessWidget {
       appBar: const EcoAppBar(title: "GUIA DE DESCARTE"),
       body: Align(
         alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-          child: ListView(
-            // The bottom menu floats over the content: reserve its space.
-            padding: EdgeInsets.fromLTRB(
-              20,
-              24,
-              20,
-              CustomBottomNavBar.reservedBottomInset(context),
-            ),
-            children: [
-              const _Header(),
-              const SizedBox(height: 24),
-              for (final Residue residue in residues) ...[
-                ResidueCard(
-                  icon: residue.type.icon,
-                  iconColor: residue.type.color,
-                  title: residue.title,
-                  description: residue.description,
-                  buttonLabel: "Iniciar",
-                  info: "${residue.minutes} min · ${residue.totalSteps} passos",
-                  infoWithClock: true,
-                  // Progress resume does not exist yet: every category starts
-                  // the guide from the first step.
-                  onPressed: () => onStartGuide(residue),
-                ),
-                const SizedBox(height: 16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kEcoContentHorizontalPadding,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+            child: ListView(
+              // The bottom menu floats over the content: reserve its space.
+              padding: EdgeInsets.fromLTRB(
+                0,
+                24,
+                0,
+                CustomBottomNavBar.reservedBottomInset(context),
+              ),
+              children: [
+                const _Header(),
+                const SizedBox(height: 24),
+                for (final Residue residue in residues) ...[
+                  ResidueCard(
+                    icon: residue.type.icon,
+                    iconColor: residue.type.color,
+                    title: residue.title,
+                    description: residue.description,
+                    buttonLabel: "Iniciar",
+                    info:
+                        "${residue.minutes} min · ${residue.totalSteps} passos",
+                    infoWithClock: true,
+                    // Progress resume does not exist yet: every category starts
+                    // the guide from the first step.
+                    onPressed: () => onStartGuide(residue),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

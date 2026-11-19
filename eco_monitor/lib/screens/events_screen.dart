@@ -221,27 +221,33 @@ class _EventsScreenState extends State<EventsScreen> {
       child: Align(
         alignment: Alignment.topCenter,
 
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kEcoContentHorizontalPadding,
+          ),
 
-          child: Column(
-            children: [
-              _FilterChipBar(
-                selected: _filter,
-                onSelected: (CampaignFilter filter) {
-                  setState(() {
-                    _filter = filter;
-                  });
-                },
-              ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
-              Expanded(
-                child: _buildBody(
-                  visibleCampaigns: visibleCampaigns,
-                  bottomInset: bottomInset,
+            child: Column(
+              children: [
+                _FilterChipBar(
+                  selected: _filter,
+                  onSelected: (CampaignFilter filter) {
+                    setState(() {
+                      _filter = filter;
+                    });
+                  },
                 ),
-              ),
-            ],
+
+                Expanded(
+                  child: _buildBody(
+                    visibleCampaigns: visibleCampaigns,
+                    bottomInset: bottomInset,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -301,7 +307,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(20, 8, 20, bottomInset + 16),
+        padding: EdgeInsets.fromLTRB(0, 8, 0, bottomInset + 16),
         itemCount: visibleCampaigns.length,
         separatorBuilder: (BuildContext context, int index) =>
             const SizedBox(height: 16),
@@ -329,7 +335,7 @@ class _FilterChipBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 12),
 
       child: Row(
         children: [

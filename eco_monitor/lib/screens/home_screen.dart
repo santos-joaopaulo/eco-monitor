@@ -723,7 +723,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             bottom: false,
 
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: const EdgeInsets.fromLTRB(
+                kEcoContentHorizontalPadding,
+                12,
+                kEcoContentHorizontalPadding,
+                0,
+              ),
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -738,7 +743,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                   FilterBar(
                     selectedTypes: _selectedWasteTypes,
-                    visibleCount: visiblePoints.length,
                     onChanged: _handleFilterChanged,
                   ),
 
@@ -764,7 +768,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 8),
                     Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 500),
+                        constraints: const BoxConstraints(
+                          maxWidth: kEcoMaxContentWidth,
+                        ),
                         child: locationNotice,
                       ),
                     ),
@@ -835,7 +841,7 @@ class _FocusedCampaignChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth - 32),
+      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
       child: Material(
         color: EcoColors.surface,
@@ -914,44 +920,48 @@ class _MapStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface.withValues(alpha: 0.95),
-      elevation: 2,
-      shadowColor: Colors.black.withAlpha(30),
-      borderRadius: BorderRadius.circular(20),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Material(
+        color: AppColors.surface.withValues(alpha: 0.95),
+        elevation: 2,
+        shadowColor: Colors.black.withAlpha(30),
+        borderRadius: BorderRadius.circular(20),
 
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isLoading)
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              Icon(
-                icon ?? Icons.info_outline,
-                size: 18,
-                color: AppColors.textSecondary,
-              ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
 
-            const SizedBox(width: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(
+                  icon ?? Icons.info_outline,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
 
-            Flexible(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              const SizedBox(width: 8),
+
+              Flexible(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

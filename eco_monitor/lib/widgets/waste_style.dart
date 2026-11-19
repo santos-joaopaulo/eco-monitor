@@ -27,4 +27,12 @@ extension WasteTypeStyle on WasteType {
     WasteType.sharps => "Seringas e agulhas",
     WasteType.electronics => "Lixo eletrônico",
   };
+
+  /// Short label used by the compact map filters.
+  String get filterLabel => switch (this) {
+    WasteType.medicines => "Remédios",
+    WasteType.batteries => "Pilhas",
+    WasteType.sharps => "Seringas",
+    WasteType.electronics => "Eletrônicos",
+  };
 }

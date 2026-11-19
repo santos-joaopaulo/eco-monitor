@@ -75,83 +75,86 @@ class _Content extends StatelessWidget {
       children: [
         Align(
           alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-            child: ListView(
-              // Space for the floating button + bottom menu.
-              padding: EdgeInsets.fromLTRB(
-                20,
-                24,
-                20,
-                navBarInset + buttonHeight + 32,
-              ),
-              children: [
-                Row(
-                  children: [
-                    ExcludeSemantics(
-                      child: Icon(
-                        residueType.icon,
-                        size: 32,
-                        color: residueType.color,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kEcoContentHorizontalPadding,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+              child: ListView(
+                // Space for the floating button + bottom menu.
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  24,
+                  0,
+                  navBarInset + buttonHeight + 32,
+                ),
+                children: [
+                  Row(
+                    children: [
+                      ExcludeSemantics(
+                        child: Icon(
+                          residueType.icon,
+                          size: 32,
+                          color: residueType.color,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          guide.title,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: EcoColors.textPrimary,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            guide.title,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: EcoColors.textPrimary,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  guide.subtitle,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.5,
-                    color: EcoColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                WarningBox(message: guide.warning),
-                const SizedBox(height: 16),
-                EcoCard(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < guide.steps.length; i++)
-                        StepTimelineItem(
-                          number: i + 1,
-                          title: guide.steps[i].title,
-                          description: guide.steps[i].description,
-                          isLast: i == guide.steps.length - 1,
-                        ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    guide.subtitle,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      height: 1.5,
+                      color: EcoColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  WarningBox(message: guide.warning),
+                  const SizedBox(height: 16),
+                  EcoCard(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < guide.steps.length; i++)
+                          StepTimelineItem(
+                            number: i + 1,
+                            title: guide.steps[i].title,
+                            description: guide.steps[i].description,
+                            isLast: i == guide.steps.length - 1,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
 
         // Wide floating button, right above the bottom menu.
         Positioned(
-          left: 20,
-          right: 20,
+          left: kEcoContentHorizontalPadding,
+          right: kEcoContentHorizontalPadding,
           bottom: navBarInset + 16,
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: kEcoMaxContentWidth - 40,
-              ),
+              constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
               child: ElevatedButton.icon(
                 onPressed: () => onShowCollectionPoints(residueType),
                 icon: const Icon(Icons.location_on_outlined, size: 26),

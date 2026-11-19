@@ -12,12 +12,16 @@ class FilterBar extends StatelessWidget {
   const FilterBar({
     super.key,
     required this.selectedTypes,
-    required this.visibleCount,
     required this.onChanged,
   });
 
+  static const List<WasteType> _types = <WasteType>[
+    WasteType.medicines,
+    WasteType.sharps,
+    WasteType.batteries,
+  ];
+
   final Set<WasteType> selectedTypes;
-  final int visibleCount;
   final ValueChanged<Set<WasteType>> onChanged;
 
   // Methods --------------------------------------------------------------- //
@@ -32,51 +36,24 @@ class FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
-      child: Material(
-        color: AppColors.surface.withValues(alpha: 0.94),
-        elevation: 3,
-        shadowColor: Colors.black.withAlpha(35),
-        borderRadius: BorderRadius.circular(24),
-        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            for (int index = 0; index < _types.length; index++) ...[
+              if (index > 0) const SizedBox(width: 8),
 
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-
-          child: Row(
-            children: [
-              for (final WasteType type in WasteType.values) ...[
-                _WasteFilterChip(
-                  type: type,
-                  selected: selectedTypes.contains(type),
-                  onTap: () => _toggle(type),
-                ),
-                const SizedBox(width: 8),
-              ],
-
-              const SizedBox(width: 4),
-
-              Semantics(
-                liveRegion: true,
-                label: _countLabel(visibleCount),
-                excludeSemantics: true,
-
-                child: Text(
-                  _countLabel(visibleCount),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
-                  ),
+              Expanded(
+                child: _MapFilterPill(
+                  type: _types[index],
+                  isSelected: selectedTypes.contains(_types[index]),
+                  onTap: () => _toggle(_types[index]),
                 ),
               ),
-
-              const SizedBox(width: 12),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -85,79 +62,73 @@ class FilterBar extends StatelessWidget {
 
 // Classes ----------------------------------------------------------------- //
 
-class _WasteFilterChip extends StatelessWidget {
-  const _WasteFilterChip({
+class _MapFilterPill extends StatelessWidget {
+  const _MapFilterPill({
     required this.type,
-    required this.selected,
+    required this.isSelected,
     required this.onTap,
   });
 
+  static const Color _labelColor = Color(0xFF4A4A4A);
+
   final WasteType type;
-  final bool selected;
+  final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = selected
-        ? AppColors.textPrimary
-        : AppColors.textSecondary;
-
     return Semantics(
       button: true,
-      selected: selected,
-      label: type.label,
+      selected: isSelected,
+      label: type.filterLabel,
       hint: "Filtrar pontos de coleta",
       excludeSemantics: true,
 
-      child: Material(
-        color: selected ? AppColors.primary : AppColors.background,
-        shape: const StadiumBorder(),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
 
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const StadiumBorder(),
-
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(type.icon, size: 18, color: foreground),
-                  const SizedBox(width: 6),
-
-                  Text(
-                    type.label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: foreground,
-                    ),
-                  ),
-
-                  if (selected) ...[
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.check_rounded,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ],
-                ],
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: isSelected
+                ? Border.all(color: AppColors.primary, width: 1.5)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-            ),
+            ],
+          ),
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(type.icon, size: 15, color: type.color),
+              const SizedBox(width: 5),
+
+              Flexible(
+                child: Text(
+                  type.filterLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? AppColors.primary : _labelColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
-}
-
-// Methods ----------------------------------------------------------------- //
-
-String _countLabel(int count) {
-  return count == 1 ? "1 ponto" : "$count pontos";
 }
