@@ -2,8 +2,10 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/main.dart";
 
+// Tests -------------------------------------------------------------------- //
+
 void main() {
-  testWidgets("shell shows the app bar and the four tabs", (
+  testWidgets("renders the shell with app bar and four navigation tabs", (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const MyApp());
