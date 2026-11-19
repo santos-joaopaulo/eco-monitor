@@ -6,7 +6,9 @@ import "package:eco_monitor/data/collect_points_repository.dart";
 import "package:eco_monitor/models/campaign.dart";
 import "package:eco_monitor/models/collection_point.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 Campaign testCampaign(
   String id, {
@@ -28,7 +30,9 @@ Campaign testCampaign(
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

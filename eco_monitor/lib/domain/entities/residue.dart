@@ -1,11 +1,14 @@
 // Enums ------------------------------------------------------------------- //
 
-/// Waste categories handled by the disposal guide.
+
+/// Categorias de resíduos tratadas pelo guia de descarte.
 enum ResidueType { medicine, battery, sharps, electronics }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// Summary of a residue shown in the guide list.
+
+/// Resumo de um resíduo exibido na listagem do guia.
 class Residue {
   const Residue({
     required this.type,
@@ -19,13 +22,15 @@ class Residue {
   final String title;
   final String description;
 
-  /// Estimated time to read the full guide.
+  /// Tempo estimado para a leitura completa do guia.
   final int minutes;
   final int totalSteps;
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Builds a [Residue] from JSON, returning `null` if the type is unknown.
+
+  /// Constrói um [Residue] a partir de JSON, retornando `null` se o tipo for desconhecido.
   static Residue? tryFromJson(Map<String, dynamic> json) {
     final String rawType = json["type"] is String ? json["type"] as String : "";
     final ResidueType? type = residueTypeByName(rawType);
@@ -53,10 +58,12 @@ class Residue {
   };
 }
 
+
 // Methods ----------------------------------------------------------------- //
 
-/// Parses a [ResidueType] by name (also tolerating plural aliases used by
-/// collection points such as `medicines` and `batteries`).
+
+/// Converte um [ResidueType] a partir do nome (tolerando também apelidos no plural
+/// usados por pontos de coleta, como `medicines` e `batteries`).
 ResidueType? residueTypeByName(String name) {
   return switch (name) {
     "medicine" || "medicines" => ResidueType.medicine,

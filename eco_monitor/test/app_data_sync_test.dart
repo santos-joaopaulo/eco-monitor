@@ -95,12 +95,12 @@ void main() {
 
       await sync.initialize();
 
-      // Started offline: bundled assets loaded, remote not fetched yet.
+      // Iniciado offline: dados empacotados carregados, dados remotos ainda não buscados.
       expect(sync.isOnline, isFalse);
       expect(sync.points.length, greaterThan(1));
       expect(sync.sourceOrigin, DataSourceOrigin.bundledAsset);
 
-      // Submit suggestion while offline -> queued locally.
+      // Envio de sugestão offline -> enfileirada localmente.
       final SuggestionSubmitResult result = await sync.submitSuggestion(
         PointSuggestion(
           id: "",
@@ -118,7 +118,7 @@ void main() {
       expect(result, SuggestionSubmitResult.queuedOffline);
       expect(sync.pendingSuggestionsCount, 1);
 
-      // Reconnect -> automatically refreshes remote data and flushes queue.
+      // Reconexão -> atualiza automaticamente os dados remotos e esvazia a fila.
       online = true;
       connectivityController.add(const <ConnectivityResult>[
         ConnectivityResult.wifi,

@@ -1,13 +1,17 @@
 import "collection_point.dart";
 
+
 // Enums ------------------------------------------------------------------- //
 
-/// Review status of a user-submitted point suggestion.
+
+/// Status de revisão de uma sugestão de ponto enviada pelo usuário.
 enum SuggestionStatus { pending, reviewing, approved, rejected }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// An anonymous suggestion for a new collection point (RF10, RF11, RNF06).
+
+/// Sugestão anônima de um novo ponto de coleta (RF10, RF11, RNF06).
 class PointSuggestion {
   PointSuggestion({
     required this.id,
@@ -31,11 +35,13 @@ class PointSuggestion {
   final SuggestionStatus status;
   final DateTime createdAt;
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Builds a suggestion from JSON, tolerating missing fields and unknown values.
+
+  /// Constrói uma sugestão a partir de JSON, tolerando campos ausentes e valores desconhecidos.
   ///
-  /// Unknown waste types are ignored, unknown statuses fall back to pending.
+  /// Tipos de resíduos desconhecidos são ignorados e status desconhecidos assumem pending.
   factory PointSuggestion.fromJson(Map<String, dynamic> json) {
     final List<dynamic> rawWasteTypes = switch (json["acceptedWasteTypes"]) {
       final List<dynamic> values => values,
@@ -61,10 +67,10 @@ class PointSuggestion {
     );
   }
 
-  /// Serialises to JSON for Firestore.
+  /// Serializa para JSON para o Firestore.
   ///
-  /// The [id] is omitted (Firestore auto-generates it) and [latitude] /
-  /// [longitude] are omitted when null. No personal data is included.
+  /// O [id] é omitido (o Firestore gera automaticamente) e [latitude] /
+  /// [longitude] são omitidos quando nulos. Nenhum dado pessoal é incluído.
   Map<String, dynamic> toJson() {
     final List<String> waste =
         acceptedWasteTypes.map((WasteType type) => type.name).toList()..sort();
@@ -100,7 +106,9 @@ class PointSuggestion {
   String toString() => "PointSuggestion($id, $name)";
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 WasteType? _wasteTypeByName(String name) {
   for (final WasteType type in WasteType.values) {

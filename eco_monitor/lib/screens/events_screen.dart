@@ -11,14 +11,18 @@ import "../widgets/campaign_card.dart";
 import "../widgets/campaign_details_sheet.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 
+
 // Enums ------------------------------------------------------------------- //
 
-/// Status filter chips shown at the top of the campaigns list (RF08).
+
+/// Chips de filtro de status exibidos no topo da lista de campanhas (RF08).
 enum CampaignFilter { all, active, upcoming }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// Screen listing active and upcoming collection campaigns (RF08, RF09).
+
+/// Tela que lista campanhas de coleta ativas e previstas (RF08, RF09).
 class EventsScreen extends StatefulWidget {
   const EventsScreen({
     super.key,
@@ -30,7 +34,7 @@ class EventsScreen extends StatefulWidget {
   final CampaignsRepository? repository;
   final AppDataSync? dataSync;
 
-  /// Called when the user taps "Ver local" on a campaign card or detail sheet.
+  /// Chamado quando o usuário toca em "Ver local" no card ou no modal de detalhes da campanha.
   final ValueChanged<Campaign>? onShowCampaignLocation;
 
   @override

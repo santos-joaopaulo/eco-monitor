@@ -6,9 +6,11 @@ import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
 import "waste_style.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Bottom panel with the details of the selected collection point (RF03).
+
+/// Painel inferior com os detalhes do ponto de coleta selecionado (RF03).
 class CollectPointSheet extends StatelessWidget {
   const CollectPointSheet({
     super.key,
@@ -27,7 +29,9 @@ class CollectPointSheet extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onStartRoute;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +249,9 @@ class CollectPointSheet extends StatelessWidget {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _TypeIcon extends StatelessWidget {
   const _TypeIcon({required this.type});
@@ -453,7 +459,9 @@ class _Notice extends StatelessWidget {
   }
 }
 
+
 // Extensions -------------------------------------------------------------- //
+
 
 extension _PointTypeStyle on PointType {
   String get label => switch (this) {
@@ -475,7 +483,9 @@ extension _PointTypeStyle on PointType {
   };
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 String _filterWarning(Set<WasteType> activeFilter) {
   if (activeFilter.length == 1) {

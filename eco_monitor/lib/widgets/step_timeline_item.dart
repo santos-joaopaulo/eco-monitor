@@ -2,10 +2,10 @@ import "package:flutter/material.dart";
 
 import "../theme/eco_theme.dart";
 
-/// Item of a vertical timeline: numbered sea-green circle on the left, title
-/// and description on the right, joined by a thin line.
+/// Item de uma linha do tempo vertical: círculo verde-água numerado à esquerda, título
+/// e descrição à direita, conectados por uma linha fina.
 ///
-/// Mark the last item with [isLast] to hide the connector line.
+/// Marque o último item com [isLast] para ocultar a linha conectora.
 class StepTimelineItem extends StatelessWidget {
   const StepTimelineItem({
     super.key,

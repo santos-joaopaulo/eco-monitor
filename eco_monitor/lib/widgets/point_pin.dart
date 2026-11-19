@@ -6,19 +6,23 @@ import "package:flutter/material.dart";
 import "../models/collection_point.dart";
 import "../theme/app_colors.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Collection point pin rendered at runtime as a PNG for Mapbox annotations.
+
+/// Marcador de ponto de coleta renderizado em tempo de execução como PNG para anotações do Mapbox.
 ///
-/// Every pin uses [AppColors.primary] as its base color. The type is shown by
-/// the inner badge: pharmacy uses [AppColors.medicine] with a pharmacy icon,
-/// health center uses [AppColors.userLocation] with a hospital icon and eco
-/// point uses [AppColors.battery] with a recycling icon.
+/// Todo marcador utiliza [AppColors.primary] como cor de base. O tipo é indicado
+/// pelo distintivo interno: farmácia utiliza [AppColors.medicine] com ícone de farmácia,
+/// UBS utiliza [AppColors.userLocation] com ícone de hospital e ecoponto utiliza
+/// [AppColors.battery] com ícone de reciclagem.
 abstract final class PointPin {
   static const int _width = 96;
   static const int _height = 128;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   static Future<Uint8List> render({
     required PointType type,
@@ -95,7 +99,9 @@ abstract final class PointPin {
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 Color _badgeColor(PointType type) {
   return switch (type) {

@@ -5,21 +5,25 @@ import "collect_points_repository.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Firestore collection name for official collection points.
+
+/// Nome da coleção no Firestore para pontos de coleta oficiais.
 const String kCollectPointsCollection = "collectPoints";
+
 
 // Methods ----------------------------------------------------------------- //
 
-/// Creates a [CollectPointsFetcher] backed by the Firestore `collectPoints`
-/// collection.
+
+/// Cria um [CollectPointsFetcher] baseado na coleção `collectPoints`
+/// do Firestore.
 ///
-/// Each document is normalized and mapped to a [CollectionPoint] with the
-/// document ID injected as `id`. The snapshot timestamp is derived strictly
-/// from server timestamps (`updatedAt` across documents and/or the optional
-/// `metadata/collectPoints` document) so stale data is never presented as fresh
-/// (RNF17).
+/// Cada documento é normalizado e mapeado para um [CollectionPoint] com o
+/// ID do documento injetado como `id`. O timestamp do snapshot é obtido estritamente
+/// dos timestamps do servidor (`updatedAt` nos documentos e/ou no documento opcional
+/// `metadata/collectPoints`), garantindo que dados desatualizados não sejam apresentados
+/// como recentes (RNF17).
 CollectPointsFetcher createFirestoreFetcher({FirebaseFirestore? firestore}) {
   return () async {
     if (firestore == null && !isFirebaseReady) {

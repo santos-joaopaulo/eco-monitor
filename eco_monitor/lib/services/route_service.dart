@@ -5,14 +5,18 @@ import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Average walking speed used for the route estimate (5 km/h).
+
+/// Velocidade média de caminhada usada para a estimativa da rota (5 km/h).
 const double kWalkingSpeedMetersPerSecond = 5000 / 3600;
+
 
 // Types ------------------------------------------------------------------- //
 
-/// Approximate route information shown to the user.
+
+/// Informações aproximadas da rota exibidas ao usuário.
 class RouteSummary {
   const RouteSummary({
     required this.distanceMeters,
@@ -25,15 +29,19 @@ class RouteSummary {
 
 typedef UriLauncher = Future<bool> Function(Uri uri);
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Builds the route estimate and the external navigation URI (RF04).
+
+/// Constrói a estimativa da rota e o URI de navegação externa (RF04).
 class RouteService {
   const RouteService({this.launcher});
 
   final UriLauncher? launcher;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   RouteSummary buildRouteSummary(
     UserLocation userPosition,

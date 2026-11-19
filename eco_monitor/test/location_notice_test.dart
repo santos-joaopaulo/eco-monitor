@@ -3,7 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/widgets/location_notice.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 Future<void> pumpNotice(WidgetTester tester, Widget notice) async {
   await tester.pumpWidget(
@@ -13,7 +15,9 @@ Future<void> pumpNotice(WidgetTester tester, Widget notice) async {
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   testWidgets("notification shows the message and the action", (

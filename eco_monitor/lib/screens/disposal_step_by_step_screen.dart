@@ -11,9 +11,11 @@ import "../widgets/residue_style.dart";
 import "../widgets/step_timeline_item.dart";
 import "../widgets/warning_box.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Step-by-step disposal screen shared by every residue category (RF07).
+
+/// Tela de passo a passo de descarte compartilhada por todas as categorias de resíduos (RF07).
 class DisposalStepByStepScreen extends StatelessWidget {
   const DisposalStepByStepScreen({
     super.key,
@@ -25,7 +27,7 @@ class DisposalStepByStepScreen extends StatelessWidget {
   final ResidueType residueType;
   final DisposalGuideRepository repository;
 
-  /// Called with the residue type when "Ver pontos no mapa" is tapped.
+  /// Chamado com o tipo de resíduo quando "Ver pontos no mapa" é tocado.
   final ValueChanged<ResidueType> onShowCollectionPoints;
 
   static const double _buttonHeight = 56;
@@ -82,7 +84,7 @@ class _Content extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
               child: ListView(
-                // Space for the floating button + bottom menu.
+                // Espaço reservado para o botão flutuante e o menu inferior.
                 padding: EdgeInsets.fromLTRB(
                   0,
                   24,
@@ -147,7 +149,7 @@ class _Content extends StatelessWidget {
           ),
         ),
 
-        // Wide floating button, right above the bottom menu.
+        // Botão flutuante largo, posicionado logo acima do menu inferior.
         Positioned(
           left: kEcoContentHorizontalPadding,
           right: kEcoContentHorizontalPadding,

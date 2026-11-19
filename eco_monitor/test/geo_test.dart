@@ -2,7 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/utils/geo.dart";
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   test("distance between equal coordinates is zero", () {
@@ -25,7 +27,7 @@ void main() {
   );
 
   test("Aracaju coordinates match a known distance", () {
-    // 0.01 degree of latitude between two points in Aracaju.
+    // 0,01 grau de latitude entre dois pontos em Aracaju.
     final double distance = distanceInMeters(-10.95, -37.067, -10.96, -37.067);
 
     expect(distance, closeTo(1112, 1));

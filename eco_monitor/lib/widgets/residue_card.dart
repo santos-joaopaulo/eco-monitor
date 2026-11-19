@@ -3,10 +3,10 @@ import "package:flutter/material.dart";
 import "../theme/eco_theme.dart";
 import "eco_card.dart";
 
-/// Card of one residue in the guide list: icon, title, description, action
-/// button and side indicator (estimated time and number of steps).
+/// Card de um resíduo na listagem do guia: ícone, título, descrição, botão
+/// de ação e indicador lateral (tempo estimado e quantidade de passos).
 ///
-/// With [onPressed] null the button appears disabled.
+/// Com [onPressed] nulo, o botão aparece desabilitado.
 class ResidueCard extends StatelessWidget {
   const ResidueCard({
     super.key,
@@ -77,9 +77,9 @@ class ResidueCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Wrap: button on the left and indicator on the right; if there is
-          // not enough space (narrow screen / large font) the indicator drops
-          // to the next line.
+          // Wrap: botão à esquerda e indicador à direita; se não houver
+          // espaço suficiente (tela estreita / fonte grande), o indicador
+          // desce para a linha seguinte.
           SizedBox(
             width: double.infinity,
             child: Wrap(
@@ -118,7 +118,6 @@ class _ActionButton extends StatelessWidget {
         disabledBackgroundColor: EcoColors.iconTint,
         disabledForegroundColor: EcoColors.textSecondary,
 
-        // Comfortable touch target.
         minimumSize: const Size(120, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

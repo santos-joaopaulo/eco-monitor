@@ -5,28 +5,34 @@ import "package:shared_preferences/shared_preferences.dart";
 
 import "../models/collection_point.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Asset shipped with the app, available without network.
+
+/// Arquivo empacotado no app, disponível sem conexão de rede.
 const String kCollectPointsAsset = "assets/data/collect_points.json";
 
 const String _cacheJsonKey = "collect_points_json";
 const String _cacheLastUpdatedKey = "collect_points_last_updated";
 
-/// Maximum age before local data is considered out of date.
+/// Idade máxima antes que os dados locais sejam considerados desatualizados.
 const Duration kCollectPointsMaxAge = Duration(days: 7);
+
 
 // Enums ------------------------------------------------------------------- //
 
-/// Origin of the dataset currently held by a repository (RNF10, RNF17).
+
+/// Origem do conjunto de dados atualmente mantido por um repositório (RNF10, RNF17).
 enum DataSourceOrigin { bundledAsset, localCache, remoteServer }
+
 
 // Types ------------------------------------------------------------------- //
 
-/// Dataset returned by a remote refresh, with the timestamp from the source.
+
+/// Conjunto de dados retornado por uma atualização remota, com o timestamp da origem.
 ///
-/// The timestamp must come from the server (for Firebase, a Firestore
-/// `Timestamp`) so the UI never presents stale data as fresh (RNF17).
+/// O timestamp deve vir do servidor (no caso do Firebase, um `Timestamp` do
+/// Firestore) para que a interface nunca apresente dados desatualizados como novos (RNF17).
 class CollectPointsRemoteSnapshot {
   const CollectPointsRemoteSnapshot({
     required this.points,
@@ -37,19 +43,20 @@ class CollectPointsRemoteSnapshot {
   final DateTime updatedAt;
 }
 
-/// Hook used by [CollectPointsRepository.refresh] to fetch a newer dataset.
+/// Função usada por [CollectPointsRepository.refresh] para buscar dados mais recentes.
 ///
-/// When null, the repository always falls back to the local cache or bundled
-/// asset instead of faking an update.
+/// Quando nula, o repositório sempre recorre ao cache local ou ao arquivo
+/// empacotado em vez de simular uma atualização.
 typedef CollectPointsFetcher = Future<CollectPointsRemoteSnapshot> Function();
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// Source of the collection points shown on the home map.
+
+/// Fonte dos pontos de coleta exibidos no mapa da tela inicial.
 ///
-/// [loadOffline] reads the downloaded cache (or falls back to the bundled
-/// asset) and [refresh] updates the cache when a [CollectPointsFetcher] is
-/// provided.
+/// [loadOffline] lê o cache baixado (ou recorre ao arquivo empacotado)
+/// e [refresh] atualiza o cache quando um [CollectPointsFetcher] é fornecido.
 class CollectPointsRepository {
   CollectPointsRepository({
     AssetBundle? assetBundle,
@@ -63,7 +70,7 @@ class CollectPointsRepository {
 
   final AssetBundle _assetBundle;
 
-  /// Optional remote source; null while offline-only.
+  /// Fonte remota opcional; nula quando em modo exclusivamente offline.
   final CollectPointsFetcher? fetcher;
 
   final Future<SharedPreferences> Function() _preferencesFactory;
@@ -72,10 +79,10 @@ class CollectPointsRepository {
   DateTime? _lastUpdated;
   DataSourceOrigin? _sourceOrigin;
 
-  /// Timestamp of the dataset currently loaded, or null before the first load.
+  /// Timestamp do conjunto de dados atualmente carregado, ou nulo antes do primeiro carregamento.
   DateTime? get lastUpdated => _lastUpdated;
 
-  /// Where the most recently loaded dataset came from.
+  /// Origem do conjunto de dados carregado mais recentemente.
   DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
   bool get hasRemoteSource => fetcher != null;
@@ -89,9 +96,11 @@ class CollectPointsRepository {
     return _clock().difference(lastUpdated) > kCollectPointsMaxAge;
   }
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Loads the points without network, preferring the downloaded cache.
+
+  /// Carrega os pontos sem rede, priorizando o cache local baixado.
   Future<List<CollectionPoint>> loadOffline() async {
     final SharedPreferences preferences = await _preferencesFactory();
     final String? cachedJson = preferences.getString(_cacheJsonKey);
@@ -116,10 +125,10 @@ class CollectPointsRepository {
     return local.points;
   }
 
-  /// Tries to update the local cache and returns the freshest known dataset.
+  /// Tenta atualizar o cache local e retorna o conjunto de dados mais recente conhecido.
   ///
-  /// Without a [CollectPointsFetcher] it returns [loadOffline] unchanged, so
-  /// the last update timestamp is never faked.
+  /// Sem um [CollectPointsFetcher], retorna [loadOffline] sem alterações, garantindo
+  /// que o timestamp da última atualização nunca seja forjado.
   Future<List<CollectionPoint>> refresh() async {
     final CollectPointsFetcher? fetcher = this.fetcher;
     if (fetcher == null) {
@@ -145,7 +154,7 @@ class CollectPointsRepository {
     }
   }
 
-  /// Removes the downloaded cache, keeping the bundled dataset available.
+  /// Remove o cache local baixado, mantendo disponível o conjunto empacotado.
   Future<void> clearCache() async {
     final SharedPreferences preferences = await _preferencesFactory();
     await preferences.remove(_cacheJsonKey);
@@ -174,7 +183,9 @@ class CollectPointsRepository {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _ParsedCollectPoints {
   const _ParsedCollectPoints({required this.points, required this.updatedAt});
@@ -183,7 +194,9 @@ class _ParsedCollectPoints {
   final DateTime? updatedAt;
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 _ParsedCollectPoints _parsePointsJson(String source) {
   final Object? decoded = jsonDecode(source);

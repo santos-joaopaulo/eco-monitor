@@ -3,13 +3,15 @@ import "dart:async";
 import "package:connectivity_plus/connectivity_plus.dart";
 import "package:flutter/services.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Lightweight wrapper around [Connectivity] that exposes the device's online
-/// status as a broadcast stream and a one-shot check (RNF10).
+
+/// Encapsulamento leve em torno de [Connectivity] que expõe o status online
+/// do dispositivo como uma stream de broadcast e uma verificação pontual (RNF10).
 ///
-/// Accepts optional [connectivityStream] and [checkConnectivity] overrides for
-/// deterministic unit and widget tests.
+/// Aceita sobreposições opcionais de [connectivityStream] e [checkConnectivity] para
+/// testes unitários e de widgets determinísticos.
 class ConnectivityService {
   ConnectivityService({
     Stream<List<ConnectivityResult>>? connectivityStream,
@@ -27,7 +29,7 @@ class ConnectivityService {
         }
       },
       onError: (_) {
-        // Ignore platform stream errors (e.g. missing plugin in tests).
+        // Ignora erros de stream da plataforma (ex.: plugin ausente em testes).
       },
     );
   }
@@ -38,15 +40,17 @@ class ConnectivityService {
 
   bool _lastKnownOnline = true;
 
-  /// Most recently observed connectivity state.
+  /// Estado de conectividade observado mais recentemente.
   bool get lastKnownOnline => _lastKnownOnline;
 
-  /// Emits `true` when the device is online, `false` otherwise.
+  /// Emite `true` quando o dispositivo está online e `false` caso contrário.
   Stream<bool> get isOnline => _controller.stream;
+
 
   // Methods --------------------------------------------------------------- //
 
-  /// Returns whether the device currently has a network interface available.
+
+  /// Retorna se o dispositivo possui uma interface de rede disponível no momento.
   Future<bool> checkNow() async {
     try {
       final Future<List<ConnectivityResult>> Function() checker =
@@ -64,14 +68,16 @@ class ConnectivityService {
     }
   }
 
-  /// Cancels the underlying connectivity subscription and closes the stream.
+  /// Cancela a inscrição de conectividade subjacente e fecha a stream.
   void dispose() {
     _subscription.cancel();
     _controller.close();
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 Stream<List<ConnectivityResult>> _defaultStream() {
   try {
@@ -83,7 +89,7 @@ Stream<List<ConnectivityResult>> _defaultStream() {
   }
 }
 
-/// Returns `true` when at least one connectivity result is not `none`.
+/// Retorna `true` quando pelo menos um resultado de conectividade não for `none`.
 bool isConnectedResults(List<ConnectivityResult> results) {
   return results.isNotEmpty &&
       !results.every(

@@ -9,23 +9,27 @@ import "collect_points_repository.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Bundled fallback dataset of campaigns, available without network.
+
+/// Conjunto de dados padrão de campanhas empacotado no app, disponível sem rede.
 const String kCampaignsAsset = "assets/data/campaigns.json";
 
-/// Firestore collection name for collection campaigns.
+/// Nome da coleção no Firestore para campanhas de coleta.
 const String kCampaignsCollection = "campaigns";
 
 const String _cacheJsonKey = "campaigns_json";
 const String _cacheLastUpdatedKey = "campaigns_last_updated";
 
-/// Maximum age before local campaign data is considered out of date.
+/// Idade máxima antes que os dados locais de campanhas sejam considerados desatualizados.
 const Duration kCampaignsMaxAge = Duration(days: 1);
+
 
 // Types ------------------------------------------------------------------- //
 
-/// Dataset returned by a remote campaign refresh, with its server timestamp.
+
+/// Conjunto de dados retornado por uma atualização remota de campanhas, com o timestamp do servidor.
 class CampaignsRemoteSnapshot {
   const CampaignsRemoteSnapshot({
     required this.campaigns,
@@ -36,12 +40,14 @@ class CampaignsRemoteSnapshot {
   final DateTime updatedAt;
 }
 
-/// Hook used by [CampaignsRepository.refresh] to fetch remote campaigns.
+/// Função usada por [CampaignsRepository.refresh] para buscar campanhas remotas.
 typedef CampaignsFetcher = Future<CampaignsRemoteSnapshot> Function();
+
 
 // Methods ----------------------------------------------------------------- //
 
-/// Creates a [CampaignsFetcher] backed by the Firestore `campaigns` collection.
+
+/// Cria um [CampaignsFetcher] baseado na coleção `campaigns` do Firestore.
 CampaignsFetcher createFirestoreCampaignsFetcher({
   FirebaseFirestore? firestore,
 }) {
@@ -87,13 +93,15 @@ CampaignsFetcher createFirestoreCampaignsFetcher({
   };
 }
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Source of collection campaigns shown to users (RF08, RF09, RNF11).
+
+/// Fonte de campanhas de coleta exibidas aos usuários (RF08, RF09, RNF11).
 ///
-/// Follows the offline-first pattern: [loadOffline] prefers the downloaded
-/// [SharedPreferences] cache and falls back to the bundled [kCampaignsAsset];
-/// [refresh] fetches fresh data from [fetcher] and updates the cache.
+/// Segue o padrão offline-first: [loadOffline] prioriza o cache salvo no
+/// [SharedPreferences] e recorre ao arquivo empacotado [kCampaignsAsset];
+/// [refresh] busca dados atualizados de [fetcher] e atualiza o cache.
 class CampaignsRepository {
   CampaignsRepository({
     AssetBundle? assetBundle,
@@ -113,10 +121,10 @@ class CampaignsRepository {
   DateTime? _lastUpdated;
   DataSourceOrigin? _sourceOrigin;
 
-  /// Timestamp of the dataset currently loaded, or null before the first load.
+  /// Timestamp do conjunto de dados atualmente carregado, ou nulo antes do primeiro carregamento.
   DateTime? get lastUpdated => _lastUpdated;
 
-  /// Where the most recently loaded dataset came from.
+  /// Origem do conjunto de dados carregado mais recentemente.
   DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
   bool get hasRemoteSource => fetcher != null;
@@ -130,10 +138,12 @@ class CampaignsRepository {
     return _clock().difference(lastUpdated) > kCampaignsMaxAge;
   }
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Loads campaigns without network, preferring the downloaded cache and
-  /// falling back to the bundled asset when no cache exists.
+
+  /// Carrega campanhas sem rede, priorizando o cache local e recorrendo
+  /// ao arquivo empacotado quando nenhum cache existir.
   Future<List<Campaign>> loadOffline() async {
     final SharedPreferences preferences = await _preferencesFactory();
     final String? cachedJson = preferences.getString(_cacheJsonKey);
@@ -161,9 +171,9 @@ class CampaignsRepository {
     }
   }
 
-  /// Fetches campaigns from [fetcher] and updates the local cache.
+  /// Busca campanhas a partir de [fetcher] e atualiza o cache local.
   ///
-  /// Without a [fetcher] or on network errors, falls back to [loadOffline].
+  /// Sem um [fetcher] ou em falhas de rede, recorre a [loadOffline].
   Future<List<Campaign>> refresh() async {
     final CampaignsFetcher? fetcher = this.fetcher;
     if (fetcher == null) {
@@ -185,7 +195,7 @@ class CampaignsRepository {
     }
   }
 
-  /// Removes the downloaded cache, keeping the bundled dataset available.
+  /// Remove o cache local baixado, mantendo disponível o conjunto de dados empacotado.
   Future<void> clearCache() async {
     final SharedPreferences preferences = await _preferencesFactory();
     await preferences.remove(_cacheJsonKey);
@@ -211,7 +221,9 @@ class CampaignsRepository {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _ParsedCampaigns {
   const _ParsedCampaigns({required this.campaigns, required this.updatedAt});
@@ -220,7 +232,9 @@ class _ParsedCampaigns {
   final DateTime? updatedAt;
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 _ParsedCampaigns _parseCampaignsJson(String source) {
   final Object? decoded = jsonDecode(source);

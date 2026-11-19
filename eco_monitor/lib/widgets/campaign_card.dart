@@ -7,9 +7,11 @@ import "../utils/formatters.dart";
 import "eco_card.dart";
 import "waste_style.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Card displaying a collection campaign summary in the events tab (RF08).
+
+/// Card que exibe o resumo de uma campanha de coleta na aba de eventos (RF08).
 class CampaignCard extends StatelessWidget {
   const CampaignCard({
     super.key,
@@ -102,8 +104,7 @@ class CampaignCard extends StatelessWidget {
   }
 }
 
-/// High-contrast pill badge indicating whether a campaign is active, upcoming,
-/// or finished (RNF04, RNF17).
+/// Distintivo em pílula de alto contraste indicando se a campanha está ativa, prevista ou encerrada (RNF04, RNF17).
 class CampaignStatusBadge extends StatelessWidget {
   const CampaignStatusBadge({super.key, required this.status});
 
@@ -270,7 +271,9 @@ class _StatusVisual {
   final Color textColor;
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 _StatusVisual _visualForStatus(CampaignStatus status) {
   return switch (status) {

@@ -6,37 +6,45 @@ import "package:shared_preferences/shared_preferences.dart";
 import "../models/point_suggestion.dart";
 import "firebase_service.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Firestore collection name for anonymous point suggestions.
+
+/// Nome da coleção no Firestore para sugestões anônimas de pontos.
 const String kPointSuggestionsCollection = "pointSuggestions";
 
 const String _pendingQueueKey = "pending_point_suggestions_json";
 
+
 // Enums ------------------------------------------------------------------- //
 
-/// Outcome of submitting a new collection point suggestion (RF10, RNF10).
+
+/// Resultado do envio de uma nova sugestão de ponto de coleta (RF10, RNF10).
 enum SuggestionSubmitResult {
-  /// Delivered directly to the remote backend.
+  /// Entregue diretamente ao backend remoto.
   sent,
 
-  /// Saved locally in the anonymous offline queue for automatic retry.
+  /// Salva localmente na fila anônima offline para reenvio automático.
   queuedOffline,
 }
 
+
 // Types ------------------------------------------------------------------- //
 
-/// Hook used by [PointSuggestionsRepository] to persist a suggestion remotely.
+
+/// Função usada por [PointSuggestionsRepository] para persistir uma sugestão remotamente.
 typedef PointSuggestionSender = Future<void> Function(
   PointSuggestion suggestion,
 );
 
+
 // Methods ----------------------------------------------------------------- //
 
-/// Creates a [PointSuggestionSender] backed by Firestore `pointSuggestions`.
+
+/// Cria um [PointSuggestionSender] baseado na coleção `pointSuggestions` do Firestore.
 ///
-/// The payload is strictly anonymous (no user or device identifiers — RF11,
-/// RNF06) and uses [FieldValue.serverTimestamp] for `createdAt` (RNF14).
+/// O payload é estritamente anônimo (sem identificadores de usuário ou dispositivo — RF11,
+/// RNF06) e utiliza [FieldValue.serverTimestamp] para `createdAt` (RNF14).
 PointSuggestionSender createFirestoreSuggestionSender({
   FirebaseFirestore? firestore,
 }) {
@@ -54,10 +62,12 @@ PointSuggestionSender createFirestoreSuggestionSender({
   };
 }
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Sends anonymous point suggestions to Firestore with an offline fallback
-/// queue so submissions are never silently lost without internet (RF11, RNF06,
+
+/// Envia sugestões anônimas de pontos ao Firestore com uma fila offline de contingência
+/// para que os envios nunca sejam perdidos silenciosamente sem internet (RF11, RNF06,
 /// RNF10, RNF14).
 class PointSuggestionsRepository {
   PointSuggestionsRepository({
@@ -71,13 +81,15 @@ class PointSuggestionsRepository {
 
   bool get hasRemoteSender => sender != null;
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Submits [suggestion] anonymously to the remote backend.
+
+  /// Envia [suggestion] anonimamente ao backend remoto.
   ///
-  /// When [sender] is null or throws (e.g., offline), the suggestion is queued
-  /// locally in [SharedPreferences] and [SuggestionSubmitResult.queuedOffline]
-  /// is returned so it can be retried automatically when connectivity returns.
+  /// Quando [sender] for nulo ou lançar exceção (ex.: offline), a sugestão é enfileirada
+  /// localmente no [SharedPreferences] e [SuggestionSubmitResult.queuedOffline]
+  /// é retornado para ser reenviado automaticamente assim que a conectividade for restaurada.
   Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) async {
     final PointSuggestionSender? remoteSender = sender;
     if (remoteSender != null) {
@@ -85,7 +97,7 @@ class PointSuggestionsRepository {
         await remoteSender(suggestion);
         return SuggestionSubmitResult.sent;
       } catch (_) {
-        // Fall through to offline queue so the user's suggestion is not lost.
+        // Recorre à fila offline para que a sugestão do usuário não seja perdida.
       }
     }
 
@@ -93,7 +105,7 @@ class PointSuggestionsRepository {
     return SuggestionSubmitResult.queuedOffline;
   }
 
-  /// Returns all suggestions currently waiting in the offline queue.
+  /// Retorna todas as sugestões que estão atualmente aguardando na fila offline.
   Future<List<PointSuggestion>> loadPending() async {
     final SharedPreferences preferences = await _preferencesFactory();
     final String? raw = preferences.getString(_pendingQueueKey);
@@ -119,16 +131,16 @@ class PointSuggestionsRepository {
     }
   }
 
-  /// Number of suggestions currently queued offline.
+  /// Quantidade de sugestões atualmente enfileiradas offline.
   Future<int> pendingCount() async {
     final List<PointSuggestion> pending = await loadPending();
     return pending.length;
   }
 
-  /// Attempts to send all queued offline suggestions in FIFO order.
+  /// Tenta enviar todas as sugestões offline enfileiradas na ordem FIFO.
   ///
-  /// Returns the number of suggestions successfully delivered. Any suggestion
-  /// that still fails remains in the local queue.
+  /// Retorna o número de sugestões entregues com sucesso. Qualquer sugestão
+  /// que ainda falhar permanece na fila local.
   Future<int> flushPending() async {
     final PointSuggestionSender? remoteSender = sender;
     if (remoteSender == null) {
@@ -156,7 +168,7 @@ class PointSuggestionsRepository {
     return sentCount;
   }
 
-  /// Clears all locally queued suggestions.
+  /// Limpa todas as sugestões enfileiradas localmente.
   Future<void> clearPending() async {
     final SharedPreferences preferences = await _preferencesFactory();
     await preferences.remove(_pendingQueueKey);

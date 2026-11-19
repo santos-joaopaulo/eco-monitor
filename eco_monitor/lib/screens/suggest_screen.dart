@@ -4,7 +4,9 @@ import "../data/app_data_sync.dart";
 import "../data/point_suggestions_repository.dart";
 import "../theme/app_colors.dart";
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class SuggestScreen extends StatelessWidget {
   const SuggestScreen({super.key, this.repository, this.dataSync});

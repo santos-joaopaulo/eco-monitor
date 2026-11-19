@@ -63,8 +63,8 @@ void main() {
 
     expect(repository.sourceOrigin, DataSourceOrigin.remoteServer);
     expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(1));
-    // Bundled medicine guide remains available even when remote only overrides
-    // battery.
+    // O guia de remédios empacotado permanece disponível mesmo quando o remoto substitui
+    // apenas pilhas e baterias.
     expect(repository.stepsGuideFor(ResidueType.medicine), isNotNull);
 
     final DisposalGuideRepositorySynced offlineReload =

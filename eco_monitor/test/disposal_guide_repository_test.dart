@@ -4,7 +4,9 @@ import "package:eco_monitor/data/disposal_guide_repository_local.dart";
 import "package:eco_monitor/domain/entities/disposal_guide.dart";
 import "package:eco_monitor/domain/entities/residue.dart";
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   const DisposalGuideRepositoryLocal repository =

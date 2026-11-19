@@ -2,16 +2,20 @@ import "package:flutter/material.dart";
 
 import "../theme/app_colors.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// High-contrast surface colors meeting WCAG AA with white text (RNF04).
+
+/// Cores de superfície de alto contraste compatíveis com WCAG AA com texto branco (RNF04).
 const Color _offlineSurface = Color(0xFFB45309);
 const Color _staleSurface = Color(0xFF92400E);
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Status banner communicating offline mode, stale cached data, or pending
-/// offline suggestions waiting to sync (RNF10, RNF17).
+
+/// Banner de status informando modo offline, dados em cache desatualizados
+/// ou sugestões offline pendentes aguardando sincronização (RNF10, RNF17).
 class OfflineBanner extends StatelessWidget {
   const OfflineBanner({
     super.key,
@@ -123,7 +127,9 @@ class OfflineBanner extends StatelessWidget {
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 String _pendingLabel(int count) {
   return count == 1 ? "1 sugestão na fila" : "$count sugestões na fila";

@@ -1,17 +1,20 @@
 // Enums ------------------------------------------------------------------- //
 
-/// Waste categories accepted by a collection point.
+
+/// Categorias de resíduos aceitas por um ponto de coleta.
 enum WasteType { medicines, sharps, batteries, electronics }
 
-/// Kind of establishment that receives waste.
+/// Tipo de estabelecimento que recebe os resíduos.
 enum PointType { pharmacy, healthCenter, ecoPoint }
 
-/// Whether the point is currently receiving waste.
+/// Indica se o ponto está recebendo resíduos no momento.
 enum PointStatus { active, inactive }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// A collection point shown on the home map.
+
+/// Um ponto de coleta exibido no mapa da tela inicial.
 class CollectionPoint {
   CollectionPoint({
     required this.id,
@@ -44,13 +47,15 @@ class CollectionPoint {
         wasteTypes.any((WasteType type) => accepts(type));
   }
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Builds a point from JSON, tolerating missing fields and unknown values.
+
+  /// Constrói um ponto a partir de JSON, tolerando campos ausentes e valores desconhecidos.
   ///
-  /// Unknown waste types are ignored, unknown point types fall back to an
-  /// eco point and unknown statuses fall back to inactive (never shown as
-  /// active by accident).
+  /// Tipos de resíduos desconhecidos são ignorados, tipos de ponto desconhecidos assumem
+  /// ecoponto e status desconhecidos assumem inativo (para nunca serem exibidos como
+  /// ativos por engano).
   factory CollectionPoint.fromJson(Map<String, dynamic> json) {
     final List<dynamic> rawWasteTypes = switch (json["acceptedWasteTypes"]) {
       final List<dynamic> values => values,
@@ -105,7 +110,9 @@ class CollectionPoint {
   String toString() => "CollectionPoint($id, $name)";
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 WasteType? _wasteTypeByName(String name) {
   for (final WasteType type in WasteType.values) {

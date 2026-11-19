@@ -2,15 +2,15 @@ import "package:flutter/material.dart";
 
 import "../theme/eco_theme.dart";
 
-/// Height of the floating bar and bottom margin (used to reserve space in
-/// lists and buttons that sit "above" the menu).
+/// Altura da barra flutuante e margem inferior (usadas para reservar espaço em
+/// listas e botões posicionados acima do menu).
 const double kEcoNavBarHeight = 64;
 const double kEcoNavBarMargin = 16;
 
-/// Floating bottom menu with the 4 tabs of the app: home, guia, eventos,
+/// Menu inferior flutuante com as 4 abas do aplicativo: home, guia, eventos,
 /// sugerir.
 ///
-/// It is a "dumb" widget: the parent owns the current tab
+/// É um widget de apresentação: o widget pai gerencia a aba atual
 /// ([currentIndex] / [onTap]).
 class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({
@@ -29,8 +29,8 @@ class CustomBottomNavBar extends StatelessWidget {
     _NavItem("sugerir", Icons.chat_bubble_outline),
   ];
 
-  /// Total space occupied by the bar at the bottom (including the system
-  /// navigation gesture area). Use it as bottom padding of scrollable content.
+  /// Espaço total ocupado pela barra na parte inferior (incluindo a área de gestos
+  /// de navegação do sistema). Use como padding inferior do conteúdo rolável.
   static double reservedBottomInset(BuildContext context) {
     return kEcoNavBarHeight +
         kEcoNavBarMargin +
@@ -61,7 +61,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
               child: SizedBox(
                 height: kEcoNavBarHeight,
-                // Fixed height: limits the system font scaling.
+                // Altura fixa: limita a escala de fonte do sistema.
                 child: MediaQuery.withClampedTextScaling(
                   maxScaleFactor: 1.2,
                   child: Row(

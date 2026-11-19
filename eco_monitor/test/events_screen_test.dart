@@ -15,7 +15,9 @@ import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/screens/events_screen.dart";
 import "package:eco_monitor/widgets/campaign_card.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 void useTallSurface(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1800);
@@ -79,7 +81,9 @@ Campaign _sampleCampaign({
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   setUp(() {

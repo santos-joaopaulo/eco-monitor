@@ -5,9 +5,11 @@ import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "waste_style.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Horizontal waste-type filters shown over the map (RF12, RF13).
+
+/// Filtros horizontais de tipos de resíduos exibidos sobre o mapa (RF12, RF13).
 class FilterBar extends StatelessWidget {
   const FilterBar({
     super.key,
@@ -24,7 +26,9 @@ class FilterBar extends StatelessWidget {
   final Set<WasteType> selectedTypes;
   final ValueChanged<Set<WasteType>> onChanged;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   void _toggle(WasteType type) {
     final Set<WasteType> next = Set<WasteType>.of(selectedTypes);
@@ -60,7 +64,9 @@ class FilterBar extends StatelessWidget {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _MapFilterPill extends StatelessWidget {
   const _MapFilterPill({

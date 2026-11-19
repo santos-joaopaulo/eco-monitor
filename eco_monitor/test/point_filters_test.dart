@@ -3,7 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/utils/point_filters.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 CollectionPoint buildPoint({
   required String id,
@@ -23,7 +25,9 @@ CollectionPoint buildPoint({
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   final List<CollectionPoint> points = <CollectionPoint>[

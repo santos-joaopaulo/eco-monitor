@@ -2,22 +2,26 @@ import "package:flutter/material.dart";
 
 import "app_colors.dart";
 
+
 // Layout constants -------------------------------------------------------- //
 
-/// Maximum width of a centered content surface on wide screens (tablet / web).
+
+/// Largura máxima de uma superfície de conteúdo centralizada em telas largas (tablet / web).
 ///
-/// Full-bleed surfaces such as the map and the app bar are exempt. Cards,
-/// sheets, filters and other floating components use this same surface width
-/// so the layout keeps a smartphone-like reading width.
+/// Superfícies full-bleed, como o mapa e a barra superior, são isentas. Cards,
+/// modais, filtros e outros componentes flutuantes usam esta mesma largura de superfície
+/// para que o layout preserve uma largura de leitura confortável semelhante à de um smartphone.
 const double kEcoMaxContentWidth = 500;
 
-/// Horizontal margin between the centered content surface and the screen edges.
+/// Margem horizontal entre a superfície de conteúdo centralizada e as bordas da tela.
 const double kEcoContentHorizontalPadding = 16;
+
 
 // Palette ----------------------------------------------------------------- //
 
-/// Semantic aliases kept for the existing screens. New code should use
-/// [AppColors] directly.
+
+/// Apelidos semânticos mantidos para compatibilidade com as telas existentes.
+/// Código novo deve utilizar [AppColors] diretamente.
 abstract final class EcoColors {
   static const Color primary = AppColors.primary;
   static const Color primaryAccessible = AppColors.primaryAccessible;

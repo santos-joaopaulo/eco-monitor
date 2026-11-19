@@ -2,7 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/models/collection_point.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 CollectionPoint pointWithWastes(Set<WasteType> wastes) {
   return CollectionPoint(
@@ -18,7 +20,9 @@ CollectionPoint pointWithWastes(Set<WasteType> wastes) {
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   test("fromJson reads every field of a valid point", () {

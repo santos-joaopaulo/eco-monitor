@@ -1,13 +1,16 @@
 // Classes ----------------------------------------------------------------- //
 
-/// A single step of the disposal guide.
+
+/// Um passo individual do guia de descarte.
 class DisposalStep {
   const DisposalStep({required this.title, required this.description});
 
   final String title;
   final String description;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   factory DisposalStep.fromJson(Map<String, dynamic> json) {
     return DisposalStep(
@@ -24,7 +27,7 @@ class DisposalStep {
   };
 }
 
-/// Full content of the step-by-step screen of a residue.
+/// Conteúdo completo da tela de passo a passo de um resíduo.
 class DisposalGuide {
   const DisposalGuide({
     required this.title,
@@ -36,11 +39,13 @@ class DisposalGuide {
   final String title;
   final String subtitle;
 
-  /// Biosafety notice shown at the top of the step list.
+  /// Aviso de biossegurança exibido no topo da lista de passos.
   final String warning;
   final List<DisposalStep> steps;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   factory DisposalGuide.fromJson(Map<String, dynamic> json) {
     final List<dynamic> rawSteps = switch (json["steps"]) {

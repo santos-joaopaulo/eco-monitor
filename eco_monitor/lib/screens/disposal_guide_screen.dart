@@ -8,7 +8,7 @@ import "../widgets/eco_app_bar.dart";
 import "../widgets/residue_card.dart";
 import "../widgets/residue_style.dart";
 
-/// Screen 1: list of residues with the button that starts each guide.
+/// Tela 1: listagem de resíduos com o botão que inicia cada guia.
 class DisposalGuideScreen extends StatelessWidget {
   const DisposalGuideScreen({
     super.key,
@@ -35,7 +35,7 @@ class DisposalGuideScreen extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
             child: ListView(
-              // The bottom menu floats over the content: reserve its space.
+              // O menu inferior flutua sobre o conteúdo: reserva o espaço necessário.
               padding: EdgeInsets.fromLTRB(
                 0,
                 24,
@@ -55,8 +55,8 @@ class DisposalGuideScreen extends StatelessWidget {
                     info:
                         "${residue.minutes} min · ${residue.totalSteps} passos",
                     infoWithClock: true,
-                    // Progress resume does not exist yet: every category starts
-                    // the guide from the first step.
+                    // Retomada de progresso ainda não existe: cada categoria inicia
+                    // o guia a partir do primeiro passo.
                     onPressed: () => onStartGuide(residue),
                   ),
                   const SizedBox(height: 16),

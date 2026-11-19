@@ -4,7 +4,9 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:eco_monitor/data/collect_points_repository.dart";
 import "package:eco_monitor/models/collection_point.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 CollectionPoint testPoint(
   String id, {
@@ -23,7 +25,9 @@ CollectionPoint testPoint(
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

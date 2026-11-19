@@ -13,10 +13,12 @@ import "disposal_guide_repository_synced.dart";
 import "firebase_service.dart";
 import "point_suggestions_repository.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Coordinates online Firebase synchronization with local offline storage across
-/// all EcoMonitor repositories (RF05, RNF09, RNF10, RNF11, RNF17).
+
+/// Coordena a sincronização online com o Firebase e o armazenamento local offline
+/// entre todos os repositórios do EcoMonitor (RF05, RNF09, RNF10, RNF11, RNF17).
 class AppDataSync extends ChangeNotifier {
   AppDataSync({
     required this.collectPointsRepository,
@@ -26,8 +28,8 @@ class AppDataSync extends ChangeNotifier {
     required this.connectivityService,
   });
 
-  /// Builds the production [AppDataSync] wired to Cloud Firestore when
-  /// Firebase has been initialized, or offline-only otherwise.
+  /// Constrói a instância de produção de [AppDataSync] conectada ao Cloud Firestore
+  /// quando o Firebase estiver inicializado, ou apenas offline caso contrário.
   factory AppDataSync.createDefault({bool? firebaseEnabled}) {
     final bool useRemote = firebaseEnabled ?? isFirebaseReady;
 
@@ -74,10 +76,12 @@ class AppDataSync extends ChangeNotifier {
   DateTime? get lastUpdated => collectPointsRepository.lastUpdated;
   DataSourceOrigin? get sourceOrigin => collectPointsRepository.sourceOrigin;
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Loads offline datasets immediately, subscribes to connectivity changes,
-  /// and refreshes from Firebase when online.
+
+  /// Carrega os conjuntos de dados offline imediatamente, monitora mudanças de conectividade
+  /// e atualiza a partir do Firebase quando online.
   Future<void> initialize() async {
     if (_initialized || _disposed) {
       return;
@@ -97,8 +101,8 @@ class AppDataSync extends ChangeNotifier {
     }
   }
 
-  /// Refreshes collection points, campaigns, and disposal guides from the
-  /// remote backend and flushes any queued offline suggestions.
+  /// Atualiza pontos de coleta, campanhas e guias de descarte a partir do
+  /// backend remoto e envia quaisquer sugestões offline enfileiradas.
   Future<void> refreshAll() async {
     if (_disposed || _isSyncing) {
       return;
@@ -132,8 +136,8 @@ class AppDataSync extends ChangeNotifier {
     }
   }
 
-  /// Submits an anonymous point suggestion, automatically queueing it offline
-  /// if the device is disconnected or the remote call fails.
+  /// Envia uma sugestão anônima de ponto, enfileirando-a offline automaticamente
+  /// caso o dispositivo esteja desconectado ou a chamada remota falhe.
   Future<SuggestionSubmitResult> submitSuggestion(
     PointSuggestion suggestion,
   ) async {

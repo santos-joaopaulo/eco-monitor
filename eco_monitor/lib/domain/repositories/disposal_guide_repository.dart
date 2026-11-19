@@ -1,14 +1,13 @@
 import "../entities/disposal_guide.dart";
 import "../entities/residue.dart";
 
-/// Access contract for the disposal guide content.
+/// Contrato de acesso para o conteúdo do guia de descarte.
 ///
-/// The presentation layer depends only on this interface. Today the
-/// implementation is local (in memory); in the future it can be swapped for
-/// SQLite / Firestore without changing the screens.
+/// A camada de apresentação depende apenas desta interface. A implementação
+/// pode ser local (em memória) ou sincronizada com Firestore sem alterar as telas.
 abstract interface class DisposalGuideRepository {
   List<Residue> listResidues();
 
-  /// Step by step of the residue, or `null` if the guide does not exist yet.
+  /// Passo a passo do resíduo, ou `null` se o guia ainda não existir.
   DisposalGuide? stepsGuideFor(ResidueType type);
 }

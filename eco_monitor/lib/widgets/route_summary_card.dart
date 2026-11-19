@@ -6,9 +6,11 @@ import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Compact route panel shown after starting the navigation (RF04).
+
+/// Painel compacto da rota exibido após iniciar a navegação (RF04).
 class RouteSummaryCard extends StatelessWidget {
   const RouteSummaryCard({
     super.key,
@@ -21,7 +23,9 @@ class RouteSummaryCard extends StatelessWidget {
   final RouteSummary? summary;
   final VoidCallback onClose;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +149,9 @@ class RouteSummaryCard extends StatelessWidget {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _RouteMetric extends StatelessWidget {
   const _RouteMetric({required this.label, required this.value});

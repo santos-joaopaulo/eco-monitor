@@ -2,7 +2,7 @@ import "../domain/entities/disposal_guide.dart";
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 
-/// Local (in memory) implementation of [DisposalGuideRepository].
+/// Implementação local (em memória) de [DisposalGuideRepository].
 class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
   const DisposalGuideRepositoryLocal();
 

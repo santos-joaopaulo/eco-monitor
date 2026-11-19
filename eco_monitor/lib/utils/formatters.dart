@@ -1,8 +1,9 @@
 // Methods ----------------------------------------------------------------- //
 
-/// Formats a distance in meters for the UI, using the pt-BR decimal comma.
+
+/// Formata uma distância em metros para a interface, usando a vírgula decimal pt-BR.
 ///
-/// Examples: `450` -> `"450 m"`; `1300` -> `"1,3 km"`.
+/// Exemplos: `450` -> `"450 m"`; `1300` -> `"1,3 km"`.
 String formatDistance(double meters) {
   final double safeMeters = meters.abs();
 
@@ -15,9 +16,9 @@ String formatDistance(double meters) {
   return "${kilometers.replaceAll(".", ",")} km";
 }
 
-/// Formats a duration in minutes for the UI.
+/// Formata uma duração em minutos para a interface.
 ///
-/// Examples: `6` -> `"6 min"`; `65` -> `"1 h 5 min"`.
+/// Exemplos: `6` -> `"6 min"`; `65` -> `"1 h 5 min"`.
 String formatDuration(double minutes) {
   final int totalMinutes = minutes.isFinite && minutes > 0
       ? minutes.round()
@@ -37,12 +38,12 @@ String formatDuration(double minutes) {
   return "$hours h $remainingMinutes min";
 }
 
-/// Formats a compact pt-BR date range for campaign cards.
+/// Formata um intervalo de datas compacto em pt-BR para os cards de campanha.
 ///
-/// Examples:
-/// - Same day: `"05/12"`
-/// - Same month: `"15–30/11"`
-/// - Different months: `"28/11–05/12"`
+/// Exemplos:
+/// - Mesmo dia: `"05/12"`
+/// - Mesmo mês: `"15–30/11"`
+/// - Meses diferentes: `"28/11–05/12"`
 String formatCampaignDateRange(DateTime startDate, DateTime endDate) {
   final DateTime start = startDate.toLocal();
   final DateTime end = endDate.toLocal();
@@ -65,9 +66,9 @@ String formatCampaignDateRange(DateTime startDate, DateTime endDate) {
   return "$startDay/$startMonth–$endDay/$endMonth";
 }
 
-/// Formats a full pt-BR period (dates and optional hours) for campaign details.
+/// Formata um período completo em pt-BR (datas e horários opcionais) para os detalhes da campanha.
 ///
-/// Example: `"15/11/2026 a 30/11/2026 · 08h às 17h"`.
+/// Exemplo: `"15/11/2026 a 30/11/2026 · 08h às 17h"`.
 String formatCampaignPeriod(DateTime startDate, DateTime endDate) {
   final DateTime start = startDate.toLocal();
   final DateTime end = endDate.toLocal();

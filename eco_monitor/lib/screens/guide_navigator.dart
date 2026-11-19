@@ -6,10 +6,10 @@ import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
 import "disposal_step_by_step_screen.dart";
 
-/// Nested navigator of the "guia" tab.
+/// Navegador aninhado da aba "guia".
 ///
-/// Because the [Navigator] lives *inside* the tab, the shell bottom menu
-/// (main.dart) stays visible and persistent while the step-by-step is open.
+/// Como o [Navigator] reside *dentro* da aba, a barra inferior principal
+/// (main.dart) permanece visível e persistente enquanto o passo a passo está aberto.
 class GuideNavigator extends StatefulWidget {
   const GuideNavigator({
     super.key,
@@ -20,11 +20,11 @@ class GuideNavigator extends StatefulWidget {
 
   final DisposalGuideRepository repository;
 
-  /// `true` when the "guia" tab is visible (controls the back button).
+  /// `true` quando a aba "guia" está visível (controla o botão voltar).
   final bool active;
 
-  /// Called with the residue type after leaving the guide tab, so the map can
-  /// filter the collection points (RF12/RF13).
+  /// Chamado com o tipo de resíduo ao sair da aba do guia, permitindo que o mapa
+  /// filtre os pontos de coleta (RF12/RF13).
   final ValueChanged<ResidueType> onShowCollectionPoints;
 
   @override
@@ -64,7 +64,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     }
   }
 
-  /// Floating warning shown when the residue guide is not available yet.
+  /// Alerta flutuante exibido quando o guia do resíduo ainda não está disponível.
   void _showGuideUnavailable(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -73,8 +73,8 @@ class _GuideNavigatorState extends State<GuideNavigator> {
       );
   }
 
-  /// Closes the internal route (when the step-by-step is open) and only then
-  /// hands the residue type to the shell, which switches to the map tab.
+  /// Fecha a rota interna (quando o passo a passo está aberto) e só então
+  /// repassa o tipo de resíduo para a casca do app, que alterna para a aba do mapa.
   void _showCollectionPoints(ResidueType type) {
     final NavigatorState? navigator = _navigatorKey.currentState;
     if (navigator != null && navigator.canPop()) {
@@ -83,8 +83,8 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     widget.onShowCollectionPoints(type);
   }
 
-  /// Android back button: closes the step-by-step; if already on the list,
-  /// behaves like the system default (exits the app).
+  /// Botão voltar do Android: fecha o passo a passo; se já estiver na listagem,
+  /// tem o comportamento padrão do sistema (sai do app).
   void _onBack(bool didPop, Object? result) {
     if (didPop) return;
     final NavigatorState? navigator = _navigatorKey.currentState;
@@ -120,7 +120,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // Only intercepts "back" when this tab is in front.
+      // Só intercepta o "voltar" quando esta aba estiver ativa na frente.
       canPop: !widget.active,
       onPopInvokedWithResult: _onBack,
       child: Navigator(key: _navigatorKey, onGenerateRoute: _generateRoute),

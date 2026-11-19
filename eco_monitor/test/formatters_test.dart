@@ -2,7 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/utils/formatters.dart";
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   test("formatDistance uses meters below one kilometer", () {

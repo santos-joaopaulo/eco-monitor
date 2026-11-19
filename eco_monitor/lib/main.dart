@@ -16,7 +16,9 @@ import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
 import "widgets/offline_banner.dart";
 
+
 // Init -------------------------------------------------------------------- //
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,19 +28,21 @@ Future<void> main() async {
     MapboxOptions.setAccessToken(accessToken);
   }
 
-  // Initializes Firebase when platform credentials are present; gracefully
-  // falls back to offline mode otherwise (RNF09, RNF10).
+  // Inicializa o Firebase quando as credenciais da plataforma estão presentes;
+  // caso contrário, opera em modo offline (RNF09, RNF10).
   await initializeFirebase();
 
   runApp(const MyApp());
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, this.dataSync});
 
-  /// Optional sync coordinator override used in tests.
+  /// Coordenador de sincronização opcional utilizado em testes.
   final AppDataSync? dataSync;
 
   @override
@@ -69,17 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int _guideTab = 1;
   static const int _eventsTab = 2;
 
-  // Composition root: wires the Firebase + offline Data layer to the
-  // presentation layer.
+  // Raiz de composição: conecta a camada de dados (Firebase + offline) à
+  // camada de apresentação.
   late final AppDataSync _dataSync;
   late final bool _ownsDataSync;
 
   int _selectedIndex = _homeTab;
 
-  /// Residue type selected in the guide tab and applied to the map (RF12).
+  /// Tipo de resíduo selecionado na aba do guia e aplicado ao mapa (RF12).
   ResidueType? _residueFilter;
 
-  /// Campaign selected in the events tab to focus on the map (RF09).
+  /// Campanha selecionada na aba de eventos para focar no mapa (RF09).
   Campaign? _focusedCampaign;
 
   @override
@@ -105,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  /// Opens the map tab already filtered by the residue chosen in the guide.
+  /// Abre a aba do mapa já filtrada pelo resíduo escolhido no guia.
   void _showCollectionPoints(ResidueType type) {
     setState(() {
       _residueFilter = type;
@@ -120,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  /// Opens the map tab focused on the location of a campaign (RF09).
+  /// Abre a aba do mapa focada na localização de uma campanha (RF09).
   void _showCampaignLocation(Campaign campaign) {
     setState(() {
       _focusedCampaign = campaign;
@@ -135,8 +139,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  /// Wraps a tab with the standard [EcoAppBar]. The Guia tab does not go
-  /// through here: GuideNavigator draws its own AppBar on each screen.
+  /// Envolve uma aba com a [EcoAppBar] padrão. A aba de Guia não passa por
+  /// aqui: o GuideNavigator renderiza sua própria AppBar em cada tela.
   Widget _withAppBar(Widget body, {String? title}) {
     return Scaffold(
       appBar: EcoAppBar(title: title ?? widget.title),
@@ -154,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (BuildContext context, Widget? child) {
           return Column(
             children: [
-              // Connectivity / staleness / pending-queue banner (RNF10, RNF17).
+              // Banner de conectividade, desatualização e fila pendente (RNF10, RNF17).
               OfflineBanner(
                 isOffline: !_dataSync.isOnline,
                 isStale: _dataSync.isStale,

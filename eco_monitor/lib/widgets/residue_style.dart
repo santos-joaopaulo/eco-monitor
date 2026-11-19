@@ -3,9 +3,9 @@ import "package:flutter/material.dart";
 import "../domain/entities/residue.dart";
 import "../theme/eco_theme.dart";
 
-/// Icon, color and labels of each residue type (color code of the project:
-/// orange = medicines, green = batteries, bluish grey = syringes,
-/// deep purple = electronics).
+/// Ícone, cor e rótulos de cada tipo de resíduo (código de cores do projeto:
+/// laranja = remédios, verde = baterias, cinza-azulado = seringas,
+/// roxo escuro = eletrônicos).
 extension ResidueStyle on ResidueType {
   IconData get icon => switch (this) {
     ResidueType.medicine => Icons.medication_rounded,
@@ -21,7 +21,7 @@ extension ResidueStyle on ResidueType {
     ResidueType.electronics => EcoColors.electronics,
   };
 
-  /// Label shown to the user (filter of the map, for example).
+  /// Rótulo exibido ao usuário (filtro do mapa, por exemplo).
   String get label => switch (this) {
     ResidueType.medicine => "Remédios",
     ResidueType.battery => "Pilhas e baterias",
@@ -29,7 +29,7 @@ extension ResidueStyle on ResidueType {
     ResidueType.electronics => "Lixo eletrônico",
   };
 
-  /// Uppercase title shown in the AppBar of the step-by-step screen.
+  /// Título em letras maiúsculas exibido na AppBar da tela de passo a passo.
   String get appBarTitle => switch (this) {
     ResidueType.medicine => "REMÉDIOS",
     ResidueType.battery => "PILHAS E BATERIAS",

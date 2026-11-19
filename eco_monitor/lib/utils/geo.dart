@@ -1,13 +1,17 @@
 import "dart:math" as math;
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Mean Earth radius in meters, used by the haversine formula.
+
+/// Raio médio da Terra em metros, usado pela fórmula de haversine.
 const double kEarthRadiusInMeters = 6371000;
+
 
 // Methods ----------------------------------------------------------------- //
 
-/// Great-circle distance in meters between two geographic coordinates.
+
+/// Distância ortodrômica em metros entre duas coordenadas geográficas.
 double distanceInMeters(double lat1, double lon1, double lat2, double lon2) {
   final double deltaLat = _toRadians(lat2 - lat1);
   final double deltaLon = _toRadians(lon2 - lon1);

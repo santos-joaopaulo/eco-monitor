@@ -11,20 +11,24 @@ import "disposal_guide_repository_local.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
 
+
 // Constants ---------------------------------------------------------------- //
 
-/// Firestore collection name for disposal guides (`CRUD - Guia`).
+
+/// Nome da coleção no Firestore para guias de descarte (`CRUD - Guia`).
 const String kDisposalGuidesCollection = "disposalGuides";
 
 const String _cacheJsonKey = "disposal_guides_json";
 const String _cacheLastUpdatedKey = "disposal_guides_last_updated";
 
-/// Maximum age before cached disposal guides are considered out of date.
+/// Idade máxima antes que os guias de descarte em cache sejam considerados desatualizados.
 const Duration kDisposalGuidesMaxAge = Duration(days: 30);
+
 
 // Types ------------------------------------------------------------------- //
 
-/// Remote snapshot of disposal guides and residue summaries fetched from
+
+/// Snapshot remoto de guias de descarte e resumos de resíduos obtidos do
 /// Firestore.
 class DisposalGuidesRemoteSnapshot {
   const DisposalGuidesRemoteSnapshot({
@@ -38,17 +42,19 @@ class DisposalGuidesRemoteSnapshot {
   final DateTime updatedAt;
 }
 
-/// Hook used by [DisposalGuideRepositorySynced.refresh] to fetch remote guides.
+/// Função usada por [DisposalGuideRepositorySynced.refresh] para buscar guias remotos.
 typedef DisposalGuidesFetcher = Future<DisposalGuidesRemoteSnapshot> Function();
+
 
 // Methods ----------------------------------------------------------------- //
 
-/// Creates a [DisposalGuidesFetcher] backed by the Firestore `disposalGuides`
-/// collection.
+
+/// Cria um [DisposalGuidesFetcher] baseado na coleção `disposalGuides`
+/// do Firestore.
 ///
-/// Each document ID (or `type` field) corresponds to a [ResidueType] name
-/// (`medicine`, `battery`, `sharps`) and may contain summary fields (`title`,
-/// `description`, `minutes`, `totalSteps`) plus step-by-step fields
+/// O ID de cada documento (ou campo `type`) corresponde ao nome de um [ResidueType]
+/// (`medicine`, `battery`, `sharps`) e pode conter campos de resumo (`title`,
+/// `description`, `minutes`, `totalSteps`) além de campos do passo a passo
 /// (`subtitle`, `warning`, `steps`).
 DisposalGuidesFetcher createFirestoreGuidesFetcher({
   FirebaseFirestore? firestore,
@@ -125,14 +131,16 @@ DisposalGuidesFetcher createFirestoreGuidesFetcher({
   };
 }
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Offline-first [DisposalGuideRepository] with optional Firestore sync.
+
+/// [DisposalGuideRepository] offline-first com sincronização opcional via Firestore.
 ///
-/// Always initializes with the bundled [DisposalGuideRepositoryLocal] content
-/// in memory so [listResidues] and [stepsGuideFor] work synchronously even on
-/// the first offline launch (RNF09). Remote updates fetched via [refresh] are
-/// cached in [SharedPreferences] and merged over the bundled defaults.
+/// Sempre inicializa com o conteúdo empacotado de [DisposalGuideRepositoryLocal]
+/// em memória para que [listResidues] e [stepsGuideFor] funcionem sincronicamente
+/// mesmo na primeira inicialização offline (RNF09). Atualizações remotas obtidas via
+/// [refresh] são salvas em cache no [SharedPreferences] e mescladas com os padrões empacotados.
 class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   DisposalGuideRepositorySynced({
     this.fallback = const DisposalGuideRepositoryLocal(),
@@ -156,10 +164,10 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   DateTime? _lastUpdated;
   DataSourceOrigin _sourceOrigin = DataSourceOrigin.bundledAsset;
 
-  /// Timestamp of the cached/remote guide dataset, or null when using defaults.
+  /// Timestamp do conjunto de guias em cache/remoto, ou nulo ao usar os dados padrão empacotados.
   DateTime? get lastUpdated => _lastUpdated;
 
-  /// Origin of the guide content currently served.
+  /// Origem do conteúdo de guias atualmente servido.
   DataSourceOrigin get sourceOrigin => _sourceOrigin;
 
   bool get hasRemoteSource => fetcher != null;
@@ -173,7 +181,9 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
     return _clock().difference(lastUpdated) > kDisposalGuidesMaxAge;
   }
 
+
   // Methods --------------------------------------------------------------- //
+
 
   @override
   List<Residue> listResidues() => List<Residue>.unmodifiable(_residues);
@@ -181,8 +191,8 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   @override
   DisposalGuide? stepsGuideFor(ResidueType type) => _guides[type];
 
-  /// Loads cached guides from [SharedPreferences], keeping bundled defaults
-  /// intact for any residue not present in the cache.
+  /// Carrega os guias em cache do [SharedPreferences], mantendo intactos os
+  /// padrões empacotados para qualquer resíduo não presente no cache.
   Future<void> loadOffline() async {
     final SharedPreferences preferences = await _preferencesFactory();
     final String? cachedJson = preferences.getString(_cacheJsonKey);
@@ -213,8 +223,8 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
     }
   }
 
-  /// Fetches the latest guides from [fetcher], updates the local cache, and
-  /// merges them into memory. Falls back to [loadOffline] on error.
+  /// Busca os guias mais recentes de [fetcher], atualiza o cache local e
+  /// os mescla em memória. Recorre a [loadOffline] em caso de erro.
   Future<void> refresh() async {
     final DisposalGuidesFetcher? remoteFetcher = fetcher;
     if (remoteFetcher == null) {
@@ -239,7 +249,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
     }
   }
 
-  /// Clears cached guides and restores the bundled offline content.
+  /// Limpa os guias em cache e restaura o conteúdo offline empacotado.
   Future<void> clearCache() async {
     final SharedPreferences preferences = await _preferencesFactory();
     await preferences.remove(_cacheJsonKey);
@@ -309,7 +319,9 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _ParsedGuides {
   const _ParsedGuides({
@@ -323,7 +335,9 @@ class _ParsedGuides {
   final DateTime? updatedAt;
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 _ParsedGuides _parseGuidesJson(String source) {
   final Object? decoded = jsonDecode(source);

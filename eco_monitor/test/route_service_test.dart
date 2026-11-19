@@ -5,7 +5,9 @@ import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/services/location_service.dart";
 import "package:eco_monitor/services/route_service.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 CollectionPoint buildPoint({
   double latitude = -10.95,
@@ -27,7 +29,9 @@ CollectionPoint buildPoint({
 
 const UserLocation user = UserLocation(latitude: -10.95, longitude: -37.067);
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   const RouteService service = RouteService();

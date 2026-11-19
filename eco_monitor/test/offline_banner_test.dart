@@ -13,7 +13,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(Material), findsOneWidget); // Only Scaffold's Material
+    expect(find.byType(Material), findsOneWidget); // Apenas o Material do Scaffold.
     expect(find.textContaining("Sem conexão"), findsNothing);
     expect(find.textContaining("desatualizados"), findsNothing);
   });

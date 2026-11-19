@@ -2,12 +2,14 @@ import "package:flutter/material.dart";
 
 import "../theme/app_colors.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Compact notice about the location permission/service.
+
+/// Aviso compacto sobre a permissão ou serviço de localização.
 ///
-/// It never blocks the map: when the user dismisses or ignores it, the screen
-/// keeps working with the local collection points.
+/// Nunca bloqueia o mapa: quando o usuário descarta ou ignora o aviso, a tela
+/// continua funcionando com os pontos de coleta locais.
 class LocationNotice extends StatelessWidget {
   const LocationNotice({
     super.key,

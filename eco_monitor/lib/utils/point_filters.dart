@@ -1,11 +1,13 @@
 import "../models/collection_point.dart";
 
+
 // Methods ----------------------------------------------------------------- //
 
-/// Points shown on the map for the current waste selection.
+
+/// Pontos exibidos no mapa para a seleção atual de resíduos.
 ///
-/// Inactive points are never shown. An empty selection means "all residues",
-/// otherwise the point must accept at least one of the selected types.
+/// Pontos inativos nunca são exibidos. Uma seleção vazia significa "todos os resíduos",
+/// caso contrário, o ponto deve aceitar pelo menos um dos tipos selecionados.
 List<CollectionPoint> filterCollectionPoints(
   List<CollectionPoint> points,
   Set<WasteType> selectedWasteTypes,

@@ -2,14 +2,18 @@ import "dart:async";
 
 import "package:geolocator/geolocator.dart";
 
+
 // Enums ------------------------------------------------------------------- //
 
-/// Result of a location permission check, including service availability.
+
+/// Resultado da verificação de permissão de localização, incluindo disponibilidade do serviço.
 enum LocationPermissionState { granted, denied, deniedForever, serviceDisabled }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// Position of the device, kept in memory only (never persisted).
+
+/// Posição do dispositivo, mantida apenas em memória (nunca persistida).
 class UserLocation {
   const UserLocation({
     required this.latitude,
@@ -22,14 +26,15 @@ class UserLocation {
   final double? accuracy;
 }
 
-/// Thin wrapper around geolocator with the permission and timeout rules of
-/// the app (T2).
+/// Encapsulamento em torno do geolocator com regras de permissão e timeout do app (T2).
 class LocationService {
   const LocationService({this.timeLimit = const Duration(seconds: 12)});
 
   final Duration timeLimit;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   Future<LocationPermissionState> currentPermission() async {
     try {
@@ -55,8 +60,8 @@ class LocationService {
     }
   }
 
-  /// Returns the current position, falling back to the last known one when
-  /// the device does not provide a fix within [timeLimit].
+  /// Retorna a posição atual, recorrendo à última conhecida quando
+  /// o dispositivo não obtiver a localização dentro de [timeLimit].
   Future<UserLocation?> currentPosition() async {
     UserLocation? lastKnown;
 
@@ -94,7 +99,9 @@ class LocationService {
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 LocationPermissionState _mapPermission(LocationPermission permission) {
   return switch (permission) {

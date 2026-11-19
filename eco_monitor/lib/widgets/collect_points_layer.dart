@@ -6,12 +6,14 @@ import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 import "../models/collection_point.dart";
 import "point_pin.dart";
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Draws the active collection points as Mapbox point annotations.
+
+/// Renderiza os pontos de coleta ativos como anotações de ponto do Mapbox.
 ///
-/// Native annotations are not supported on Mapbox web, so [create] returns
-/// null there and the home screen keeps working without pins.
+/// Anotações nativas não são suportadas no Mapbox web, portanto [create] retorna
+/// null nessa plataforma e a tela inicial continua funcionando sem os marcadores.
 class CollectPointsLayer {
   CollectPointsLayer._(this._manager, this._images, this._onPointSelected);
 
@@ -27,7 +29,9 @@ class CollectPointsLayer {
   bool _disposed = false;
   Future<void>? _updateQueue;
 
+
   // Methods --------------------------------------------------------------- //
+
 
   static Future<CollectPointsLayer?> create({
     required MapboxMap mapboxMap,
@@ -65,10 +69,10 @@ class CollectPointsLayer {
     }
   }
 
-  /// Hides the POI symbol layers shipped by the current style when possible.
+  /// Oculta as camadas de símbolos de POI fornecidas pelo estilo atual quando possível.
   ///
-  /// The Mapbox Standard style keeps part of its POIs inside style imports,
-  /// which this API does not expose as individual layers.
+  /// O estilo Mapbox Standard mantém parte de seus POIs dentro de importações de estilo,
+  /// que esta API não expõe como camadas individuais.
   static Future<void> hideDefaultPois(MapboxMap mapboxMap) async {
     if (kIsWeb) {
       return;
@@ -84,11 +88,11 @@ class CollectPointsLayer {
         try {
           await mapboxMap.setStyleLayerProperty(layer.id, "visibility", "none");
         } catch (_) {
-          // Some imported layers are read-only; keep the map usable.
+          // Algumas camadas importadas são somente leitura; mantém o mapa utilizável.
         }
       }
     } catch (_) {
-      // Ignore styles without inspectable layers.
+      // Ignora estilos sem camadas inspecionáveis.
     }
   }
 
@@ -141,7 +145,7 @@ class CollectPointsLayer {
           await _manager.createMulti(options);
         }
       } catch (_) {
-        // A failed redraw must not break the map or the filters.
+        // Uma falha de redesenho não deve quebrar o mapa nem os filtros.
       }
     }
 
@@ -172,7 +176,9 @@ class CollectPointsLayer {
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 String _imageKey(PointType type, {required bool selected}) {
   return "${type.name}-${selected ? "selected" : "default"}";

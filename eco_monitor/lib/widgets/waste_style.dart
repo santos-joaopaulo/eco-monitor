@@ -3,9 +3,11 @@ import "package:flutter/material.dart";
 import "../models/collection_point.dart";
 import "../theme/app_colors.dart";
 
+
 // Extensions -------------------------------------------------------------- //
 
-/// Visual tokens (icon, color and pt-BR label) for each [WasteType].
+
+/// Tokens visuais (ícone, cor e rótulo pt-BR) para cada [WasteType].
 extension WasteTypeStyle on WasteType {
   IconData get icon => switch (this) {
     WasteType.medicines => Icons.medication_rounded,
@@ -28,7 +30,7 @@ extension WasteTypeStyle on WasteType {
     WasteType.electronics => "Lixo eletrônico",
   };
 
-  /// Short label used by the compact map filters.
+  /// Rótulo curto usado pelos filtros compactos do mapa.
   String get filterLabel => switch (this) {
     WasteType.medicines => "Remédios",
     WasteType.batteries => "Pilhas",

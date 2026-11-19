@@ -22,7 +22,9 @@ import "../widgets/filter_bar.dart";
 import "../widgets/location_notice.dart";
 import "../widgets/route_summary_card.dart";
 
+
 // Home screen ------------------------------------------------------------- //
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -37,24 +39,24 @@ class HomeScreen extends StatefulWidget {
     this.isActive = true,
   });
 
-  /// Residue type received from the guide tab; starts the map filter.
+  /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
   final ResidueType? residueFilter;
   final VoidCallback? onClearFilter;
 
-  /// Campaign received from the events tab to focus on the map (RF09).
+  /// Campanha recebida da aba de eventos para focar no mapa (RF09).
   final Campaign? focusedCampaign;
   final VoidCallback? onClearCampaign;
 
-  /// Offline-first repository for collection points (RF05, RNF11).
+  /// Repositório offline-first para pontos de coleta (RF05, RNF11).
   final CollectPointsRepository? repository;
 
-  /// Shared online/offline sync controller injected from the composition root.
+  /// Controlador compartilhado de sincronização online/offline injetado da raiz de composição.
   final AppDataSync? dataSync;
 
-  /// Device location service used to show and follow the user position (RF14).
+  /// Serviço de localização do dispositivo usado para obter e seguir a posição do usuário (RF14).
   final LocationService locationService;
 
-  /// Whether the map tab is currently visible.
+  /// Indica se a aba do mapa está visível no momento.
   final bool isActive;
 
   @override
@@ -84,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _locationFailed = false;
   bool _cameraCenteredOnUser = false;
 
+
   // Init ------------------------------------------------------------------ //
+
 
   @override
   void initState() {
@@ -140,7 +144,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+
   // Methods --------------------------------------------------------------- //
+
 
   Future<void> _flyToCampaign(Campaign campaign) async {
     final MapboxMap? map = _mapboxMap;
@@ -511,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       );
     } catch (_) {
-      // The route panel still informs the user when the line cannot be drawn.
+      // O painel da rota ainda informa o usuário quando a linha não puder ser desenhada.
     }
   }
 
@@ -524,7 +530,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     try {
       await manager.deleteAll();
     } catch (_) {
-      // Nothing to clear when the map is not ready.
+      // Nada a limpar quando o mapa não estiver pronto.
     }
   }
 
@@ -639,7 +645,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+
   // Build ----------------------------------------------------------------- //
+
 
   @override
   Widget build(BuildContext context) {
@@ -830,7 +838,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 }
 
+
 // Classes ----------------------------------------------------------------- //
+
 
 class _FocusedCampaignChip extends StatelessWidget {
   const _FocusedCampaignChip({required this.campaign, this.onClear});
@@ -968,7 +978,9 @@ class _MapStatusPill extends StatelessWidget {
   }
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 WasteType? _wasteTypeFor(ResidueType? residue) {
   return switch (residue) {

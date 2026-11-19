@@ -1,12 +1,14 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 
+
 // Methods ----------------------------------------------------------------- //
 
-/// Converts a Firestore document map into plain JSON-compatible values.
+
+/// Converte um mapa de documento do Firestore em valores compatíveis com JSON puro.
 ///
-/// Firestore-specific types ([Timestamp], [GeoPoint]) are converted to ISO 8601
-/// UTC strings and numeric coordinates so domain models remain decoupled from
-/// `cloud_firestore` and can be cached directly in `SharedPreferences`.
+/// Tipos específicos do Firestore ([Timestamp], [GeoPoint]) são convertidos em strings ISO 8601
+/// UTC e coordenadas numéricas, mantendo os modelos de domínio desacoplados do
+/// `cloud_firestore` e permitindo cache direto no `SharedPreferences`.
 Map<String, dynamic> normalizeFirestoreData(
   Map<String, dynamic> raw, {
   String? documentId,
@@ -35,8 +37,8 @@ Map<String, dynamic> normalizeFirestoreData(
   return normalized;
 }
 
-/// Extracts a UTC [DateTime] from a Firestore [Timestamp], [DateTime],
-/// ISO 8601 [String], or Unix epoch milliseconds [int].
+/// Extrai um [DateTime] em UTC a partir de um [Timestamp] do Firestore, [DateTime],
+/// [String] em formato ISO 8601 ou milissegundos da época Unix ([int]).
 DateTime? extractFirestoreTimestamp(Object? value) {
   if (value is Timestamp) {
     return value.toDate().toUtc();
@@ -54,8 +56,8 @@ DateTime? extractFirestoreTimestamp(Object? value) {
   return null;
 }
 
-/// Reads the optional `metadata/<collectionName>` document's `updatedAt`
-/// server timestamp, returning `null` if unavailable.
+/// Lê o timestamp de servidor `updatedAt` do documento opcional `metadata/<collectionName>`,
+/// retornando `null` se indisponível.
 Future<DateTime?> readCollectionMetadataUpdatedAt(
   FirebaseFirestore firestore,
   String collectionName,

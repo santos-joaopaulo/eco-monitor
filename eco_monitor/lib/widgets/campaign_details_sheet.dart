@@ -8,9 +8,11 @@ import "../utils/formatters.dart";
 import "campaign_card.dart";
 import "waste_style.dart";
 
+
 // Methods ----------------------------------------------------------------- //
 
-/// Opens a modal bottom sheet with the complete details of a [Campaign] (RF09).
+
+/// Abre um modal bottom sheet com os detalhes completos de uma [Campaign] (RF09).
 Future<void> showCampaignDetailsSheet({
   required BuildContext context,
   required Campaign campaign,
@@ -33,10 +35,12 @@ Future<void> showCampaignDetailsSheet({
   );
 }
 
+
 // Classes ----------------------------------------------------------------- //
 
-/// Detailed view of a collection campaign (RF09): description, accepted waste
-/// types, full address, schedule and action to inspect the location on the map.
+
+/// Visualização detalhada de uma campanha de coleta (RF09): descrição, tipos de
+/// resíduos aceitos, endereço completo, cronograma e ação para inspecionar o local no mapa.
 class CampaignDetailsSheet extends StatelessWidget {
   const CampaignDetailsSheet({
     super.key,

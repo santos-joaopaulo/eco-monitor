@@ -5,7 +5,9 @@ import "package:eco_monitor/data/point_suggestions_repository.dart";
 import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/models/point_suggestion.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
+
 
 PointSuggestion testSuggestion(String name) {
   return PointSuggestion(
@@ -21,7 +23,9 @@ PointSuggestion testSuggestion(String name) {
   );
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

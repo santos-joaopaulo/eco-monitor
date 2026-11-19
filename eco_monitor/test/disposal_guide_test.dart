@@ -9,22 +9,24 @@ import "package:eco_monitor/main.dart";
 import "package:eco_monitor/screens/guide_navigator.dart";
 import "package:eco_monitor/widgets/residue_card.dart";
 
+
 // Helpers ------------------------------------------------------------------ //
 
-/// Large surface so the whole guide list and the step-by-step are laid out.
+
+/// Superfície ampla para renderizar toda a lista do guia e o passo a passo.
 void useTallSurface(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1800);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 }
 
-/// Opens the "guia" tab from the shell bottom bar.
+/// Abre a aba "guia" a partir da barra inferior do aplicativo.
 Future<void> openGuideTab(WidgetTester tester) async {
   await tester.tap(find.text("guia"));
   await tester.pumpAndSettle();
 }
 
-/// Opens the step-by-step of the residue whose card displays [cardTitle].
+/// Abre o passo a passo do resíduo cujo card exibe [cardTitle].
 Future<void> openResidueGuide(WidgetTester tester, String cardTitle) async {
   final Finder residueCard = find.ancestor(
     of: find.text(cardTitle),
@@ -55,7 +57,9 @@ class _UnavailableGuideRepository implements DisposalGuideRepository {
   DisposalGuide? stepsGuideFor(ResidueType type) => null;
 }
 
+
 // Tests -------------------------------------------------------------------- //
+
 
 void main() {
   testWidgets("guide list shows all four residue categories", (
@@ -181,11 +185,11 @@ void main() {
     await tester.tap(find.text("Ver pontos no mapa"));
     await tester.pumpAndSettle();
 
-    // Home tab is visible (no Mapbox token in tests, so the placeholder map
-    // message is shown).
+    // A aba Home está visível (sem token do Mapbox nos testes, a mensagem
+    // de espaço reservado é exibida).
     expect(find.text("Configure o token do Mapbox"), findsOneWidget);
 
-    // The internal route was popped: going back to the guide shows the list.
+    // A rota interna foi desempilhada: retornar ao guia exibe a listagem.
     await openGuideTab(tester);
     expect(find.text("Como descartar certo?"), findsOneWidget);
     expect(find.text("Apague seus dados"), findsNothing);

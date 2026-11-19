@@ -1,13 +1,17 @@
 import "collection_point.dart";
 
+
 // Enums ------------------------------------------------------------------- //
 
-/// Whether the campaign is running, upcoming, or already finished.
+
+/// Indica se a campanha está ativa, prevista ou já encerrada.
 enum CampaignStatus { active, upcoming, finished }
+
 
 // Classes ----------------------------------------------------------------- //
 
-/// A collection campaign shown to users (RF08, RF09, RNF11).
+
+/// Uma campanha de coleta exibida aos usuários (RF08, RF09, RNF11).
 class Campaign {
   Campaign({
     required this.id,
@@ -41,12 +45,14 @@ class Campaign {
 
   bool accepts(WasteType wasteType) => wasteTypes.contains(wasteType);
 
+
   // Methods --------------------------------------------------------------- //
 
-  /// Builds a campaign from JSON, tolerating missing fields and unknown values.
+
+  /// Constrói uma campanha a partir de JSON, tolerando campos ausentes e valores desconhecidos.
   ///
-  /// Unknown waste types are ignored, unknown statuses fall back to finished
-  /// (never shown as active by accident).
+  /// Tipos de resíduos desconhecidos são ignorados e status desconhecidos assumem finished
+  /// (para nunca serem exibidos como ativos por engano).
   factory Campaign.fromJson(Map<String, dynamic> json) {
     final List<dynamic> rawWasteTypes = switch (json["wasteTypes"]) {
       final List<dynamic> values => values,
@@ -105,7 +111,9 @@ class Campaign {
   String toString() => "Campaign($id, $title)";
 }
 
+
 // Methods ----------------------------------------------------------------- //
+
 
 WasteType? _wasteTypeByName(String name) {
   for (final WasteType type in WasteType.values) {
