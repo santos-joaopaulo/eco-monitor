@@ -11,8 +11,10 @@ import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
+import "../utils/point_filters.dart";
+import "../widgets/collect_points_layer.dart";
+import "../widgets/filter_bar.dart";
 import "../widgets/location_notice.dart";
-import "../widgets/residue_style.dart";
 
 // Home screen ------------------------------------------------------------- //
 
@@ -26,9 +28,10 @@ class HomeScreen extends StatefulWidget {
     this.repository,
     this.dataSync,
     this.locationService = const LocationService(),
+    this.isActive = true,
   });
 
-  /// Residue type received from the guide tab; shows the active filter.
+  /// Residue type received from the guide tab; starts the map filter.
   final ResidueType? residueFilter;
   final VoidCallback? onClearFilter;
 
@@ -45,6 +48,9 @@ class HomeScreen extends StatefulWidget {
   /// Device location service used to show and follow the user position (RF14).
   final LocationService locationService;
 
+  /// Whether the map tab is currently visible.
+  final bool isActive;
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -54,7 +60,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   static const double _userZoom = 14;
 
   MapboxMap? _mapboxMap;
+  CollectPointsLayer? _pointsLayer;
+
   List<CollectionPoint> _points = const <CollectionPoint>[];
+  Set<WasteType> _selectedWasteTypes = const <WasteType>{};
+  CollectionPoint? _selectedPoint;
+  bool _isLoadingPoints = true;
+
   LocationPermissionState? _permissionState;
   UserLocation? _userLocation;
   bool _isLocating = false;
@@ -68,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.dataSync?.addListener(_onSyncUpdated);
+    _selectedWasteTypes = _selectionForResidue(widget.residueFilter);
     _loadInitialPoints();
     unawaited(_checkLocationAvailability());
   }
@@ -79,6 +92,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       oldWidget.dataSync?.removeListener(_onSyncUpdated);
       widget.dataSync?.addListener(_onSyncUpdated);
       _onSyncUpdated();
+    }
+
+    if (oldWidget.residueFilter != widget.residueFilter) {
+      _applyWasteSelection(_selectionForResidue(widget.residueFilter));
     }
 
     final Campaign? nextCampaign = widget.focusedCampaign;
@@ -98,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.dataSync?.removeListener(_onSyncUpdated);
+    _pointsLayer?.dispose();
     super.dispose();
   }
 
@@ -128,31 +146,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     setState(() {
       _points = sync.points;
+      _isLoadingPoints = false;
     });
+    _syncPointsLayer();
   }
 
   Future<void> _loadInitialPoints() async {
     final AppDataSync? sync = widget.dataSync;
     if (sync != null) {
-      if (sync.points.isNotEmpty) {
-        setState(() {
-          _points = sync.points;
-        });
-      }
+      setState(() {
+        _points = sync.points;
+        _isLoadingPoints = false;
+      });
+      _syncPointsLayer();
       return;
     }
 
     final CollectPointsRepository? repository = widget.repository;
     if (repository == null) {
+      if (mounted) {
+        setState(() {
+          _isLoadingPoints = false;
+        });
+      }
       return;
     }
 
     final List<CollectionPoint> offline = await repository.loadOffline();
-    if (mounted) {
-      setState(() {
-        _points = offline;
-      });
+    if (!mounted) {
+      return;
     }
+
+    setState(() {
+      _points = offline;
+      _isLoadingPoints = false;
+    });
+    _syncPointsLayer();
 
     if (repository.hasRemoteSource) {
       final List<CollectionPoint> refreshed = await repository.refresh();
@@ -160,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         setState(() {
           _points = refreshed;
         });
+        _syncPointsLayer();
       }
     }
   }
@@ -302,13 +332,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     await mapboxMap.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
 
+    final CollectPointsLayer? layer = await CollectPointsLayer.create(
+      mapboxMap: mapboxMap,
+      onPointSelected: _handlePointSelected,
+    );
+
+    if (!mounted) {
+      layer?.dispose();
+      return;
+    }
+
+    _pointsLayer = layer;
+    layer?.update(_filteredPoints, selectedId: _selectedPoint?.id);
+
     final Campaign? focusedCampaign = widget.focusedCampaign;
     if (focusedCampaign != null) {
       await _flyToCampaign(focusedCampaign);
-    }
-
-    if (!mounted) {
-      return;
     }
 
     if (_permissionState == LocationPermissionState.granted) {
@@ -318,6 +357,59 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         await _showUserLocation();
       }
     }
+  }
+
+  Future<void> _onStyleLoaded(StyleLoadedEventData event) async {
+    final MapboxMap? map = _mapboxMap;
+    if (map != null) {
+      await CollectPointsLayer.hideDefaultPois(map);
+    }
+  }
+
+  void _handlePointSelected(CollectionPoint point) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _selectedPoint = point;
+    });
+    _syncPointsLayer();
+  }
+
+  void _handleFilterChanged(Set<WasteType> selection) {
+    final bool clearingGuideFilter =
+        selection.isEmpty && widget.residueFilter != null;
+
+    _applyWasteSelection(selection);
+
+    if (clearingGuideFilter) {
+      widget.onClearFilter?.call();
+    }
+  }
+
+  void _applyWasteSelection(Set<WasteType> selection) {
+    final CollectionPoint? point = _selectedPoint;
+    final bool hideSelection = point != null && !point.acceptsAny(selection);
+
+    setState(() {
+      _selectedWasteTypes = Set<WasteType>.unmodifiable(selection);
+
+      if (hideSelection) {
+        _selectedPoint = null;
+      }
+    });
+
+    _syncPointsLayer();
+  }
+
+  void _syncPointsLayer() {
+    final CollectPointsLayer? layer = _pointsLayer;
+    if (layer == null) {
+      return;
+    }
+
+    layer.update(_filteredPoints, selectedId: _selectedPoint?.id);
   }
 
   Widget? _buildLocationNotice() {
@@ -356,15 +448,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     };
   }
 
-  List<CollectionPoint> get _filteredPoints {
-    final WasteType? wasteType = _wasteTypeFor(widget.residueFilter);
-    if (wasteType == null) {
-      return _points;
+  Set<WasteType> _selectionForResidue(ResidueType? residue) {
+    final WasteType? type = _wasteTypeFor(residue);
+    if (type == null) {
+      return const <WasteType>{};
     }
 
-    return _points
-        .where((CollectionPoint point) => point.accepts(wasteType))
-        .toList();
+    return <WasteType>{type};
+  }
+
+  List<CollectionPoint> get _filteredPoints {
+    return filterCollectionPoints(_points, _selectedWasteTypes);
   }
 
   // Build ----------------------------------------------------------------- //
@@ -425,14 +519,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     final List<CollectionPoint> visiblePoints = _filteredPoints;
     final Widget? locationNotice = _buildLocationNotice();
-    final bool hasTopChip =
-        focusedCampaign != null || widget.residueFilter != null;
 
     return Stack(
       children: [
         MapWidget(
           key: const ValueKey("aracaju-map"),
           onMapCreated: _onMapCreated,
+          onStyleLoadedListener: _onStyleLoaded,
 
           viewport: CameraViewportState(
             center: Point(coordinates: Position(-37.067, -10.95)),
@@ -440,47 +533,65 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
 
-        if (locationNotice != null)
-          Positioned(
-            top: hasTopChip ? 80 : 16,
-            left: 16,
-            right: 16,
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
 
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: locationNotice,
+          child: SafeArea(
+            bottom: false,
+
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (focusedCampaign != null) ...[
+                    _FocusedCampaignChip(
+                      campaign: focusedCampaign,
+                      onClear: widget.onClearCampaign,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  FilterBar(
+                    selectedTypes: _selectedWasteTypes,
+                    visibleCount: visiblePoints.length,
+                    onChanged: _handleFilterChanged,
+                  ),
+
+                  if (_isLoadingPoints) ...[
+                    const SizedBox(height: 8),
+                    const _MapStatusPill(
+                      message: "Carregando pontos...",
+                      isLoading: true,
+                    ),
+                  ] else if (visiblePoints.isEmpty) ...[
+                    const SizedBox(height: 8),
+
+                    _MapStatusPill(
+                      message: _selectedWasteTypes.isEmpty
+                          ? "Nenhum ponto de coleta disponível."
+                          : "Nenhum ponto aceita esse resíduo por perto.",
+                      icon: Icons.location_off_outlined,
+                    ),
+                  ],
+
+                  if (locationNotice != null) ...[
+                    const SizedBox(height: 8),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 500),
+                        child: locationNotice,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
-
-        if (focusedCampaign != null)
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-
-            child: Center(
-              child: _FocusedCampaignChip(
-                campaign: focusedCampaign,
-                onClear: widget.onClearCampaign,
-              ),
-            ),
-          )
-        else if (widget.residueFilter != null)
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-
-            child: Center(
-              child: _ResidueFilterChip(
-                type: widget.residueFilter!,
-                matchCount: visiblePoints.length,
-                onClear: widget.onClearFilter,
-              ),
-            ),
-          ),
+        ),
 
         Positioned(
           left: 0,
@@ -509,59 +620,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 }
 
 // Classes ----------------------------------------------------------------- //
-
-class _ResidueFilterChip extends StatelessWidget {
-  const _ResidueFilterChip({
-    required this.type,
-    required this.matchCount,
-    this.onClear,
-  });
-
-  final ResidueType type;
-  final int matchCount;
-  final VoidCallback? onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final String countSuffix = matchCount > 0 ? " ($matchCount)" : "";
-
-    return Material(
-      color: EcoColors.surface,
-      elevation: 3,
-      shadowColor: Colors.black.withAlpha(40),
-      borderRadius: BorderRadius.circular(24),
-
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 4, 4, 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(type.icon, size: 20, color: type.color),
-            const SizedBox(width: 8),
-            Text(
-              "Filtro: ${type.label}$countSuffix",
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: EcoColors.textPrimary,
-              ),
-            ),
-            if (onClear != null)
-              IconButton(
-                onPressed: onClear,
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  color: EcoColors.textSecondary,
-                ),
-                tooltip: "Limpar filtro",
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _FocusedCampaignChip extends StatelessWidget {
   const _FocusedCampaignChip({required this.campaign, this.onClear});
@@ -632,6 +690,63 @@ class _FocusedCampaignChip extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapStatusPill extends StatelessWidget {
+  const _MapStatusPill({
+    required this.message,
+    this.icon,
+    this.isLoading = false,
+  });
+
+  final String message;
+  final IconData? icon;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface.withValues(alpha: 0.95),
+      elevation: 2,
+      shadowColor: Colors.black.withAlpha(30),
+      borderRadius: BorderRadius.circular(20),
+
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              Icon(
+                icon ?? Icons.info_outline,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+
+            const SizedBox(width: 8),
+
+            Flexible(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
