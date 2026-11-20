@@ -1,12 +1,6 @@
 # Eco Monitor ♻️
 <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Tela inicial do aplicativo">
 
-### Ajustes e melhorias
-O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas para as seguintes tarefas:
-- [ ] Mapa de pontos de coleta (marcadores, filtros, geolocalização, card do ponto e rota aproximada prontos; falta a ação de ponto mais próximo, cache de tiles offline e testes da tela)
-- [x] Guia visual de resíduos (remédios, pilhas, seringas e lixo eletrônico)
-- [ ] Alertas de campanhas (lista, filtros, detalhe e vínculo com o mapa prontos; falta notificações)
-
 # 🤝 Integrantes 
 * Carlos Kayky de Oliveira Silva
 * Enrico de Andrade Rodrigues Holanda

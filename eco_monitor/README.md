@@ -44,6 +44,19 @@ flutter run -d web-server --web-port 3000
 
 O aplicativo será servido em `http://localhost:3000`.
 
+### Executar o aplicativo com o mapa Mapbox
+
+É necessário ter o Flutter instalado, um dispositivo Android ou emulador configurado, acesso à internet e um token público Mapbox (`pk...`). Na pasta do projeto Flutter (`eco_monitor`), instale as dependências e execute:
+
+```bash
+flutter pub get
+flutter run --dart-define=ACCESS_TOKEN=pk.seu_token_publico
+```
+
+No VS Code, também é possível iniciar a configuração **EcoMonitor (Mapbox)** em **Run and Debug**. O arquivo `eco_monitor/.vscode/launch.json` solicita o token em um campo oculto e não armazena seu valor.
+
+Não use um token secreto (`sk...`) no aplicativo nem publique o token em arquivos versionados.
+
 ### Build de Produção
 
 ```bash
