@@ -1,0 +1,7 @@
+# Exemplo de configuração de assinatura de release para Android (RNF14).
+# Copie este arquivo para 'android/key.properties' e preencha com os dados do seu keystore.
+# NUNCA versione o arquivo 'key.properties' nem o arquivo .jks / .keystore!
+keyAlias=upload
+keyPassword=sua-senha-da-chave
+storeFile=upload-keystore.jks
+storePassword=sua-senha-do-keystore

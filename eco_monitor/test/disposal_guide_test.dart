@@ -260,4 +260,92 @@ void main() {
     );
     expect(find.text("Como descartar certo?"), findsOneWidget);
   });
+
+  testWidgets(
+    "system back in step-by-step returns to guide list without exiting",
+    (WidgetTester tester) async {
+      useTallSurface(tester);
+      await tester.pumpWidget(const MyApp());
+      await openGuideTab(tester);
+      await openResidueGuide(tester, "Remédios vencidos");
+
+      expect(find.text("REMÉDIOS"), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.text("Como descartar certo?"), findsOneWidget);
+      expect(find.text("Separe os medicamentos"), findsNothing);
+    },
+  );
+
+  testWidgets(
+    "system back at guide root redirects to home tab without closing app",
+    (WidgetTester tester) async {
+      useTallSurface(tester);
+      await tester.pumpWidget(const MyApp());
+      await openGuideTab(tester);
+
+      expect(find.text("Como descartar certo?"), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      // Confirma que voltou para a aba inicial (Home)
+      expect(find.text("Configure o token do Mapbox"), findsOneWidget);
+    },
+  );
+
+  testWidgets("GuideNavigator invokes onBackToHome when popped at root", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+    bool backToHomeCalled = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: GuideNavigator(
+            repository: const DisposalGuideRepositoryLocal(),
+            active: true,
+            onShowCollectionPoints: (_) {},
+            onBackToHome: () {
+              backToHomeCalled = true;
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text("Como descartar certo?"), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(backToHomeCalled, isTrue);
+  });
+
+  testWidgets(
+    "GuideNavigator allows pop without onBackToHome without throwing",
+    (WidgetTester tester) async {
+      useTallSurface(tester);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: GuideNavigator(
+              repository: const DisposalGuideRepositoryLocal(),
+              active: true,
+              onShowCollectionPoints: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text("Como descartar certo?"), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+    },
+  );
 }

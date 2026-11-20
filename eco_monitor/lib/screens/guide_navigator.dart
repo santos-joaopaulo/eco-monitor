@@ -1,10 +1,42 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
 import "disposal_step_by_step_screen.dart";
+
+// Classes ----------------------------------------------------------------- //
+
+/// Observador de rotas para sincronizar o estado de canPop do navegador aninhado.
+class _GuideRouteObserver extends NavigatorObserver {
+  _GuideRouteObserver(this.onChanged);
+
+  final VoidCallback onChanged;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    onChanged();
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    onChanged();
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didRemove(route, previousRoute);
+    onChanged();
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    onChanged();
+  }
+}
 
 /// Navegador aninhado da aba "guia".
 ///
@@ -16,6 +48,7 @@ class GuideNavigator extends StatefulWidget {
     required this.repository,
     required this.active,
     required this.onShowCollectionPoints,
+    this.onBackToHome,
   });
 
   final DisposalGuideRepository repository;
@@ -26,6 +59,10 @@ class GuideNavigator extends StatefulWidget {
   /// Chamado com o tipo de resíduo ao sair da aba do guia, permitindo que o mapa
   /// filtre os pontos de coleta (RF12/RF13).
   final ValueChanged<ResidueType> onShowCollectionPoints;
+
+  /// Chamado quando o usuário aciona o botão voltar na raiz do guia,
+  /// permitindo redirecionar para a aba inicial (HomeScreen) em vez de fechar o app.
+  final VoidCallback? onBackToHome;
 
   @override
   State<GuideNavigator> createState() => _GuideNavigatorState();
@@ -40,6 +77,22 @@ class _GuideNavigatorState extends State<GuideNavigator> {
   };
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late final _GuideRouteObserver _routeObserver = _GuideRouteObserver(
+    _updateCanPop,
+  );
+  bool _canPopInternal = false;
+
+  void _updateCanPop() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final bool canPopNow = _navigatorKey.currentState?.canPop() ?? false;
+      if (_canPopInternal != canPopNow) {
+        setState(() {
+          _canPopInternal = canPopNow;
+        });
+      }
+    });
+  }
 
   ResidueType? _typeForRoute(String? routeName) {
     for (final MapEntry<ResidueType, String> entry in _routesByType.entries) {
@@ -83,16 +136,18 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     widget.onShowCollectionPoints(type);
   }
 
-  /// Botão voltar do Android: fecha o passo a passo; se já estiver na listagem,
-  /// tem o comportamento padrão do sistema (sai do app).
+  /// Trata o retorno no Android: desempilha rotas internas do guia quando houver;
+  /// se já estiver na raiz do guia, redireciona para a aba Home caso configurado,
+  /// sem invocar SystemNavigator.pop().
   void _onBack(bool didPop, Object? result) {
     if (didPop) return;
     final NavigatorState? navigator = _navigatorKey.currentState;
     if (navigator != null && navigator.canPop()) {
       navigator.pop();
-    } else {
-      SystemNavigator.pop();
+      return;
     }
+
+    widget.onBackToHome?.call();
   }
 
   Route<void> _generateRoute(RouteSettings settings) {
@@ -119,11 +174,17 @@ class _GuideNavigatorState extends State<GuideNavigator> {
 
   @override
   Widget build(BuildContext context) {
+    final bool canPop =
+        !widget.active || (!_canPopInternal && widget.onBackToHome == null);
+
     return PopScope(
-      // Só intercepta o "voltar" quando esta aba estiver ativa na frente.
-      canPop: !widget.active,
+      canPop: canPop,
       onPopInvokedWithResult: _onBack,
-      child: Navigator(key: _navigatorKey, onGenerateRoute: _generateRoute),
+      child: Navigator(
+        key: _navigatorKey,
+        observers: [_routeObserver],
+        onGenerateRoute: _generateRoute,
+      ),
     );
   }
 }

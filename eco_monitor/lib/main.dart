@@ -189,6 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       repository: _dataSync.guideRepository,
                       active: _selectedIndex == _guideTab,
                       onShowCollectionPoints: _showCollectionPoints,
+                      onBackToHome: () => _selectTab(_homeTab),
                     ),
                     _withAppBar(
                       TickerMode(

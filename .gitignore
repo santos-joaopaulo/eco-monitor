@@ -24,6 +24,10 @@ pubspec_overrides.yaml
 # Android
 android/.gradle/
 android/local.properties
+android/key.properties
+key.properties
+*.keystore
+*.jks
 android/app/profile/
 android/app/release/
 

@@ -1,4 +1,4 @@
-package com.example.eco_monitor
+package br.edu.ufs.ecomonitor
 
 import io.flutter.embedding.android.FlutterActivity
 
