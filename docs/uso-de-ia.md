@@ -8,7 +8,8 @@ Estes padrões devem ser fornecidos ao LLM ao solicitar geração ou modificaç�
 
 ### Idioma
 
-- Todo o código (identificadores, comentários, nomes de variáveis, classes, métodos) deve ser escrito em **inglês**.
+- Todo o código (identificadores, nomes de variáveis, classes, métodos) deve ser escrito em **inglês**.
+- Comentários devem ser escritos em **português**.
 - Exceção: strings exibidas ao usuário (labels, tooltips, textos de UI) devem ser em **português**.
 
 
@@ -21,7 +22,9 @@ Estes padrões devem ser fornecidos ao LLM ao solicitar geração ou modificaç�
 ### Comentários
 
 - **Não** incluir comentários padrão do framework (explicações educacionais de `setState`, `build`, widgets de layout, "TRY THIS", etc.).
-- **Manter** comentários de estrutura que organizam o arquivo, no formato:
+- Adicionar comentários **apenas** para lógica importante ou decisões não óbvias — evitar comentários excessivos ou descritivos.
+- Comentários devem ser escritos em **português**.
+- **Manter** comentários de estrutura que organizam o arquivo, com **duas linhas em branco acima e abaixo** e 80 caractéres no total, somente esse tipo de comentário deve ser escrito em **inglês**, seguindo o formato:
 
 ```dart
 
@@ -46,6 +49,8 @@ Estes padrões devem ser fornecidos ao LLM ao solicitar geração ou modificaç�
 
 
 ```
+
+- Se durante o trabalho em um arquivo forem observadas violações desses padrões, **corrigi-las** — mantendo o foco na tarefa atual.
 
 
 ### Quebras de Linha
