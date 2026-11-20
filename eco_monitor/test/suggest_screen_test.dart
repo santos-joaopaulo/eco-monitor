@@ -9,7 +9,7 @@ import "package:eco_monitor/screens/suggest_screen.dart";
 import "package:eco_monitor/services/location_service.dart";
 
 
-// Helpers ------------------------------------------------------------------ //
+// Auxiliares -------------------------------------------------------------- //
 
 
 void useTallSurface(WidgetTester tester) {
@@ -41,7 +41,7 @@ class _FakeSuggestionsRepository extends PointSuggestionsRepository {
 }
 
 
-// Tests -------------------------------------------------------------------- //
+// Testes ------------------------------------------------------------------ //
 
 
 void main() {
@@ -49,34 +49,65 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  testWidgets("renders anonymous notice and all form fields", (
+  testWidgets("renders the hero section and all form fields", (
     WidgetTester tester,
   ) async {
     useTallSurface(tester);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: SuggestScreen()),
-      ),
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text("Envio estritamente anônimo"), findsOneWidget);
+    expect(find.text("Ajude o mapa a crescer 🌱"), findsOneWidget);
     expect(
       find.text(
-        "Não coletamos nem enviamos nenhum dado pessoal, de conta ou identificador do dispositivo.",
+        "Conheça um local que recebe resíduos? Envie para nossa equipe validar.",
       ),
       findsOneWidget,
     );
-    expect(find.text("Nome do local *"), findsOneWidget);
-    expect(find.text("Endereço completo *"), findsOneWidget);
-    expect(find.text("RESÍDUOS ACEITOS *"), findsOneWidget);
+    expect(find.text("Nome do estabelecimento"), findsOneWidget);
+    expect(find.text("Endereço"), findsOneWidget);
+    expect(find.text("Materiais aceitos"), findsOneWidget);
     expect(find.text("Remédios"), findsOneWidget);
-    expect(find.text("Pilhas e baterias"), findsOneWidget);
-    expect(find.text("Seringas e agulhas"), findsOneWidget);
-    expect(find.text("Lixo eletrônico"), findsOneWidget);
-    expect(find.text("Horário de funcionamento (opcional)"), findsOneWidget);
+    expect(find.text("Pilhas"), findsOneWidget);
+    expect(find.text("Seringas"), findsOneWidget);
+    expect(find.text("Eletrônicos"), findsOneWidget);
+    expect(find.text("Horário de funcionamento"), findsOneWidget);
+    expect(find.text("Seg"), findsOneWidget);
+    expect(find.text("Sáb"), findsOneWidget);
+    expect(find.text("Dom"), findsOneWidget);
+    expect(find.text("Replicar horário para todos os dias"), findsOneWidget);
     expect(find.text("Enviar sugestão"), findsOneWidget);
+    expect(
+      find.text("Envio estritamente anônimo. Nenhum dado pessoal é coletado."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("renders without overflow on a compact phone surface", (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 740);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -900),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Enviar sugestão"), findsOneWidget);
+    expect(
+      find.text("Envio estritamente anônimo. Nenhum dado pessoal é coletado."),
+      findsOneWidget,
+    );
   });
 
   testWidgets("validates required fields on submit without input", (
@@ -85,9 +116,7 @@ void main() {
     useTallSurface(tester);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: SuggestScreen()),
-      ),
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
     );
     await tester.pumpAndSettle();
 
@@ -115,9 +144,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: SuggestScreen(locationService: service),
-        ),
+        home: Scaffold(body: SuggestScreen(locationService: service)),
       ),
     );
     await tester.pumpAndSettle();
@@ -125,9 +152,34 @@ void main() {
     await tester.tap(find.byTooltip("Preencher com localização atual (GPS)"));
     await tester.pumpAndSettle();
 
-    expect(find.text("Coordenadas GPS capturadas com sucesso!"), findsOneWidget);
+    expect(
+      find.text("Coordenadas GPS capturadas com sucesso!"),
+      findsOneWidget,
+    );
     expect(find.textContaining("-10.94720"), findsOneWidget);
     expect(find.textContaining("-37.07310"), findsOneWidget);
+  });
+
+  testWidgets("opens the time picker from a schedule pill", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("08:00").first);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+    expect(find.text("Horário de abertura"), findsOneWidget);
+
+    await tester.tap(find.text("Cancelar"));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TimePickerDialog), findsNothing);
   });
 
   testWidgets("submits valid suggestion successfully and resets form", (
@@ -135,37 +187,28 @@ void main() {
   ) async {
     useTallSurface(tester);
 
-    final _FakeSuggestionsRepository repository =
-        _FakeSuggestionsRepository(result: SuggestionSubmitResult.sent);
+    final _FakeSuggestionsRepository repository = _FakeSuggestionsRepository(
+      result: SuggestionSubmitResult.sent,
+    );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: SuggestScreen(repository: repository),
-        ),
+        home: Scaffold(body: SuggestScreen(repository: repository)),
       ),
     );
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, "Nome do local *"),
+      find.byType(TextFormField).at(0),
       "EcoPonto Jardins",
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, "Endereço completo *"),
+      find.byType(TextFormField).at(1),
       "Av. Ministro Geraldo Barreto Sobral, 100",
     );
 
-    await tester.tap(find.text("Pilhas e baterias"));
+    await tester.tap(find.text("Pilhas"));
     await tester.pumpAndSettle();
-
-    await tester.enterText(
-      find.widgetWithText(
-        TextFormField,
-        "Horário de funcionamento (opcional)",
-      ),
-      "Seg a Sex, 8h às 17h",
-    );
 
     await tester.tap(find.text("Enviar sugestão"));
     await tester.pumpAndSettle();
@@ -173,12 +216,9 @@ void main() {
     expect(repository.submitted.length, 1);
     final PointSuggestion suggestion = repository.submitted.first;
     expect(suggestion.name, "EcoPonto Jardins");
-    expect(
-      suggestion.address,
-      "Av. Ministro Geraldo Barreto Sobral, 100",
-    );
+    expect(suggestion.address, "Av. Ministro Geraldo Barreto Sobral, 100");
     expect(suggestion.acceptedWasteTypes, {WasteType.batteries});
-    expect(suggestion.hours, "Seg a Sex, 8h às 17h");
+    expect(suggestion.hours, "Seg a Sex: 08:00 às 18:00");
 
     expect(
       find.text("Sugestão enviada com sucesso! Obrigado por colaborar."),
@@ -186,6 +226,83 @@ void main() {
     );
 
     expect(find.text("EcoPonto Jardins"), findsNothing);
+  });
+
+  testWidgets("omits closed days from the formatted hours", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    final _FakeSuggestionsRepository repository = _FakeSuggestionsRepository();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: SuggestScreen(repository: repository)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Fechado"), findsNWidgets(2));
+
+    await tester.tap(find.text("Seg"));
+    await tester.pumpAndSettle();
+
+    expect(find.text("Fechado"), findsNWidgets(3));
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      "EcoPonto Jardins",
+    );
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      "Av. Ministro Geraldo Barreto Sobral, 100",
+    );
+
+    await tester.tap(find.text("Remédios"));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Enviar sugestão"));
+    await tester.pumpAndSettle();
+
+    expect(repository.submitted.single.hours, "Ter a Sex: 08:00 às 18:00");
+  });
+
+  testWidgets("replicates the schedule to all days", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    final _FakeSuggestionsRepository repository = _FakeSuggestionsRepository();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: SuggestScreen(repository: repository)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Replicar horário para todos os dias"));
+    await tester.pumpAndSettle();
+
+    expect(find.text("Horário replicado para todos os dias."), findsOneWidget);
+    expect(find.text("Fechado"), findsNothing);
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      "EcoPonto Jardins",
+    );
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      "Av. Ministro Geraldo Barreto Sobral, 100",
+    );
+
+    await tester.tap(find.text("Remédios"));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Enviar sugestão"));
+    await tester.pumpAndSettle();
+
+    expect(repository.submitted.single.hours, "Todos os dias: 08:00 às 18:00");
   });
 
   testWidgets("shows offline queue message when submitted offline", (
@@ -199,19 +316,17 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: SuggestScreen(repository: repository),
-        ),
+        home: Scaffold(body: SuggestScreen(repository: repository)),
       ),
     );
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, "Nome do local *"),
+      find.byType(TextFormField).at(0),
       "Farmácia Pague Menos",
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, "Endereço completo *"),
+      find.byType(TextFormField).at(1),
       "Rua Laranjeiras, 450 - Centro",
     );
 

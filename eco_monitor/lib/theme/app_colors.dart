@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
 
-// Palette ----------------------------------------------------------------- //
+// Paleta ------------------------------------------------------------------ //
 
 
 /// Tokens de design compartilhados por todas as telas do aplicativo.
@@ -21,6 +21,9 @@ abstract final class AppColors {
 
   /// Contêiner cinza interno dentro dos modais (ex.: "MATERIAIS ACEITOS" / "HORÁRIO").
   static const Color surfaceSection = Color(0xFFeef1f1);
+
+  /// Contorno neutro de campos, cards e caixas de seleção não marcadas.
+  static const Color outline = Color(0xFFDFE6E5);
 
   /// Fundo neutro e áreas de parques exibidas no mapa.
   static const Color mapBackground = Color(0xFFE8EFEC);
