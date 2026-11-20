@@ -17,6 +17,7 @@ import "../utils/geo.dart";
 import "../utils/point_filters.dart";
 import "../widgets/collect_point_sheet.dart";
 import "../widgets/collect_points_layer.dart";
+import "../widgets/collect_points_list_view.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/filter_bar.dart";
 import "../widgets/location_notice.dart";
@@ -85,6 +86,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _isLocating = false;
   bool _locationFailed = false;
   bool _cameraCenteredOnUser = false;
+  bool _isListView = false;
+
+  bool get _isEffectiveListView => _isListView || _accessToken.isEmpty;
 
 
   // Init ------------------------------------------------------------------ //
@@ -410,7 +414,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
     _syncPointsLayer();
 
-    await _focusPoint(point);
+    if (!_isEffectiveListView) {
+      await _focusPoint(point);
+    }
   }
 
   Future<void> _focusPoint(CollectionPoint point) async {
@@ -652,142 +658,71 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final Campaign? focusedCampaign = widget.focusedCampaign;
-
-    if (_accessToken.isEmpty) {
-      return Stack(
-        children: [
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-
-                children: [
-                  Icon(Icons.map_outlined, size: 56, color: AppColors.primary),
-
-                  SizedBox(height: 16),
-
-                  Text(
-                    "Configure o token do Mapbox",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  SizedBox(height: 8),
-
-                  Text(
-                    "Execute o app passando --dart-define=ACCESS_TOKEN=seu_token_publico.",
-                    style: TextStyle(color: AppColors.textMuted),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          if (focusedCampaign != null)
-            Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
-
-              child: Center(
-                child: _FocusedCampaignChip(
-                  campaign: focusedCampaign,
-                  onClear: widget.onClearCampaign,
-                ),
-              ),
-            ),
-        ],
-      );
-    }
-
     final List<CollectionPoint> visiblePoints = _filteredPoints;
     final Widget? locationNotice = _buildLocationNotice();
     final CollectionPoint? selectedPoint = _selectedPoint;
     final double cardBottom =
         CustomBottomNavBar.reservedBottomInset(context) + 8;
+    final bool isListMode = _isEffectiveListView;
 
     return Stack(
       children: [
-        MapWidget(
-          key: const ValueKey("aracaju-map"),
-          onMapCreated: _onMapCreated,
-          onStyleLoadedListener: _onStyleLoaded,
+        if (_accessToken.isNotEmpty)
+          Offstage(
+            offstage: isListMode,
 
-          viewport: CameraViewportState(
-            center: Point(coordinates: Position(-37.067, -10.95)),
-            zoom: 10.7,
-          ),
-        ),
+            child: MapWidget(
+              key: const ValueKey("aracaju-map"),
+              onMapCreated: _onMapCreated,
+              onStyleLoadedListener: _onStyleLoaded,
 
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-
-          child: SafeArea(
-            bottom: false,
-
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                kEcoContentHorizontalPadding,
-                12,
-                kEcoContentHorizontalPadding,
-                0,
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (focusedCampaign != null) ...[
-                    _FocusedCampaignChip(
-                      campaign: focusedCampaign,
-                      onClear: widget.onClearCampaign,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-
-                  FilterBar(
-                    selectedTypes: _selectedWasteTypes,
-                    onChanged: _handleFilterChanged,
-                  ),
-
-                  if (_isLoadingPoints) ...[
-                    const SizedBox(height: 8),
-                    const _MapStatusPill(
-                      message: "Carregando pontos...",
-                      isLoading: true,
-                    ),
-                  ] else if (visiblePoints.isEmpty &&
-                      selectedPoint == null) ...[
-                    const SizedBox(height: 8),
-
-                    _MapStatusPill(
-                      message: _selectedWasteTypes.isEmpty
-                          ? "Nenhum ponto de coleta disponível."
-                          : "Nenhum ponto aceita esse resíduo por perto.",
-                      icon: Icons.location_off_outlined,
-                    ),
-                  ],
-
-                  if (locationNotice != null) ...[
-                    const SizedBox(height: 8),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: kEcoMaxContentWidth,
-                        ),
-                        child: locationNotice,
-                      ),
-                    ),
-                  ],
-                ],
+              viewport: CameraViewportState(
+                center: Point(coordinates: Position(-37.067, -10.95)),
+                zoom: 10.7,
               ),
             ),
           ),
-        ),
+
+        if (isListMode)
+          Positioned.fill(
+            child: Container(
+              color: AppColors.background,
+
+              child: Column(
+                children: [
+                  _buildTopBar(
+                    visiblePoints: visiblePoints,
+                    focusedCampaign: focusedCampaign,
+                    locationNotice: locationNotice,
+                    isListMode: true,
+                  ),
+
+                  Expanded(
+                    child: CollectPointsListView(
+                      points: visiblePoints,
+                      userLocation: _userLocation,
+                      activeFilter: _selectedWasteTypes,
+                      isDataStale: widget.dataSync?.isStale ?? false,
+                      onPointSelected: _handlePointSelected,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+
+            child: _buildTopBar(
+              visiblePoints: visiblePoints,
+              focusedCampaign: focusedCampaign,
+              locationNotice: locationNotice,
+              isListMode: false,
+            ),
+          ),
 
         if (selectedPoint == null)
           Positioned(
@@ -801,6 +736,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 height: 72,
 
                 child: FloatingActionButton(
+                  heroTag: "home_locate_fab",
                   backgroundColor: AppColors.primary,
                   shape: const CircleBorder(),
                   tooltip: "Centralizar na minha localização",
@@ -808,6 +744,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                   child: const Icon(Icons.my_location, color: Colors.white),
                 ),
+              ),
+            ),
+          ),
+
+        if (selectedPoint == null && _accessToken.isNotEmpty)
+          Positioned(
+            right: 16,
+            bottom: (80 + 32 + 12),
+
+            child: FloatingActionButton(
+              heroTag: "home_toggle_view_fab",
+              mini: true,
+              backgroundColor: AppColors.surface,
+              foregroundColor: AppColors.primaryAccessible,
+              elevation: 4,
+              tooltip: isListMode
+                  ? "Visualização em mapa"
+                  : "Visualização em lista",
+              onPressed: () {
+                setState(() {
+                  _isListView = !_isListView;
+                });
+              },
+
+              child: Icon(
+                isListMode
+                    ? Icons.map_outlined
+                    : Icons.view_list_rounded,
+                size: 22,
+                color: AppColors.primaryAccessible,
               ),
             ),
           ),
@@ -834,6 +800,83 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
           ),
       ],
+    );
+  }
+
+  Widget _buildTopBar({
+    required List<CollectionPoint> visiblePoints,
+    required Campaign? focusedCampaign,
+    required Widget? locationNotice,
+    required bool isListMode,
+  }) {
+    return SafeArea(
+      bottom: false,
+
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          kEcoContentHorizontalPadding,
+          12,
+          kEcoContentHorizontalPadding,
+          0,
+        ),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (focusedCampaign != null) ...[
+              _FocusedCampaignChip(
+                campaign: focusedCampaign,
+                onClear: widget.onClearCampaign,
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            FilterBar(
+              selectedTypes: _selectedWasteTypes,
+              onChanged: _handleFilterChanged,
+            ),
+
+            if (_accessToken.isEmpty) ...[
+              const SizedBox(height: 8),
+              const _MapStatusPill(
+                message: "Configure o token do Mapbox",
+                icon: Icons.info_outline,
+              ),
+            ],
+
+            if (_isLoadingPoints) ...[
+              const SizedBox(height: 8),
+              const _MapStatusPill(
+                message: "Carregando pontos...",
+                isLoading: true,
+              ),
+            ] else if (!isListMode &&
+                visiblePoints.isEmpty &&
+                _selectedPoint == null) ...[
+              const SizedBox(height: 8),
+
+              _MapStatusPill(
+                message: _selectedWasteTypes.isEmpty
+                    ? "Nenhum ponto de coleta disponível."
+                    : "Nenhum ponto aceita esse resíduo por perto.",
+                icon: Icons.location_off_outlined,
+              ),
+            ],
+
+            if (locationNotice != null) ...[
+              const SizedBox(height: 8),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: kEcoMaxContentWidth,
+                  ),
+                  child: locationNotice,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

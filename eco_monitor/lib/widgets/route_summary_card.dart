@@ -127,16 +127,53 @@ class RouteSummaryCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
 
-                  Text(
-                    route == null
-                        ? "Sem a sua localização, distância e tempo não podem ser estimados."
-                        : "Rota aproximada em linha reta. Distância e tempo são apenas uma estimativa.",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      height: 1.35,
-                      color: AppColors.textSecondary,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: route == null
+                          ? AppColors.surfaceSection
+                          : AppColors.primaryTint,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          route == null
+                              ? Icons.location_off_outlined
+                              : Icons.info_outline,
+                          size: 18,
+                          color: route == null
+                              ? AppColors.textSecondary
+                              : AppColors.primaryAccessible,
+                        ),
+                        const SizedBox(width: 8),
+
+                        Expanded(
+                          child: Text(
+                            route == null
+                                ? "Sem a sua localização, distância e tempo não podem ser estimados."
+                                : "Linha reta aproximada. Abra no aplicativo de mapas para a rota de trânsito real.",
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.35,
+                              fontWeight: route == null
+                                  ? FontWeight.normal
+                                  : FontWeight.w600,
+                              color: route == null
+                                  ? AppColors.textSecondary
+                                  : AppColors.primaryAccessible,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

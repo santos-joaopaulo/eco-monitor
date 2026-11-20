@@ -72,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int _homeTab = 0;
   static const int _guideTab = 1;
   static const int _eventsTab = 2;
+  static const int _suggestTab = 3;
 
   // Raiz de composição: conecta a camada de dados (Firebase + offline) à
   // camada de apresentação.
@@ -207,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         repository: _dataSync.suggestionsRepository,
                         dataSync: _dataSync,
                       ),
+                      title: "SUGERIR NOVO PONTO",
                     ),
                   ],
                 ),
