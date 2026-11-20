@@ -254,7 +254,7 @@ class _CollectPointCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.primaryAccessible,
+                          color: EcoColors.primary,
                         ),
                       ),
                     ),

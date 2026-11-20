@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
 import "selection_checkbox.dart";
 
 
@@ -83,8 +83,8 @@ class OpeningHoursRow extends StatelessWidget {
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: isOpen
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
+                                ? EcoColors.textPrimary
+                                : EcoColors.textSecondary,
                           ),
                         ),
                       ),
@@ -111,7 +111,7 @@ class OpeningHoursRow extends StatelessWidget {
                             "às",
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: EcoColors.textSecondary,
                             ),
                           ),
                         ),
@@ -129,7 +129,7 @@ class OpeningHoursRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          color: EcoColors.textSecondary,
                         ),
                       ),
                     ),
@@ -165,8 +165,8 @@ class _TimePill extends StatelessWidget {
       excludeSemantics: true,
 
       child: Material(
-        color: AppColors.primaryTint,
-        shape: const StadiumBorder(side: BorderSide(color: AppColors.primary)),
+        color: EcoColors.primaryTint,
+        shape: const StadiumBorder(side: BorderSide(color: EcoColors.primary)),
         clipBehavior: Clip.antiAlias,
 
         child: InkWell(
@@ -179,7 +179,7 @@ class _TimePill extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primaryAccessible,
+                color: EcoColors.primary,
               ),
             ),
           ),

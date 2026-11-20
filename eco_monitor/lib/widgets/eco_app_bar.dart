@@ -19,7 +19,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: EcoColors.primaryAccessible,
+      backgroundColor: EcoColors.primary,
       foregroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,

@@ -152,7 +152,7 @@ class RouteSummaryCard extends StatelessWidget {
                           size: 18,
                           color: route == null
                               ? AppColors.textSecondary
-                              : AppColors.primaryAccessible,
+                              : EcoColors.primary,
                         ),
                         const SizedBox(width: 8),
 
@@ -169,7 +169,7 @@ class RouteSummaryCard extends StatelessWidget {
                                   : FontWeight.w600,
                               color: route == null
                                   ? AppColors.textSecondary
-                                  : AppColors.primaryAccessible,
+                                  : EcoColors.primary,
                             ),
                           ),
                         ),

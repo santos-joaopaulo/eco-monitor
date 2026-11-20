@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
-import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
+
 
 
 // Constants ---------------------------------------------------------------- //
@@ -61,7 +62,7 @@ class OfflineBanner extends StatelessWidget {
       message = isSyncing
           ? "Sincronizando ${_pendingLabel(pendingSuggestionsCount)}..."
           : "${_pendingLabel(pendingSuggestionsCount)} aguardando envio";
-      backgroundColor = AppColors.primaryAccessible;
+      backgroundColor = EcoColors.primary;
       icon = Icons.cloud_upload_outlined;
     }
 

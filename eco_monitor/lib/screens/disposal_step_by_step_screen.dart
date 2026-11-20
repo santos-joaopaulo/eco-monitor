@@ -162,7 +162,7 @@ class _Content extends StatelessWidget {
                 icon: const Icon(Icons.location_on_outlined, size: 26),
                 label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: EcoColors.primaryAccessible,
+                  backgroundColor: EcoColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 6,
                   shadowColor: Colors.black.withAlpha(80),

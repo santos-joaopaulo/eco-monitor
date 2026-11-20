@@ -113,7 +113,7 @@ class _ActionButton extends StatelessWidget {
       icon: const Icon(Icons.arrow_forward, size: 20),
       label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: EcoColors.primaryAccessible,
+        backgroundColor: EcoColors.primary,
         foregroundColor: Colors.white,
         disabledBackgroundColor: EcoColors.iconTint,
         disabledForegroundColor: EcoColors.textSecondary,

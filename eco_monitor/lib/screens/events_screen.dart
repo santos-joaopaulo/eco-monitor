@@ -264,7 +264,7 @@ class _EventsScreenState extends State<EventsScreen> {
   }) {
     if (_isLoading && _campaigns.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: AppColors.primaryAccessible),
+        child: CircularProgressIndicator(color: EcoColors.primary),
       );
     }
 
@@ -306,7 +306,7 @@ class _EventsScreenState extends State<EventsScreen> {
     }
 
     return RefreshIndicator(
-      color: AppColors.primaryAccessible,
+      color: EcoColors.primary,
       onRefresh: _refreshCampaigns,
 
       child: ListView.separated(
@@ -387,7 +387,7 @@ class _FilterPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color background = selected
-        ? AppColors.primaryAccessible
+        ? EcoColors.primary
         : AppColors.surface;
     final Color foreground = selected ? Colors.white : AppColors.textPrimary;
 
@@ -470,7 +470,7 @@ class _FeedbackState extends StatelessWidget {
                 color: AppColors.iconTint,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(icon, size: 32, color: AppColors.primaryAccessible),
+              child: Icon(icon, size: 32, color: EcoColors.primary),
             ),
             const SizedBox(height: 16),
 

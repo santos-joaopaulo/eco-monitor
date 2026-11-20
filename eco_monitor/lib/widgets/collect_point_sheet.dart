@@ -198,7 +198,7 @@ class CollectPointSheet extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: onCancel,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primaryAccessible,
+                            foregroundColor: EcoColors.primary,
                             side: const BorderSide(
                               color: AppColors.timelineLine,
                               width: 1.5,
@@ -224,7 +224,7 @@ class CollectPointSheet extends StatelessWidget {
                           icon: const Icon(Icons.navigation_rounded, size: 20),
                           label: const Text("Iniciar rota"),
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.primaryAccessible,
+                            backgroundColor: EcoColors.primary,
                             foregroundColor: Colors.white,
                             minimumSize: const Size(0, 52),
                             shape: RoundedRectangleBorder(
@@ -310,7 +310,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryAccessible),
+        Icon(icon, size: 18, color: EcoColors.primary),
         const SizedBox(width: 8),
 
         Expanded(
