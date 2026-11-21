@@ -1,12 +1,12 @@
 
+import "package:eco_monitor/theme/eco_theme.dart";
 import "package:flutter/material.dart";
 
+import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
-import "../models/collection_point.dart";
 import "../utils/formatters.dart";
 import "eco_card.dart";
 import "waste_style.dart";
-import "package:eco_monitor/theme/eco_theme.dart";
 
 
 // Classes ----------------------------------------------------------------- //

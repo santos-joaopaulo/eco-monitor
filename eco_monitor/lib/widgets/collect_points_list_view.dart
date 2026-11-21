@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 
+import "../domain/entities/waste_type.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";

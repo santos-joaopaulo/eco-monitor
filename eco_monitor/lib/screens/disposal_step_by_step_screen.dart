@@ -1,15 +1,15 @@
 import "package:flutter/material.dart";
 
 import "../domain/entities/disposal_guide.dart";
-import "../domain/entities/residue.dart";
+import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/eco_app_bar.dart";
 import "../widgets/eco_card.dart";
-import "../widgets/residue_style.dart";
 import "../widgets/step_timeline_item.dart";
 import "../widgets/warning_box.dart";
+import "../widgets/waste_style.dart";
 
 
 // Classes ----------------------------------------------------------------- //
@@ -19,35 +19,35 @@ import "../widgets/warning_box.dart";
 class DisposalStepByStepScreen extends StatelessWidget {
   const DisposalStepByStepScreen({
     super.key,
-    required this.residueType,
+    required this.wasteType,
     required this.repository,
     required this.onShowCollectionPoints,
   });
 
-  final ResidueType residueType;
+  final WasteType wasteType;
   final DisposalGuideRepository repository;
 
   /// Chamado com o tipo de resíduo quando "Ver pontos no mapa" é tocado.
-  final ValueChanged<ResidueType> onShowCollectionPoints;
+  final ValueChanged<WasteType> onShowCollectionPoints;
 
   static const double _buttonHeight = 56;
 
   @override
   Widget build(BuildContext context) {
-    final DisposalGuide? guide = repository.stepsGuideFor(residueType);
+    final DisposalGuide? guide = repository.stepsGuideFor(wasteType);
 
     return Scaffold(
       backgroundColor: EcoColors.background,
 
       appBar: EcoAppBar(
-        title: residueType.appBarTitle,
+        title: wasteType.appBarTitle,
         onBack: () => Navigator.of(context).maybePop(),
       ),
 
       body: guide == null
           ? const Center(child: Text("Guia indisponível no momento."))
           : _Content(
-              residueType: residueType,
+              wasteType: wasteType,
               guide: guide,
               buttonHeight: _buttonHeight,
               onShowCollectionPoints: onShowCollectionPoints,
@@ -58,16 +58,16 @@ class DisposalStepByStepScreen extends StatelessWidget {
 
 class _Content extends StatelessWidget {
   const _Content({
-    required this.residueType,
+    required this.wasteType,
     required this.guide,
     required this.buttonHeight,
     required this.onShowCollectionPoints,
   });
 
-  final ResidueType residueType;
+  final WasteType wasteType;
   final DisposalGuide guide;
   final double buttonHeight;
-  final ValueChanged<ResidueType> onShowCollectionPoints;
+  final ValueChanged<WasteType> onShowCollectionPoints;
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +96,9 @@ class _Content extends StatelessWidget {
                     children: [
                       ExcludeSemantics(
                         child: Icon(
-                          residueType.icon,
+                          wasteType.icon,
                           size: 32,
-                          color: residueType.color,
+                          color: wasteType.color,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -158,7 +158,7 @@ class _Content extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
               child: ElevatedButton.icon(
-                onPressed: () => onShowCollectionPoints(residueType),
+                onPressed: () => onShowCollectionPoints(wasteType),
                 icon: const Icon(Icons.location_on_outlined, size: 26),
                 label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(

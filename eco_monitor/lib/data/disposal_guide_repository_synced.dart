@@ -5,6 +5,7 @@ import "package:shared_preferences/shared_preferences.dart";
 
 import "../domain/entities/disposal_guide.dart";
 import "../domain/entities/residue.dart";
+import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "collect_points_repository.dart";
 import "disposal_guide_repository_local.dart";
@@ -38,7 +39,7 @@ class DisposalGuidesRemoteSnapshot {
   });
 
   final List<Residue> residues;
-  final Map<ResidueType, DisposalGuide> guides;
+  final Map<WasteType, DisposalGuide> guides;
   final DateTime updatedAt;
 }
 
@@ -52,8 +53,8 @@ typedef DisposalGuidesFetcher = Future<DisposalGuidesRemoteSnapshot> Function();
 /// Cria um [DisposalGuidesFetcher] baseado na coleção `disposalGuides`
 /// do Firestore.
 ///
-/// O ID de cada documento (ou campo `type`) corresponde ao nome de um [ResidueType]
-/// (`medicine`, `battery`, `sharps`) e pode conter campos de resumo (`title`,
+/// O ID de cada documento (ou campo `type`) corresponde ao nome de um [WasteType]
+/// (`medicines`, `batteries`, `sharps`) e pode conter campos de resumo (`title`,
 /// `description`, `minutes`, `totalSteps`) além de campos do passo a passo
 /// (`subtitle`, `warning`, `steps`).
 DisposalGuidesFetcher createFirestoreGuidesFetcher({
@@ -79,8 +80,8 @@ DisposalGuidesFetcher createFirestoreGuidesFetcher({
     );
 
     final List<Residue> residues = <Residue>[];
-    final Map<ResidueType, DisposalGuide> guides =
-        <ResidueType, DisposalGuide>{};
+    final Map<WasteType, DisposalGuide> guides =
+        <WasteType, DisposalGuide>{};
 
     for (final QueryDocumentSnapshot<Map<String, dynamic>> doc
         in snapshot.docs) {
@@ -159,7 +160,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   final DateTime Function() _clock;
 
   late List<Residue> _residues;
-  late Map<ResidueType, DisposalGuide> _guides;
+  late Map<WasteType, DisposalGuide> _guides;
 
   DateTime? _lastUpdated;
   DataSourceOrigin _sourceOrigin = DataSourceOrigin.bundledAsset;
@@ -189,7 +190,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   List<Residue> listResidues() => List<Residue>.unmodifiable(_residues);
 
   @override
-  DisposalGuide? stepsGuideFor(ResidueType type) => _guides[type];
+  DisposalGuide? stepsGuideFor(WasteType type) => _guides[type];
 
   /// Carrega os guias em cache do [SharedPreferences], mantendo intactos os
   /// padrões empacotados para qualquer resíduo não presente no cache.
@@ -261,8 +262,8 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
 
   void _resetToFallback() {
     _residues = List<Residue>.of(fallback.listResidues());
-    _guides = <ResidueType, DisposalGuide>{};
-    for (final ResidueType type in ResidueType.values) {
+    _guides = <WasteType, DisposalGuide>{};
+    for (final WasteType type in WasteType.values) {
       final DisposalGuide? guide = fallback.stepsGuideFor(type);
       if (guide != null) {
         _guides[type] = guide;
@@ -272,23 +273,25 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
 
   void _applyOverlay(
     List<Residue> remoteResidues,
-    Map<ResidueType, DisposalGuide> remoteGuides,
+    Map<WasteType, DisposalGuide> remoteGuides,
   ) {
     _resetToFallback();
 
-    final Map<ResidueType, Residue> mergedResidues = <ResidueType, Residue>{
+    final Map<WasteType, Residue> mergedResidues = <WasteType, Residue>{
       for (final Residue residue in _residues) residue.type: residue,
     };
     for (final Residue residue in remoteResidues) {
       mergedResidues[residue.type] = residue;
     }
 
-    _residues = ResidueType.values
-        .map((ResidueType type) => mergedResidues[type])
-        .whereType<Residue>()
-        .toList();
+    // Mantém a ordem de exibição do guia empacotado, já que a ordem declarada
+    // em [WasteType] é otimizada para os filtros do mapa.
+    _residues = <Residue>[
+      for (final Residue bundled in fallback.listResidues())
+        mergedResidues[bundled.type] ?? bundled,
+    ];
 
-    for (final MapEntry<ResidueType, DisposalGuide> entry
+    for (final MapEntry<WasteType, DisposalGuide> entry
         in remoteGuides.entries) {
       _guides[entry.key] = entry.value;
     }
@@ -296,7 +299,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
 
   Future<void> _writeCache(
     List<Residue> residues,
-    Map<ResidueType, DisposalGuide> guides,
+    Map<WasteType, DisposalGuide> guides,
     DateTime updatedAt,
   ) async {
     final SharedPreferences preferences = await _preferencesFactory();
@@ -307,7 +310,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
         "updatedAt": updatedAt.toIso8601String(),
         "residues": residues.map((Residue item) => item.toJson()).toList(),
         "guides": guides.map(
-          (ResidueType key, DisposalGuide value) =>
+          (WasteType key, DisposalGuide value) =>
               MapEntry<String, dynamic>(key.name, value.toJson()),
         ),
       }),
@@ -331,7 +334,7 @@ class _ParsedGuides {
   });
 
   final List<Residue> residues;
-  final Map<ResidueType, DisposalGuide> guides;
+  final Map<WasteType, DisposalGuide> guides;
   final DateTime? updatedAt;
 }
 
@@ -344,7 +347,7 @@ _ParsedGuides _parseGuidesJson(String source) {
   if (decoded is! Map<String, dynamic>) {
     return const _ParsedGuides(
       residues: <Residue>[],
-      guides: <ResidueType, DisposalGuide>{},
+      guides: <WasteType, DisposalGuide>{},
       updatedAt: null,
     );
   }
@@ -361,11 +364,11 @@ _ParsedGuides _parseGuidesJson(String source) {
       .whereType<Residue>()
       .toList();
 
-  final Map<ResidueType, DisposalGuide> guides = <ResidueType, DisposalGuide>{};
+  final Map<WasteType, DisposalGuide> guides = <WasteType, DisposalGuide>{};
   final Object? rawGuides = decoded["guides"];
   if (rawGuides is Map<dynamic, dynamic>) {
     for (final MapEntry<dynamic, dynamic> entry in rawGuides.entries) {
-      final ResidueType? type = residueTypeByName(entry.key.toString());
+      final WasteType? type = wasteTypeByName(entry.key.toString());
       if (type != null && entry.value is Map<dynamic, dynamic>) {
         final DisposalGuide guide = DisposalGuide.fromJson(
           (entry.value as Map<dynamic, dynamic>).cast<String, dynamic>(),

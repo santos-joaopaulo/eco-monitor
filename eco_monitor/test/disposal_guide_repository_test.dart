@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:eco_monitor/data/disposal_guide_repository_local.dart";
 import "package:eco_monitor/domain/entities/disposal_guide.dart";
 import "package:eco_monitor/domain/entities/residue.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 
 
 // Tests -------------------------------------------------------------------- //
@@ -16,10 +17,10 @@ void main() {
     final List<Residue> residues = repository.listResidues();
 
     expect(residues.map((Residue residue) => residue.type), [
-      ResidueType.medicine,
-      ResidueType.battery,
-      ResidueType.sharps,
-      ResidueType.electronics,
+      WasteType.medicines,
+      WasteType.batteries,
+      WasteType.sharps,
+      WasteType.electronics,
     ]);
   });
 
@@ -44,8 +45,8 @@ void main() {
     }
   });
 
-  test("stepsGuideFor(medicine) returns the four steps", () {
-    final DisposalGuide? guide = repository.stepsGuideFor(ResidueType.medicine);
+  test("stepsGuideFor(medicines) returns the four steps", () {
+    final DisposalGuide? guide = repository.stepsGuideFor(WasteType.medicines);
 
     expect(guide, isNotNull);
     expect(guide!.steps, hasLength(4));
@@ -53,8 +54,8 @@ void main() {
     expect(guide.steps.last.title, "Leve a uma farmácia");
   });
 
-  test("stepsGuideFor(battery) returns the four steps", () {
-    final DisposalGuide? guide = repository.stepsGuideFor(ResidueType.battery);
+  test("stepsGuideFor(batteries) returns the four steps", () {
+    final DisposalGuide? guide = repository.stepsGuideFor(WasteType.batteries);
 
     expect(guide, isNotNull);
     expect(guide!.steps, hasLength(4));
@@ -63,7 +64,7 @@ void main() {
   });
 
   test("stepsGuideFor(sharps) returns the five ANVISA-aligned steps", () {
-    final DisposalGuide? guide = repository.stepsGuideFor(ResidueType.sharps);
+    final DisposalGuide? guide = repository.stepsGuideFor(WasteType.sharps);
 
     expect(guide, isNotNull);
     expect(guide!.warning, contains("ANVISA"));
@@ -74,7 +75,7 @@ void main() {
 
   test("stepsGuideFor(electronics) returns the four steps", () {
     final DisposalGuide? guide = repository.stepsGuideFor(
-      ResidueType.electronics,
+      WasteType.electronics,
     );
 
     expect(guide, isNotNull);

@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/campaign.dart";
-import "package:eco_monitor/models/collection_point.dart";
 
 void main() {
   test("fromJson parses valid campaign fields and waste types", () {

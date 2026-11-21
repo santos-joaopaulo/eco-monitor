@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
 import "../domain/entities/residue.dart";
+import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
 import "disposal_step_by_step_screen.dart";
@@ -58,7 +59,7 @@ class GuideNavigator extends StatefulWidget {
 
   /// Chamado com o tipo de resíduo ao sair da aba do guia, permitindo que o mapa
   /// filtre os pontos de coleta (RF12/RF13).
-  final ValueChanged<ResidueType> onShowCollectionPoints;
+  final ValueChanged<WasteType> onShowCollectionPoints;
 
   /// Chamado quando o usuário aciona o botão voltar na raiz do guia,
   /// permitindo redirecionar para a aba inicial (HomeScreen) em vez de fechar o app.
@@ -69,11 +70,11 @@ class GuideNavigator extends StatefulWidget {
 }
 
 class _GuideNavigatorState extends State<GuideNavigator> {
-  static const Map<ResidueType, String> _routesByType = {
-    ResidueType.medicine: "/remedios",
-    ResidueType.battery: "/pilhas",
-    ResidueType.sharps: "/seringas",
-    ResidueType.electronics: "/eletronicos",
+  static const Map<WasteType, String> _routesByType = {
+    WasteType.medicines: "/remedios",
+    WasteType.batteries: "/pilhas",
+    WasteType.sharps: "/seringas",
+    WasteType.electronics: "/eletronicos",
   };
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -94,8 +95,8 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     });
   }
 
-  ResidueType? _typeForRoute(String? routeName) {
-    for (final MapEntry<ResidueType, String> entry in _routesByType.entries) {
+  WasteType? _typeForRoute(String? routeName) {
+    for (final MapEntry<WasteType, String> entry in _routesByType.entries) {
       if (entry.value == routeName) {
         return entry.key;
       }
@@ -128,7 +129,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
 
   /// Fecha a rota interna (quando o passo a passo está aberto) e só então
   /// repassa o tipo de resíduo para a casca do app, que alterna para a aba do mapa.
-  void _showCollectionPoints(ResidueType type) {
+  void _showCollectionPoints(WasteType type) {
     final NavigatorState? navigator = _navigatorKey.currentState;
     if (navigator != null && navigator.canPop()) {
       navigator.pop();
@@ -151,14 +152,14 @@ class _GuideNavigatorState extends State<GuideNavigator> {
   }
 
   Route<void> _generateRoute(RouteSettings settings) {
-    final ResidueType? residueType = _typeForRoute(settings.name);
+    final WasteType? wasteType = _typeForRoute(settings.name);
 
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (BuildContext context) {
-        if (residueType != null) {
+        if (wasteType != null) {
           return DisposalStepByStepScreen(
-            residueType: residueType,
+            wasteType: wasteType,
             repository: widget.repository,
             onShowCollectionPoints: _showCollectionPoints,
           );

@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/point_suggestions_repository.dart";
-import "../models/collection_point.dart";
+import "../domain/entities/waste_type.dart";
 import "../models/point_suggestion.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";

@@ -3,8 +3,8 @@ import "package:shared_preferences/shared_preferences.dart";
 
 import "package:eco_monitor/data/campaigns_repository.dart";
 import "package:eco_monitor/data/collect_points_repository.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/campaign.dart";
-import "package:eco_monitor/models/collection_point.dart";
 
 
 // Helpers ------------------------------------------------------------------ //

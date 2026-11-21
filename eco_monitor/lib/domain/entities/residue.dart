@@ -1,8 +1,4 @@
-// Enums ------------------------------------------------------------------- //
-
-
-/// Categorias de resíduos tratadas pelo guia de descarte.
-enum ResidueType { medicine, battery, sharps, electronics }
+import "waste_type.dart";
 
 
 // Classes ----------------------------------------------------------------- //
@@ -18,7 +14,7 @@ class Residue {
     required this.totalSteps,
   });
 
-  final ResidueType type;
+  final WasteType type;
   final String title;
   final String description;
 
@@ -33,7 +29,7 @@ class Residue {
   /// Constrói um [Residue] a partir de JSON, retornando `null` se o tipo for desconhecido.
   static Residue? tryFromJson(Map<String, dynamic> json) {
     final String rawType = json["type"] is String ? json["type"] as String : "";
-    final ResidueType? type = residueTypeByName(rawType);
+    final WasteType? type = wasteTypeByName(rawType);
     if (type == null) {
       return null;
     }
@@ -61,18 +57,6 @@ class Residue {
 
 // Methods ----------------------------------------------------------------- //
 
-
-/// Converte um [ResidueType] a partir do nome (tolerando também apelidos no plural
-/// usados por pontos de coleta, como `medicines` e `batteries`).
-ResidueType? residueTypeByName(String name) {
-  return switch (name) {
-    "medicine" || "medicines" => ResidueType.medicine,
-    "battery" || "batteries" => ResidueType.battery,
-    "sharps" => ResidueType.sharps,
-    "electronics" || "electronic" => ResidueType.electronics,
-    _ => null,
-  };
-}
 
 int _asInt(Object? value, {required int fallback}) {
   if (value is int) {

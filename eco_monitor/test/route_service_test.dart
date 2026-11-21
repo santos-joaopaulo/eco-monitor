@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/services/location_service.dart";
 import "package:eco_monitor/services/route_service.dart";

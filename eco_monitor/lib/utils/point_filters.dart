@@ -1,3 +1,4 @@
+import "../domain/entities/waste_type.dart";
 import "../models/collection_point.dart";
 
 

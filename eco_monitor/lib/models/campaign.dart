@@ -1,4 +1,4 @@
-import "collection_point.dart";
+import "../domain/entities/waste_type.dart";
 
 
 // Enums ------------------------------------------------------------------- //
@@ -54,16 +54,7 @@ class Campaign {
   /// Tipos de resíduos desconhecidos são ignorados e status desconhecidos assumem finished
   /// (para nunca serem exibidos como ativos por engano).
   factory Campaign.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> rawWasteTypes = switch (json["wasteTypes"]) {
-      final List<dynamic> values => values,
-      _ => const <dynamic>[],
-    };
-
-    final Set<WasteType> wasteTypes = rawWasteTypes
-        .whereType<String>()
-        .map(_wasteTypeByName)
-        .whereType<WasteType>()
-        .toSet();
+    final Set<WasteType> wasteTypes = wasteTypesFromJson(json["wasteTypes"]);
 
     return Campaign(
       id: _asString(json["id"]),
@@ -114,16 +105,6 @@ class Campaign {
 
 // Methods ----------------------------------------------------------------- //
 
-
-WasteType? _wasteTypeByName(String name) {
-  for (final WasteType type in WasteType.values) {
-    if (type.name == name) {
-      return type;
-    }
-  }
-
-  return null;
-}
 
 CampaignStatus _campaignStatusByName(String name) {
   for (final CampaignStatus status in CampaignStatus.values) {

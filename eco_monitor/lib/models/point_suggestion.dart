@@ -1,4 +1,4 @@
-import "collection_point.dart";
+import "../domain/entities/waste_type.dart";
 
 
 // Enums ------------------------------------------------------------------- //
@@ -43,16 +43,9 @@ class PointSuggestion {
   ///
   /// Tipos de resíduos desconhecidos são ignorados e status desconhecidos assumem pending.
   factory PointSuggestion.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> rawWasteTypes = switch (json["acceptedWasteTypes"]) {
-      final List<dynamic> values => values,
-      _ => const <dynamic>[],
-    };
-
-    final Set<WasteType> wasteTypes = rawWasteTypes
-        .whereType<String>()
-        .map(_wasteTypeByName)
-        .whereType<WasteType>()
-        .toSet();
+    final Set<WasteType> wasteTypes = wasteTypesFromJson(
+      json["acceptedWasteTypes"],
+    );
 
     return PointSuggestion(
       id: _asString(json["id"]),
@@ -109,16 +102,6 @@ class PointSuggestion {
 
 // Methods ----------------------------------------------------------------- //
 
-
-WasteType? _wasteTypeByName(String name) {
-  for (final WasteType type in WasteType.values) {
-    if (type.name == name) {
-      return type;
-    }
-  }
-
-  return null;
-}
 
 SuggestionStatus _suggestionStatusByName(String name) {
   for (final SuggestionStatus status in SuggestionStatus.values) {

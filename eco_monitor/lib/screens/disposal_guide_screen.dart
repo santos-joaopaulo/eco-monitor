@@ -6,7 +6,7 @@ import "../theme/eco_theme.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/eco_app_bar.dart";
 import "../widgets/residue_card.dart";
-import "../widgets/residue_style.dart";
+import "../widgets/waste_style.dart";
 
 /// Tela 1: listagem de resíduos com o botão que inicia cada guia.
 class DisposalGuideScreen extends StatelessWidget {

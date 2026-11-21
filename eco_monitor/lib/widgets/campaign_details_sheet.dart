@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
-import "../models/collection_point.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";

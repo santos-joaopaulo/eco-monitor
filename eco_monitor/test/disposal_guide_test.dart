@@ -4,6 +4,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:eco_monitor/data/disposal_guide_repository_local.dart";
 import "package:eco_monitor/domain/entities/disposal_guide.dart";
 import "package:eco_monitor/domain/entities/residue.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/domain/repositories/disposal_guide_repository.dart";
 import "package:eco_monitor/main.dart";
 import "package:eco_monitor/screens/guide_navigator.dart";
@@ -45,7 +46,7 @@ class _UnavailableGuideRepository implements DisposalGuideRepository {
   @override
   List<Residue> listResidues() => const [
     Residue(
-      type: ResidueType.battery,
+      type: WasteType.batteries,
       title: "Pilhas e baterias",
       description: "Descrição de teste.",
       minutes: 2,
@@ -54,7 +55,7 @@ class _UnavailableGuideRepository implements DisposalGuideRepository {
   ];
 
   @override
-  DisposalGuide? stepsGuideFor(ResidueType type) => null;
+  DisposalGuide? stepsGuideFor(WasteType type) => null;
 }
 
 
@@ -199,7 +200,7 @@ void main() {
     "show collection points forwards each residue type to the callback",
     (WidgetTester tester) async {
       useTallSurface(tester);
-      final List<ResidueType> selectedTypes = <ResidueType>[];
+      final List<WasteType> selectedTypes = <WasteType>[];
 
       await tester.pumpWidget(
         MaterialApp(
@@ -213,11 +214,11 @@ void main() {
         ),
       );
 
-      for (final (String title, ResidueType expectedType) in const [
-        ("Remédios vencidos", ResidueType.medicine),
-        ("Pilhas e baterias", ResidueType.battery),
-        ("Seringas e agulhas", ResidueType.sharps),
-        ("Lixo eletrônico", ResidueType.electronics),
+      for (final (String title, WasteType expectedType) in const [
+        ("Remédios vencidos", WasteType.medicines),
+        ("Pilhas e baterias", WasteType.batteries),
+        ("Seringas e agulhas", WasteType.sharps),
+        ("Lixo eletrônico", WasteType.electronics),
       ]) {
         await openResidueGuide(tester, title);
         await tester.tap(find.text("Ver pontos no mapa"));
@@ -228,10 +229,10 @@ void main() {
       }
 
       expect(selectedTypes, const [
-        ResidueType.medicine,
-        ResidueType.battery,
-        ResidueType.sharps,
-        ResidueType.electronics,
+        WasteType.medicines,
+        WasteType.batteries,
+        WasteType.sharps,
+        WasteType.electronics,
       ]);
     },
   );

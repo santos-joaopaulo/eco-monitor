@@ -2,7 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "package:eco_monitor/data/point_suggestions_repository.dart";
-import "package:eco_monitor/models/collection_point.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/point_suggestion.dart";
 
 

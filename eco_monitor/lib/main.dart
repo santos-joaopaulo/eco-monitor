@@ -5,7 +5,7 @@ import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
-import "domain/entities/residue.dart";
+import "domain/entities/waste_type.dart";
 import "models/campaign.dart";
 import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = _homeTab;
 
   /// Tipo de resíduo selecionado na aba do guia e aplicado ao mapa (RF12).
-  ResidueType? _residueFilter;
+  WasteType? _wasteFilter;
 
   /// Campanha selecionada na aba de eventos para focar no mapa (RF09).
   Campaign? _focusedCampaign;
@@ -110,17 +110,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   /// Abre a aba do mapa já filtrada pelo resíduo escolhido no guia.
-  void _showCollectionPoints(ResidueType type) {
+  void _showCollectionPoints(WasteType type) {
     setState(() {
-      _residueFilter = type;
+      _wasteFilter = type;
       _focusedCampaign = null;
       _selectedIndex = _homeTab;
     });
   }
 
-  void _clearResidueFilter() {
+  void _clearWasteFilter() {
     setState(() {
-      _residueFilter = null;
+      _wasteFilter = null;
     });
   }
 
@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showCampaignLocation(Campaign campaign) {
     setState(() {
       _focusedCampaign = campaign;
-      _residueFilter = null;
+      _wasteFilter = null;
       _selectedIndex = _homeTab;
     });
   }
@@ -176,8 +176,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     _withAppBar(
                       HomeScreen(
-                        residueFilter: _residueFilter,
-                        onClearFilter: _clearResidueFilter,
+                        wasteFilter: _wasteFilter,
+                        onClearFilter: _clearWasteFilter,
                         focusedCampaign: _focusedCampaign,
                         onClearCampaign: _clearFocusedCampaign,
                         repository: _dataSync.collectPointsRepository,

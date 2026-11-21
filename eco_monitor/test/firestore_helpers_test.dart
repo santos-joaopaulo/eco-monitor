@@ -2,8 +2,8 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "package:eco_monitor/data/firestore_helpers.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/campaign.dart";
-import "package:eco_monitor/models/collection_point.dart";
 
 void main() {
   test("normalizeFirestoreData converts Timestamp and GeoPoint for models", () {

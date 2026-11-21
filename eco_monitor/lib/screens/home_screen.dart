@@ -6,7 +6,7 @@ import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
-import "../domain/entities/residue.dart";
+import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
@@ -30,7 +30,7 @@ import "../widgets/route_summary_card.dart";
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
-    this.residueFilter,
+    this.wasteFilter,
     this.onClearFilter,
     this.focusedCampaign,
     this.onClearCampaign,
@@ -41,7 +41,7 @@ class HomeScreen extends StatefulWidget {
   });
 
   /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
-  final ResidueType? residueFilter;
+  final WasteType? wasteFilter;
   final VoidCallback? onClearFilter;
 
   /// Campanha recebida da aba de eventos para focar no mapa (RF09).
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.dataSync?.addListener(_onSyncUpdated);
-    _selectedWasteTypes = _selectionForResidue(widget.residueFilter);
+    _selectedWasteTypes = _selectionFor(widget.wasteFilter);
     _loadInitialPoints();
     unawaited(_checkLocationAvailability());
   }
@@ -117,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       unawaited(_dismissSelection());
     }
 
-    if (oldWidget.residueFilter != widget.residueFilter) {
-      _applyWasteSelection(_selectionForResidue(widget.residueFilter));
+    if (oldWidget.wasteFilter != widget.wasteFilter) {
+      _applyWasteSelection(_selectionFor(widget.wasteFilter));
     }
 
     final Campaign? nextCampaign = widget.focusedCampaign;
@@ -542,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _handleFilterChanged(Set<WasteType> selection) {
     final bool clearingGuideFilter =
-        selection.isEmpty && widget.residueFilter != null;
+        selection.isEmpty && widget.wasteFilter != null;
 
     _applyWasteSelection(selection);
 
@@ -623,13 +623,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     };
   }
 
-  Set<WasteType> _selectionForResidue(ResidueType? residue) {
-    final WasteType? type = _wasteTypeFor(residue);
-    if (type == null) {
+  Set<WasteType> _selectionFor(WasteType? waste) {
+    if (waste == null) {
       return const <WasteType>{};
     }
 
-    return <WasteType>{type};
+    return <WasteType>{waste};
   }
 
   List<CollectionPoint> get _filteredPoints {
@@ -1019,18 +1018,4 @@ class _MapStatusPill extends StatelessWidget {
       ),
     );
   }
-}
-
-
-// Methods ----------------------------------------------------------------- //
-
-
-WasteType? _wasteTypeFor(ResidueType? residue) {
-  return switch (residue) {
-    ResidueType.medicine => WasteType.medicines,
-    ResidueType.battery => WasteType.batteries,
-    ResidueType.sharps => WasteType.sharps,
-    ResidueType.electronics => WasteType.electronics,
-    null => null,
-  };
 }

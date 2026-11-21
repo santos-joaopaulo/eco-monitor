@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/services/location_service.dart";
 import "package:eco_monitor/widgets/collect_points_list_view.dart";
@@ -110,7 +111,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final Finder cards = find.byType(Card);
     expect(find.text("Farmácia Zona Sul"), findsOneWidget);
     expect(find.text("UBS Centro"), findsOneWidget);
 

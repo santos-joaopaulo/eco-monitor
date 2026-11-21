@@ -5,6 +5,7 @@ import "package:eco_monitor/data/collect_points_repository.dart";
 import "package:eco_monitor/data/disposal_guide_repository_synced.dart";
 import "package:eco_monitor/domain/entities/disposal_guide.dart";
 import "package:eco_monitor/domain/entities/residue.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +19,10 @@ void main() {
         DisposalGuideRepositorySynced();
 
     expect(repository.listResidues(), hasLength(4));
-    expect(repository.stepsGuideFor(ResidueType.medicine), isNotNull);
-    expect(repository.stepsGuideFor(ResidueType.battery), isNotNull);
-    expect(repository.stepsGuideFor(ResidueType.sharps), isNotNull);
-    expect(repository.stepsGuideFor(ResidueType.electronics), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.medicines), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.batteries), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.sharps), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.electronics), isNotNull);
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 
@@ -44,15 +45,15 @@ void main() {
           fetcher: () async => DisposalGuidesRemoteSnapshot(
             residues: const <Residue>[
               Residue(
-                type: ResidueType.battery,
+                type: WasteType.batteries,
                 title: "Pilhas e baterias (atualizado)",
                 description: "Descrição remota.",
                 minutes: 2,
                 totalSteps: 1,
               ),
             ],
-            guides: const <ResidueType, DisposalGuide>{
-              ResidueType.battery: batteryGuide,
+            guides: const <WasteType, DisposalGuide>{
+              WasteType.batteries: batteryGuide,
             },
             updatedAt: serverTime,
           ),
@@ -62,10 +63,20 @@ void main() {
     await repository.refresh();
 
     expect(repository.sourceOrigin, DataSourceOrigin.remoteServer);
-    expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(1));
+    expect(repository.stepsGuideFor(WasteType.batteries)?.steps, hasLength(1));
     // O guia de remédios empacotado permanece disponível mesmo quando o remoto substitui
     // apenas pilhas e baterias.
-    expect(repository.stepsGuideFor(ResidueType.medicine), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.medicines), isNotNull);
+    // A mesclagem remota preserva a ordem de exibição do guia empacotado.
+    expect(
+      repository.listResidues().map((Residue residue) => residue.type),
+      const <WasteType>[
+        WasteType.medicines,
+        WasteType.batteries,
+        WasteType.sharps,
+        WasteType.electronics,
+      ],
+    );
 
     final DisposalGuideRepositorySynced offlineReload =
         DisposalGuideRepositorySynced(clock: () => serverTime);
@@ -74,7 +85,7 @@ void main() {
     expect(offlineReload.sourceOrigin, DataSourceOrigin.localCache);
     expect(offlineReload.lastUpdated, serverTime);
     expect(
-      offlineReload.stepsGuideFor(ResidueType.battery)?.warning,
+      offlineReload.stepsGuideFor(WasteType.batteries)?.warning,
       "Nunca perfure ou incinere baterias.",
     );
   });
@@ -85,8 +96,8 @@ void main() {
         DisposalGuideRepositorySynced(
           fetcher: () async => DisposalGuidesRemoteSnapshot(
             residues: const <Residue>[],
-            guides: const <ResidueType, DisposalGuide>{
-              ResidueType.battery: DisposalGuide(
+            guides: const <WasteType, DisposalGuide>{
+              WasteType.batteries: DisposalGuide(
                 title: "Pilhas",
                 subtitle: "Sub",
                 warning: "Aviso",
@@ -101,10 +112,10 @@ void main() {
         );
 
     await repository.refresh();
-    expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(1));
+    expect(repository.stepsGuideFor(WasteType.batteries)?.steps, hasLength(1));
 
     await repository.clearCache();
-    expect(repository.stepsGuideFor(ResidueType.battery)?.steps, hasLength(4));
+    expect(repository.stepsGuideFor(WasteType.batteries)?.steps, hasLength(4));
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 }

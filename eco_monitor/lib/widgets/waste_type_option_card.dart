@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/waste_type.dart";
 import "../theme/app_colors.dart";
 import "selection_checkbox.dart";
 import "waste_style.dart";

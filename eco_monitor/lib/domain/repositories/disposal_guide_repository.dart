@@ -1,5 +1,6 @@
 import "../entities/disposal_guide.dart";
 import "../entities/residue.dart";
+import "../entities/waste_type.dart";
 
 /// Contrato de acesso para o conteúdo do guia de descarte.
 ///
@@ -9,5 +10,5 @@ abstract interface class DisposalGuideRepository {
   List<Residue> listResidues();
 
   /// Passo a passo do resíduo, ou `null` se o guia ainda não existir.
-  DisposalGuide? stepsGuideFor(ResidueType type);
+  DisposalGuide? stepsGuideFor(WasteType type);
 }

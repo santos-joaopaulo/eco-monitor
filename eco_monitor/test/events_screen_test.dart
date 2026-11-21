@@ -9,9 +9,9 @@ import "package:eco_monitor/data/collect_points_repository.dart";
 import "package:eco_monitor/data/connectivity_service.dart";
 import "package:eco_monitor/data/disposal_guide_repository_synced.dart";
 import "package:eco_monitor/data/point_suggestions_repository.dart";
+import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/main.dart";
 import "package:eco_monitor/models/campaign.dart";
-import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/screens/events_screen.dart";
 import "package:eco_monitor/widgets/campaign_card.dart";
 

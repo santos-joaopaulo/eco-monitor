@@ -1,8 +1,8 @@
+import "../domain/entities/waste_type.dart";
+
+
 // Enums ------------------------------------------------------------------- //
 
-
-/// Categorias de resíduos aceitas por um ponto de coleta.
-enum WasteType { medicines, sharps, batteries, electronics }
 
 /// Tipo de estabelecimento que recebe os resíduos.
 enum PointType { pharmacy, healthCenter, ecoPoint }
@@ -57,16 +57,9 @@ class CollectionPoint {
   /// ecoponto e status desconhecidos assumem inativo (para nunca serem exibidos como
   /// ativos por engano).
   factory CollectionPoint.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> rawWasteTypes = switch (json["acceptedWasteTypes"]) {
-      final List<dynamic> values => values,
-      _ => const <dynamic>[],
-    };
-
-    final Set<WasteType> wasteTypes = rawWasteTypes
-        .whereType<String>()
-        .map(_wasteTypeByName)
-        .whereType<WasteType>()
-        .toSet();
+    final Set<WasteType> wasteTypes = wasteTypesFromJson(
+      json["acceptedWasteTypes"],
+    );
 
     return CollectionPoint(
       id: _asString(json["id"]),
@@ -113,16 +106,6 @@ class CollectionPoint {
 
 // Methods ----------------------------------------------------------------- //
 
-
-WasteType? _wasteTypeByName(String name) {
-  for (final WasteType type in WasteType.values) {
-    if (type.name == name) {
-      return type;
-    }
-  }
-
-  return null;
-}
 
 PointType _pointTypeByName(String name) {
   for (final PointType type in PointType.values) {

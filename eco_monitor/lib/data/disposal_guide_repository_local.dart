@@ -1,5 +1,6 @@
 import "../domain/entities/disposal_guide.dart";
 import "../domain/entities/residue.dart";
+import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 
 /// Implementação local (em memória) de [DisposalGuideRepository].
@@ -8,28 +9,28 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
 
   static const List<Residue> _residues = [
     Residue(
-      type: ResidueType.medicine,
+      type: WasteType.medicines,
       title: "Remédios vencidos",
       description: "Comprimidos, xaropes e pomadas. Nunca jogue no lixo comum ou no vaso.",
       minutes: 2,
       totalSteps: 4,
     ),
     Residue(
-      type: ResidueType.battery,
+      type: WasteType.batteries,
       title: "Pilhas e baterias",
       description: "Contêm metais pesados que contaminam solo e água.",
       minutes: 2,
       totalSteps: 4,
     ),
     Residue(
-      type: ResidueType.sharps,
+      type: WasteType.sharps,
       title: "Seringas e agulhas",
       description: "Guarde em recipiente rígido e fechado, como garrafa PET.",
       minutes: 3,
       totalSteps: 5,
     ),
     Residue(
-      type: ResidueType.electronics,
+      type: WasteType.electronics,
       title: "Lixo eletrônico",
       description: "Celulares, cabos, carregadores e pequenos aparelhos. Não jogue no lixo comum.",
       minutes: 2,
@@ -146,12 +147,12 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
   List<Residue> listResidues() => _residues;
 
   @override
-  DisposalGuide? stepsGuideFor(ResidueType type) {
+  DisposalGuide? stepsGuideFor(WasteType type) {
     return switch (type) {
-      ResidueType.medicine => _medicineGuide,
-      ResidueType.battery => _batteryGuide,
-      ResidueType.sharps => _sharpsGuide,
-      ResidueType.electronics => _electronicsGuide,
+      WasteType.medicines => _medicineGuide,
+      WasteType.batteries => _batteryGuide,
+      WasteType.sharps => _sharpsGuide,
+      WasteType.electronics => _electronicsGuide,
     };
   }
 }
