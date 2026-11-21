@@ -1,7 +1,7 @@
 import "dart:typed_data";
 import "dart:ui" as ui;
 
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../models/collection_point.dart";
 import "../theme/app_colors.dart";

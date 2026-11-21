@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";

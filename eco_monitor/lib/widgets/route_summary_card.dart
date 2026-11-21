@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../models/collection_point.dart";
 import "../services/route_service.dart";
