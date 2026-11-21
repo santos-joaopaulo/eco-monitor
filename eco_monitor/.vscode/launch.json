@@ -6,7 +6,7 @@
       "request": "launch",
       "type": "dart",
       "args": [
-        "--dart-define=ACCESS_TOKEN=${input:mapboxAccessToken}"
+        "--dart-define=MAPBOX_ACCESS_TOKEN=${input:mapboxAccessToken}"
       ]
     }
   ],

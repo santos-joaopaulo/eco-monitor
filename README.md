@@ -20,7 +20,7 @@ O EcoMonitor é um aplicativo que ajuda na educação ambiental e no descarte co
 
 ```bash
 flutter pub get
-flutter run --dart-define=ACCESS_TOKEN=pk.seu_token_publico
+flutter run --dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_publico
 ```
 
 No VS Code, também é possível iniciar a configuração **EcoMonitor (Mapbox)** em **Run and Debug**. O arquivo `eco_monitor/.vscode/launch.json` solicita o token em um campo oculto e não armazena seu valor.

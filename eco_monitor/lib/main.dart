@@ -23,7 +23,7 @@ import "widgets/offline_banner.dart";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const accessToken = String.fromEnvironment("ACCESS_TOKEN");
+  const accessToken = String.fromEnvironment("MAPBOX_ACCESS_TOKEN");
   if (accessToken.isNotEmpty) {
     MapboxOptions.setAccessToken(accessToken);
   }

@@ -4,7 +4,7 @@ part of "home_screen.dart";
 // Constants --------------------------------------------------------------- //
 
 
-const String _accessToken = String.fromEnvironment("ACCESS_TOKEN");
+const String _accessToken = String.fromEnvironment("MAPBOX_ACCESS_TOKEN");
 const double _userZoom = 14;
 
 
