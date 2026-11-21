@@ -109,7 +109,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
           content: Text(message),
           backgroundColor: isError
               ? AppColors.medicine
-              : EcoColors.primary,
+              : AppColors.primary,
           duration: const Duration(seconds: 3),
         ),
       );
@@ -169,7 +169,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
           child: Theme(
             data: theme.copyWith(
               colorScheme: theme.colorScheme.copyWith(
-                primary: EcoColors.primary,
+                primary: AppColors.primary,
                 onPrimary: Colors.white,
                 surface: AppColors.surface,
                 onSurface: AppColors.textPrimary,
@@ -180,12 +180,12 @@ class _SuggestScreenState extends State<SuggestScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 hourMinuteColor: AppColors.primaryTint,
-                hourMinuteTextColor: EcoColors.primary,
+                hourMinuteTextColor: AppColors.primary,
                 dialBackgroundColor: AppColors.surfaceSection,
                 dialHandColor: AppColors.primary,
                 dialTextColor: AppColors.textPrimary,
                 dayPeriodColor: AppColors.primaryTint,
-                dayPeriodTextColor: EcoColors.primary,
+                dayPeriodTextColor: AppColors.primary,
                 helpTextStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -570,7 +570,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
-          color: EcoColors.primary,
+          color: AppColors.primary,
           width: 1.5,
         ),
       ),
@@ -624,13 +624,13 @@ class _SuggestScreenState extends State<SuggestScreen> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: EcoColors.primary,
+                    color: AppColors.primary,
                   ),
                 )
               : const Icon(
                   Icons.my_location_rounded,
                   size: 20,
-                  color: EcoColors.primary,
+                  color: AppColors.primary,
                 ),
           onPressed: _isLocating ? null : _captureLocation,
         ),
@@ -664,7 +664,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
           const Icon(
             Icons.check_circle_rounded,
             size: 16,
-            color: EcoColors.primary,
+            color: AppColors.primary,
           ),
           const SizedBox(width: 6),
 
@@ -674,7 +674,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: EcoColors.primary,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -769,7 +769,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
                 icon: const Icon(Icons.content_copy_rounded, size: 16),
                 label: const Text("Replicar horário para todos os dias"),
                 style: TextButton.styleFrom(
-                  foregroundColor: EcoColors.primary,
+                  foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 6,
@@ -805,7 +805,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
     return FilledButton(
       onPressed: _isSubmitting ? null : _submitForm,
       style: FilledButton.styleFrom(
-        backgroundColor: EcoColors.primary,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

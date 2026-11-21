@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
-import "../theme/eco_theme.dart";
+import "../theme/app_colors.dart";
+
 
 /// Item de uma linha do tempo vertical: círculo verde-água numerado à esquerda, título
 /// e descrição à direita, conectados por uma linha fina.
@@ -38,7 +39,7 @@ class StepTimelineItem extends StatelessWidget {
                     height: _diameter,
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(
-                      color: EcoColors.primary,
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
@@ -55,7 +56,7 @@ class StepTimelineItem extends StatelessWidget {
                       child: Container(
                         width: 2,
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        color: EcoColors.timelineLine,
+                        color: AppColors.timelineLine,
                       ),
                     ),
                 ],
@@ -73,7 +74,7 @@ class StepTimelineItem extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: EcoColors.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -82,7 +83,7 @@ class StepTimelineItem extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.4,
-                        color: EcoColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],

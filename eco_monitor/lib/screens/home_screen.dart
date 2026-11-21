@@ -896,7 +896,7 @@ class _FocusedCampaignChip extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
       child: Material(
-        color: EcoColors.surface,
+        color: AppColors.surface,
         elevation: 4,
         shadowColor: Colors.black.withAlpha(45),
         borderRadius: BorderRadius.circular(18),
@@ -925,7 +925,7 @@ class _FocusedCampaignChip extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: EcoColors.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
@@ -934,7 +934,7 @@ class _FocusedCampaignChip extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: EcoColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -947,7 +947,7 @@ class _FocusedCampaignChip extends StatelessWidget {
                   icon: const Icon(
                     Icons.close,
                     size: 20,
-                    color: EcoColors.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                   tooltip: "Fechar campanha",
                 ),

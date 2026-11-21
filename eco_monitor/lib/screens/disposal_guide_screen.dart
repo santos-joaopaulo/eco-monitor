@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 import "../domain/entities/residue.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
+import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/eco_app_bar.dart";
@@ -24,7 +25,7 @@ class DisposalGuideScreen extends StatelessWidget {
     final List<Residue> residues = repository.listResidues();
 
     return Scaffold(
-      backgroundColor: EcoColors.background,
+      backgroundColor: AppColors.background,
       appBar: const EcoAppBar(title: "GUIA DE DESCARTE"),
       body: Align(
         alignment: Alignment.topCenter,
@@ -85,7 +86,7 @@ class _Header extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: EcoColors.textPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -95,7 +96,7 @@ class _Header extends StatelessWidget {
           style: TextStyle(
             fontSize: 15,
             height: 1.5,
-            color: EcoColors.textSecondary,
+            color: AppColors.textSecondary,
           ),
         ),
       ],

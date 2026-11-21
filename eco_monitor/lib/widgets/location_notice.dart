@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
-import "package:eco_monitor/theme/eco_theme.dart";
+import "../theme/app_colors.dart";
+
 
 
 // Classes ----------------------------------------------------------------- //
@@ -30,7 +31,7 @@ class LocationNotice extends StatelessWidget {
       container: true,
       liveRegion: true,
       child: Material(
-        color: EcoColors.surface,
+        color: AppColors.surface,
         elevation: 3,
         shadowColor: Colors.black.withAlpha(40),
         borderRadius: BorderRadius.circular(16),
@@ -50,7 +51,7 @@ class LocationNotice extends StatelessWidget {
                 const Icon(
                   Icons.location_off_outlined,
                   size: 20,
-                  color: EcoColors.textSecondary,
+                  color: AppColors.textSecondary,
                 ),
 
               const SizedBox(width: 10),
@@ -62,7 +63,7 @@ class LocationNotice extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: EcoColors.textPrimary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -71,7 +72,7 @@ class LocationNotice extends StatelessWidget {
                 TextButton(
                   onPressed: onAction,
                   style: TextButton.styleFrom(
-                    foregroundColor: EcoColors.primary,
+                    foregroundColor: AppColors.primary,
                     minimumSize: const Size(48, 48),
                   ),
                   child: Text(actionLabel!),

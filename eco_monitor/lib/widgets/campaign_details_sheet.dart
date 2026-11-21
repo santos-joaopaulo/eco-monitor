@@ -154,7 +154,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                             const Icon(
                               Icons.location_on_outlined,
                               size: 20,
-                              color: EcoColors.primary,
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -195,7 +195,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                             const Icon(
                               Icons.calendar_today_outlined,
                               size: 18,
-                              color: EcoColors.primary,
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -224,7 +224,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: onClose,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: EcoColors.primary,
+                            foregroundColor: AppColors.primary,
                             side: const BorderSide(
                               color: AppColors.timelineLine,
                               width: 1.5,
@@ -253,7 +253,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                           ),
                           label: const Text("Ver no mapa"),
                           style: FilledButton.styleFrom(
-                            backgroundColor: EcoColors.primary,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             minimumSize: const Size(0, 48),
                             shape: RoundedRectangleBorder(

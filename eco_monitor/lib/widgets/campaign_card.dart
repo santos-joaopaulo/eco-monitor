@@ -1,9 +1,8 @@
-
-import "package:eco_monitor/theme/eco_theme.dart";
 import "package:flutter/material.dart";
 
 import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
+import "../theme/app_colors.dart";
 import "../utils/formatters.dart";
 import "eco_card.dart";
 import "waste_style.dart";
@@ -56,7 +55,7 @@ class CampaignCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: EcoColors.textPrimary,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -84,7 +83,7 @@ class CampaignCard extends StatelessWidget {
                   icon: const Icon(Icons.location_on_outlined, size: 20),
                   label: const Text("Ver local"),
                   style: FilledButton.styleFrom(
-                    backgroundColor: EcoColors.primary,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(
@@ -241,14 +240,14 @@ class _MetaItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: EcoColors.textSecondary),
+        Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 5),
         Flexible(
           child: Text(
             label,
             style: const TextStyle(
               fontSize: 13,
-              color: EcoColors.textSecondary,
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -281,7 +280,7 @@ _StatusVisual _visualForStatus(CampaignStatus status) {
     CampaignStatus.active => const _StatusVisual(
       label: "Ativa",
       background: Color(0xFFE3F5EC),
-      dotColor: EcoColors.active,
+      dotColor: AppColors.active,
       textColor: Color(0xFF1B5E20),
     ),
     CampaignStatus.upcoming => const _StatusVisual(
@@ -292,9 +291,9 @@ _StatusVisual _visualForStatus(CampaignStatus status) {
     ),
     CampaignStatus.finished => const _StatusVisual(
       label: "Encerrada",
-      background: EcoColors.inactiveBackground,
-      dotColor: EcoColors.inactive,
-      textColor: EcoColors.textSecondary,
+      background: AppColors.inactiveBackground,
+      dotColor: AppColors.inactive,
+      textColor: AppColors.textSecondary,
     ),
   };
 }

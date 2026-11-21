@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../theme/eco_theme.dart";
+import "../theme/app_colors.dart";
 import "eco_card.dart";
 
 /// Card de um resíduo na listagem do guia: ícone, título, descrição, botão
@@ -43,7 +43,7 @@ class ResidueCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: EcoColors.iconTint,
+                    color: AppColors.iconTint,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(icon, size: 32, color: iconColor),
@@ -59,7 +59,7 @@ class ResidueCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: EcoColors.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -68,7 +68,7 @@ class ResidueCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.45,
-                        color: EcoColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -113,10 +113,10 @@ class _ActionButton extends StatelessWidget {
       icon: const Icon(Icons.arrow_forward, size: 20),
       label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: EcoColors.primary,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: EcoColors.iconTint,
-        disabledForegroundColor: EcoColors.textSecondary,
+        disabledBackgroundColor: AppColors.iconTint,
+        disabledForegroundColor: AppColors.textSecondary,
 
         minimumSize: const Size(120, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -142,13 +142,13 @@ class _Indicator extends StatelessWidget {
           const Icon(
             Icons.schedule_outlined,
             size: 18,
-            color: EcoColors.textSecondary,
+            color: AppColors.textSecondary,
           ),
           const SizedBox(width: 6),
         ],
         Text(
           text,
-          style: const TextStyle(fontSize: 13, color: EcoColors.textSecondary),
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
       ],
     );

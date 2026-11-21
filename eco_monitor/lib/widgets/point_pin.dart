@@ -4,8 +4,7 @@ import "dart:ui" as ui;
 import "package:flutter/material.dart";
 
 import "../models/collection_point.dart";
-import "../theme/eco_theme.dart";
-import "package:eco_monitor/theme/app_colors.dart";
+import "../theme/app_colors.dart";
 
 
 // Classes ----------------------------------------------------------------- //
@@ -31,7 +30,7 @@ abstract final class PointPin {
   }) async {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    final Color baseColor = EcoColors.primary;
+    final Color baseColor = AppColors.primary;
 
     final double width = _width.toDouble();
     final double height = _height.toDouble();
@@ -104,9 +103,9 @@ abstract final class PointPin {
 
 Color _badgeColor(PointType type) {
   return switch (type) {
-    PointType.pharmacy => EcoColors.medicine,
+    PointType.pharmacy => AppColors.medicine,
     PointType.healthCenter => AppColors.userLocation,
-    PointType.ecoPoint => EcoColors.battery,
+    PointType.ecoPoint => AppColors.battery,
   };
 }
 

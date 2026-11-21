@@ -1,7 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
-import "../theme/eco_theme.dart";
+import "../theme/app_colors.dart";
+
 
 /// AppBar padrão do EcoMonitor: fundo verde-água, título branco centralizado.
 ///
@@ -19,7 +20,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: EcoColors.primary,
+      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,

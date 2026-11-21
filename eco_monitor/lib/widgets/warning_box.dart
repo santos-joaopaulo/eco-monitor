@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
-import "../theme/eco_theme.dart";
+import "../theme/app_colors.dart";
+
 
 /// Caixa de aviso de biossegurança (fundo rosa, ícone e texto vermelhos).
 class WarningBox extends StatelessWidget {
@@ -18,7 +19,7 @@ class WarningBox extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: EcoColors.warningBackground,
+          color: AppColors.warningBackground,
           borderRadius: BorderRadius.circular(16),
         ),
 
@@ -27,7 +28,7 @@ class WarningBox extends StatelessWidget {
             const Icon(
               Icons.warning_amber_rounded,
               size: 26,
-              color: EcoColors.warningText,
+              color: AppColors.warningText,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -37,7 +38,7 @@ class WarningBox extends StatelessWidget {
                   fontSize: 15,
                   height: 1.4,
                   fontWeight: FontWeight.w600,
-                  color: EcoColors.warningText,
+                  color: AppColors.warningText,
                 ),
               ),
             ),

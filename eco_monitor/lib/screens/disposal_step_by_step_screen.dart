@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "../domain/entities/disposal_guide.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
+import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 import "../widgets/eco_app_bar.dart";
@@ -37,7 +38,7 @@ class DisposalStepByStepScreen extends StatelessWidget {
     final DisposalGuide? guide = repository.stepsGuideFor(wasteType);
 
     return Scaffold(
-      backgroundColor: EcoColors.background,
+      backgroundColor: AppColors.background,
 
       appBar: EcoAppBar(
         title: wasteType.appBarTitle,
@@ -110,7 +111,7 @@ class _Content extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
-                              color: EcoColors.textPrimary,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -123,7 +124,7 @@ class _Content extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 15,
                       height: 1.5,
-                      color: EcoColors.textSecondary,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -162,7 +163,7 @@ class _Content extends StatelessWidget {
                 icon: const Icon(Icons.location_on_outlined, size: 26),
                 label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: EcoColors.primary,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 6,
                   shadowColor: Colors.black.withAlpha(80),

@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 
+import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 
 /// Altura da barra flutuante e margem inferior (usadas para reservar espaço em
@@ -106,7 +107,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = selected ? EcoColors.primary : EcoColors.textSecondary;
+    final Color color = selected ? AppColors.primary : AppColors.textSecondary;
 
     return Semantics(
       button: true,
