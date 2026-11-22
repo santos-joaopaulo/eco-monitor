@@ -54,6 +54,8 @@ class CollectPointsLayer {
 
       final PointAnnotationManager manager = await mapboxMap.annotations
           .createPointAnnotationManager();
+      await manager.setIconAllowOverlap(true);
+      await manager.setIconIgnorePlacement(true);
 
       final CollectPointsLayer layer = CollectPointsLayer._(
         manager,
@@ -130,8 +132,8 @@ class CollectPointsLayer {
                   selected: point.id == selectedId,
                 )],
             iconAnchor: IconAnchor.BOTTOM,
-            iconSize: point.id == selectedId ? 0.58 : 0.48,
-            symbolSortKey: point.id == selectedId ? 10 : 0,
+            iconSize: point.id == selectedId ? 0.95 : 0.82,
+            symbolSortKey: point.id == selectedId ? 200 : 100,
             customData: <String, Object>{"id": point.id},
           ),
       ];

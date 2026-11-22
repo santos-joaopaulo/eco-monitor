@@ -549,6 +549,10 @@ void main() {
         );
         await tester.pumpAndSettle();
 
+        final Finder locateFab = find.byType(HomeLocateButton);
+        await tester.tap(locateFab);
+        await tester.pumpAndSettle();
+
         expect(
           find.text("Não foi possível obter sua localização."),
           findsOneWidget,

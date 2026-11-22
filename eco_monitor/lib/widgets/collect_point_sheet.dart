@@ -50,6 +50,7 @@ class CollectPointSheet extends StatelessWidget {
 
     return SafeArea(
       top: false,
+      bottom: false,
 
       child: Align(
         alignment: Alignment.bottomCenter,

@@ -34,7 +34,7 @@ void main() {
     );
 
     expect(
-      find.text("Sem conexão — exibindo dados salvos · 2 sugestões na fila"),
+      find.text("Sem conexão · Dados salvos (+2)"),
       findsOneWidget,
     );
   });
@@ -58,7 +58,7 @@ void main() {
     );
 
     expect(
-      find.textContaining("Dados podem estar desatualizados"),
+      find.textContaining("Dados desatualizados"),
       findsOneWidget,
     );
     await tester.tap(find.text("Atualizar"));

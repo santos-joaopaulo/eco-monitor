@@ -34,7 +34,6 @@ mixin _HomeScreenActions on State<HomeScreen> {
   UserLocation? _userLocation;
   bool _isLocating = false;
   bool _locationFailed = false;
-  bool _cameraCenteredOnUser = false;
   bool _isListView = false;
 
   /// Token do Mapbox resolvido na inicialização (main.dart).
@@ -133,10 +132,6 @@ mixin _HomeScreenActions on State<HomeScreen> {
         _locationFailed = false;
       }
     });
-
-    if (permission == LocationPermissionState.granted) {
-      await _locateUser();
-    }
   }
 
   Future<void> _handleLocationAction() async {
@@ -201,12 +196,13 @@ mixin _HomeScreenActions on State<HomeScreen> {
     setState(() {
       _isLocating = false;
       _userLocation = location;
+      _permissionState = LocationPermissionState.granted;
     });
 
-    await _showUserLocation();
+    await _showUserLocation(flyCamera: true);
   }
 
-  Future<void> _showUserLocation() async {
+  Future<void> _showUserLocation({bool flyCamera = true}) async {
     final MapboxMap? mapboxMap = _mapboxMap;
     final UserLocation? location = _userLocation;
 
@@ -228,21 +224,17 @@ mixin _HomeScreenActions on State<HomeScreen> {
         ),
       );
 
-      if (_cameraCenteredOnUser) {
-        return;
-      }
-
-      _cameraCenteredOnUser = true;
-
-      await mapboxMap.flyTo(
-        CameraOptions(
-          center: Point(
-            coordinates: Position(location.longitude, location.latitude),
+      if (flyCamera) {
+        await mapboxMap.flyTo(
+          CameraOptions(
+            center: Point(
+              coordinates: Position(location.longitude, location.latitude),
+            ),
+            zoom: _userZoom,
           ),
-          zoom: _userZoom,
-        ),
-        MapAnimationOptions(duration: 800),
-      );
+          MapAnimationOptions(duration: 800),
+        );
+      }
     } on Exception {
       if (mounted) {
         setState(() {
@@ -274,14 +266,6 @@ mixin _HomeScreenActions on State<HomeScreen> {
     if (focusedCampaign != null) {
       await _flyToCampaign(focusedCampaign);
     }
-
-    if (_permissionState == LocationPermissionState.granted) {
-      if (_userLocation == null) {
-        await _locateUser();
-      } else {
-        await _showUserLocation();
-      }
-    }
   }
 
   Future<void> _onStyleLoaded(StyleLoadedEventData event) async {
@@ -303,15 +287,34 @@ mixin _HomeScreenActions on State<HomeScreen> {
     }
 
     setState(() {
+      _isListView = false;
       _selectedPoint = point;
       _routeSummary = null;
       _isRouteActive = false;
     });
     _syncPointsLayer();
 
-    if (!_isEffectiveListView) {
-      await _focusPoint(point);
+    await _focusPoint(point);
+
+    if (_userLocation == null) {
+      unawaited(_fetchLocationForDistance());
     }
+  }
+
+  Future<void> _fetchLocationForDistance() async {
+    try {
+      final LocationPermissionState permission =
+          await widget.locationService.currentPermission();
+      if (permission == LocationPermissionState.granted) {
+        final UserLocation? loc =
+            await widget.locationService.currentPosition();
+        if (loc != null && mounted) {
+          setState(() {
+            _userLocation = loc;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _focusPoint(CollectionPoint point) async {
@@ -518,10 +521,10 @@ mixin _HomeScreenActions on State<HomeScreen> {
       await manager.create(
         PolylineAnnotationOptions(
           geometry: LineString(coordinates: positions),
-          lineColor: AppColors.primary.toARGB32(),
-          lineWidth: 5,
+          lineColor: AppColors.routeLine.toARGB32(),
+          lineWidth: 6,
           lineBorderColor: Colors.white.toARGB32(),
-          lineBorderWidth: 3,
+          lineBorderWidth: 3.5,
           lineJoin: LineJoin.ROUND,
         ),
       );

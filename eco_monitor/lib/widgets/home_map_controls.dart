@@ -59,25 +59,35 @@ class HomeViewToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Alinha a altura do centro deste botão (48px) ao centro do botão principal (72px).
+    final double alignedBottom = bottom + (72 - 48) / 2;
+
     return Positioned(
       right: 16,
-      bottom: bottom,
+      bottom: alignedBottom,
 
-      child: FloatingActionButton(
-        heroTag: "home_toggle_view_fab",
-        mini: true,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.primaryAccessible,
-        elevation: 4,
-        tooltip: isListMode
-            ? "Visualização em mapa"
-            : "Visualização em lista",
-        onPressed: onPressed,
+      child: SizedBox(
+        width: 48,
+        height: 48,
 
-        child: Icon(
-          isListMode ? Icons.map_outlined : Icons.view_list_rounded,
-          size: 22,
-          color: AppColors.primaryAccessible,
+        child: FloatingActionButton(
+          heroTag: "home_toggle_view_fab",
+          elevation: 4,
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.primary,
+          shape: const CircleBorder(
+            side: BorderSide(color: AppColors.primary, width: 2),
+          ),
+          tooltip: isListMode
+              ? "Visualização em mapa"
+              : "Visualização em lista",
+          onPressed: onPressed,
+
+          child: Icon(
+            isListMode ? Icons.map_outlined : Icons.view_list_rounded,
+            size: 24,
+            color: AppColors.primary,
+          ),
         ),
       ),
     );

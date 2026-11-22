@@ -55,7 +55,12 @@ abstract final class PointPin {
 
     final Path pin = Path.combine(PathOperation.union, head, tail);
 
-    canvas.drawShadow(pin, Colors.black.withAlpha(70), 4, true);
+    canvas.drawShadow(
+      pin,
+      Colors.black.withAlpha(selected ? 110 : 85),
+      selected ? 7 : 5,
+      true,
+    );
 
     final Paint fillPaint = Paint()
       ..isAntiAlias = true
@@ -66,7 +71,7 @@ abstract final class PointPin {
     final Paint borderPaint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = selected ? 5.5 : 4.5
       ..color = Colors.white;
     canvas.drawPath(pin, borderPaint);
 

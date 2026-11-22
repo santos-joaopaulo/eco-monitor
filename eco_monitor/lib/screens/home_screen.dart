@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen>
     final Widget? locationNotice = _buildLocationNotice();
     final CollectionPoint? selectedPoint = _selectedPoint;
     final double navInset = CustomBottomNavBar.reservedBottomInset(context);
-    final double cardBottom = navInset + 8;
+    final double cardBottom = navInset + 20;
     final bool isListMode = _isEffectiveListView;
 
     Widget topBar({required bool isListMode}) {
@@ -236,8 +236,8 @@ class _HomeScreenState extends State<HomeScreen>
               onStyleLoadedListener: _onStyleLoaded,
 
               viewport: CameraViewportState(
-                center: Point(coordinates: Position(-37.067, -10.95)),
-                zoom: 10.7,
+                center: Point(coordinates: Position(0, 20)),
+                zoom: 1.5,
               ),
             ),
           ),
@@ -273,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen>
             child: topBar(isListMode: false),
           ),
 
-        if (selectedPoint == null)
+        if (selectedPoint == null && !_isListView)
           HomeLocateButton(
             bottom: navInset + 20,
             onPressed: _handleLocationAction,

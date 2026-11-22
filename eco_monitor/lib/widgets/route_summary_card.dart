@@ -42,10 +42,14 @@ class RouteSummaryCard extends StatelessWidget {
     final TravelMode currentMode = route?.travelMode ?? activeTravelMode;
     final bool isArrived = route?.isArrived ?? false;
     final bool isLargeFont = MediaQuery.textScalerOf(context).scale(1) > 1.25;
-    final double maxCardHeight = MediaQuery.sizeOf(context).height * 0.72;
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    // Garante que o topo do card fique estritamente abaixo da metade da tela.
+    final double maxCardHeight =
+        (screenHeight * 0.38).clamp(180.0, (screenHeight * 0.5) - 60.0);
 
     return SafeArea(
       top: false,
+      bottom: false,
 
       child: Align(
         alignment: Alignment.bottomCenter,
@@ -188,80 +192,65 @@ class RouteSummaryCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  if (isArrived || (route != null && route.isOfflineFallback)) ...[
+                    const SizedBox(height: 14),
 
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isArrived
-                          ? AppColors.primaryTint
-                          : (route == null
-                              ? AppColors.surfaceSection
-                              : (route.isOfflineFallback
-                                  ? AppColors.surfaceSection
-                                  : AppColors.primaryTint)),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isArrived
+                            ? AppColors.primaryTint
+                            : AppColors.surfaceSection,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
 
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (isArrived)
-                          const Icon(
-                            Icons.check_circle_rounded,
-                            size: 20,
-                            color: AppColors.primary,
-                          )
-                        else if (route == null)
-                          const Icon(
-                            Icons.location_off_outlined,
-                            size: 20,
-                            color: AppColors.textSecondary,
-                          )
-                        else
-                          Transform.rotate(
-                            angle: route.bearingDegrees * math.pi / 180,
-
-                            child: const Icon(
-                              Icons.navigation_rounded,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (isArrived)
+                            const Icon(
+                              Icons.check_circle_rounded,
                               size: 20,
                               color: AppColors.primary,
-                            ),
-                          ),
-                        const SizedBox(width: 10),
+                            )
+                          else
+                            Transform.rotate(
+                              angle: (route?.bearingDegrees ?? 0) * math.pi / 180,
 
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isArrived
-                                    ? "Você chegou ao ponto de coleta!"
-                                    : (route == null
-                                        ? "Sem a sua localização, distância e tempo não podem ser estimados."
-                                        : "Siga rumo ao ${route.cardinalDirection}."),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: isArrived
-                                      ? AppColors.primaryAccessible
-                                      : (route == null
-                                          ? AppColors.textSecondary
-                                          : AppColors.textPrimary),
-                                ),
+                              child: const Icon(
+                                Icons.navigation_rounded,
+                                size: 20,
+                                color: AppColors.primary,
                               ),
-                              if (route != null) ...[
+                            ),
+                          const SizedBox(width: 10),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isArrived
+                                      ? "Você chegou ao ponto de coleta!"
+                                      : "Siga rumo ao ${route?.cardinalDirection ?? ""}.",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: isArrived
+                                        ? AppColors.primaryAccessible
+                                        : AppColors.textPrimary,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
+
                                 Text(
                                   isArrived
                                       ? "Realize seu descarte consciente nos coletores disponíveis."
-                                      : (route.isOfflineFallback
-                                          ? "Modo offline: traçado direto por vetor e estimativa local."
-                                          : "Rota viária ativa com geometria de ruas."),
+                                      : "Modo offline: traçado direto por vetor e estimativa local.",
                                   style: TextStyle(
                                     fontSize: 11.5,
                                     color: isArrived
@@ -270,12 +259,12 @@ class RouteSummaryCard extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 16),
 
                   if (isLargeFont) ...[

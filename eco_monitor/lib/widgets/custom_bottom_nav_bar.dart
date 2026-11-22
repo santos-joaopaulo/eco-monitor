@@ -70,29 +70,44 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-            child: Material(
-              color: Colors.white,
-              elevation: 8,
-              shadowColor: Colors.black.withAlpha(64),
-              borderRadius: BorderRadius.circular(24),
-              clipBehavior: Clip.antiAlias,
 
-              child: SizedBox(
-                height: kEcoNavBarHeight,
-                // Altura fixa: limita a escala de fonte do sistema.
-                child: MediaQuery.withClampedTextScaling(
-                  maxScaleFactor: 1.2,
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < _items.length; i++)
-                        Expanded(
-                          child: _NavButton(
-                            item: _items[i],
-                            selected: i == currentIndex,
-                            onTap: () => onTap(i),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(55),
+                    blurRadius: 18,
+                    spreadRadius: 2,
+                    offset: Offset.zero,
+                  ),
+                ],
+              ),
+
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+                clipBehavior: Clip.antiAlias,
+
+                child: SizedBox(
+                  height: kEcoNavBarHeight,
+                  // Altura fixa: limita a escala de fonte do sistema.
+                  child: MediaQuery.withClampedTextScaling(
+                    maxScaleFactor: 1.2,
+
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < _items.length; i++)
+                          Expanded(
+                            child: _NavButton(
+                              item: _items[i],
+                              selected: i == currentIndex,
+                              onTap: () => onTap(i),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

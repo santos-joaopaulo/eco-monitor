@@ -48,6 +48,9 @@ abstract final class AppColors {
   /// Azul clássico do indicador de localização do usuário (alto contraste sobre mapas claros).
   static const Color userLocation = Color(0xFF1E88E5);
 
+  /// Cor vibrante e de alto contraste usada para desenhar o traçado da rota no mapa.
+  static const Color routeLine = Color(0xFF0277BD);
+
   // Alerta de biossegurança
   static const Color warningBackground = Color(0xFFFDE2E2);
   static const Color warningText = Color(0xFF9B1C1C);
