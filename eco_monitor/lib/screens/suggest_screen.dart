@@ -679,17 +679,20 @@ class _SuggestScreenState extends State<SuggestScreen> {
             ),
           ),
 
-          InkWell(
-            onTap: () {
-              setState(() {
-                _latitude = null;
-                _longitude = null;
-              });
-            },
-            child: const Icon(
-              Icons.close_rounded,
-              size: 16,
-              color: AppColors.textSecondary,
+          Tooltip(
+            message: "Remover coordenadas",
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _latitude = null;
+                  _longitude = null;
+                });
+              },
+              child: const Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ],

@@ -406,21 +406,26 @@ class _WasteChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
 
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(type.icon, size: 18, color: type.color),
-          const SizedBox(width: 6),
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.3,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(type.icon, size: 18, color: type.color),
+            const SizedBox(width: 6),
 
-          Text(
-            type.label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+            Flexible(
+              child: Text(
+                type.label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

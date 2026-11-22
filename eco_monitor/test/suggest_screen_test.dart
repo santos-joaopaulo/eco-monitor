@@ -28,13 +28,20 @@ class _MockLocationService extends LocationService {
 }
 
 class _FakeSuggestionsRepository extends PointSuggestionsRepository {
-  _FakeSuggestionsRepository({this.result = SuggestionSubmitResult.sent});
+  _FakeSuggestionsRepository({
+    this.result = SuggestionSubmitResult.sent,
+    this.shouldThrow = false,
+  });
 
   final SuggestionSubmitResult result;
+  final bool shouldThrow;
   final List<PointSuggestion> submitted = <PointSuggestion>[];
 
   @override
   Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) async {
+    if (shouldThrow) {
+      throw Exception("Network error");
+    }
     submitted.add(suggestion);
     return result;
   }
@@ -341,6 +348,150 @@ void main() {
       find.text(
         "Sugestão salva na fila offline. Será enviada assim que houver conexão.",
       ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("validates name and address minimum length constraints", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(0), "A");
+    await tester.enterText(find.byType(TextFormField).at(1), "Rua");
+    await tester.tap(find.text("Remédios"));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Enviar sugestão"));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("O nome deve ter no mínimo 2 caracteres."),
+      findsOneWidget,
+    );
+    expect(
+      find.text("O endereço deve ter no mínimo 5 caracteres."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("validates name and address maximum length constraints", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SuggestScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(0), "A" * 121);
+    await tester.enterText(find.byType(TextFormField).at(1), "B" * 201);
+    await tester.tap(find.text("Remédios"));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Enviar sugestão"));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("O nome deve ter no máximo 120 caracteres."),
+      findsOneWidget,
+    );
+    expect(
+      find.text("O endereço deve ter no máximo 200 caracteres."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("dismisses GPS coordinates badge when close button is tapped", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    const UserLocation fakeLoc = UserLocation(
+      latitude: -10.9472,
+      longitude: -37.0731,
+    );
+    const LocationService service = _MockLocationService(position: fakeLoc);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: SuggestScreen(locationService: service)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip("Preencher com localização atual (GPS)"));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("GPS: -10.94720"), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("GPS: -10.94720"), findsNothing);
+  });
+
+  testWidgets("shows error snackbar when location service returns null", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    const LocationService service = _MockLocationService(position: null);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: SuggestScreen(locationService: service)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip("Preencher com localização atual (GPS)"));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Não foi possível obter a localização do aparelho."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("shows error snackbar when repository throws during submission", (
+    WidgetTester tester,
+  ) async {
+    useTallSurface(tester);
+
+    final _FakeSuggestionsRepository repository = _FakeSuggestionsRepository(
+      shouldThrow: true,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: SuggestScreen(repository: repository)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      "EcoPonto Jardins",
+    );
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      "Av. Ministro Geraldo Barreto Sobral, 100",
+    );
+    await tester.tap(find.text("Remédios"));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Enviar sugestão"));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Ocorreu um erro ao enviar. Tente novamente."),
       findsOneWidget,
     );
   });
