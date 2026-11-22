@@ -1,11 +1,13 @@
 import "dart:async";
 
-import "package:material_ui/material_ui.dart";
+import "package:firebase_core/firebase_core.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
+import "package:material_ui/material_ui.dart";
 
 import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
 import "domain/entities/waste_type.dart";
+import "firebase_options.dart";
 import "models/campaign.dart";
 import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
@@ -35,7 +37,13 @@ Future<void> main() async {
 
   // Inicializa o Firebase quando as credenciais da plataforma estão presentes;
   // caso contrário, opera em modo offline (RNF09, RNF10).
-  await initializeFirebase();
+  FirebaseOptions? firebaseOptions;
+  try {
+    firebaseOptions = DefaultFirebaseOptions.currentPlatform;
+  } catch (_) {
+    // Plataformas desktop não configuradas caem silenciosamente em modo offline.
+  }
+  await initializeFirebase(options: firebaseOptions);
 
   runApp(const MyApp());
 }

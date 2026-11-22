@@ -31,7 +31,25 @@ cd eco_monitor
 flutter pub get
 ```
 
-### 4. Execução rápida
+### 4. Token do Mapbox (arquivo local)
+
+O app resolve o token do Mapbox nesta ordem:
+
+1. Variável de compilação: `--dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_publico` (ou o campo oculto do VS Code);
+2. Arquivo local `eco_monitor/assets/config/mapbox_token.txt` (gitignored, opcional).
+
+O arquivo local faz `flutter run` e `flutter build apk` funcionarem **sem** o `--dart-define`. Crie-o uma única vez:
+
+```bash
+cd eco_monitor
+cp assets/config/mapbox_token.txt.example assets/config/mapbox_token.txt
+```
+
+e cole o token público (`pk.*`) dentro do arquivo. Sem token, o app abre em modo de lista com o aviso "Configure o token do Mapbox".
+
+> **Importante:** o arquivo com o token nunca é commitado — ele está no `.gitignore`.
+
+### 5. Execução rápida
 #### a) Web (servidor de desenvolvimento)
 ```bash
 flutter run -d web-server --web-port 3000 --dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_publico
@@ -54,7 +72,7 @@ flutter run -d <device_id> --dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_public
 
 > **Dica:** No VS Code, abra a paleta de comandos → **Run and Debug** e selecione **EcoMonitor (Mapbox)**. O arquivo `eco_monitor/.vscode/launch.json` solicita o token em um campo oculto e não o armazena no repositório.
 
-### 5. Build de produção
+### 6. Build de produção
 #### a) Web
 ```bash
 flutter build web --dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_publico
@@ -65,3 +83,4 @@ Os arquivos gerados ficarão em `build/web/` e podem ser servidos por qualquer s
 ```bash
 flutter build apk --dart-define=MAPBOX_ACCESS_TOKEN=pk.seu_token_publico
 ```
+Se o arquivo local de token (`assets/config/mapbox_token.txt`) já está configurado (passo 4), o `--dart-define` é opcional — o build usa o token do arquivo.

@@ -10,6 +10,7 @@ import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
+import "../services/mapbox_token_provider.dart";
 import "../services/route_service.dart";
 import "../theme/app_colors.dart";
 import "../utils/geo.dart";
@@ -223,10 +224,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Stack(
       children: [
+        // O mapa permanece montado mesmo no modo de lista: a lista é um
+        // sobreposição opaca por cima. Remover e recriar a view nativa do mapa
+        // (Offstage) deixa a tela em branco sem reiniciar o app.
         if (_accessToken.isNotEmpty)
-          Offstage(
-            offstage: isListMode,
-
+          Positioned.fill(
             child: MapWidget(
               key: const ValueKey("aracaju-map"),
               onMapCreated: _onMapCreated,

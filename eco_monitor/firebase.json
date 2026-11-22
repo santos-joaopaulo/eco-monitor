@@ -1,4 +1,32 @@
 {
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "eco-monitor-34290",
+          "appId": "1:938254289433:android:386e6fc9941749106d7888",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "eco-monitor-34290",
+          "appId": "1:938254289433:ios:a15f42acdfa84e626d7888",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "eco-monitor-34290",
+          "configurations": {
+            "android": "1:938254289433:android:386e6fc9941749106d7888",
+            "ios": "1:938254289433:ios:a15f42acdfa84e626d7888"
+          }
+        }
+      }
+    }
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

@@ -4,7 +4,6 @@ part of "home_screen.dart";
 // Constants --------------------------------------------------------------- //
 
 
-const String _accessToken = String.fromEnvironment("MAPBOX_ACCESS_TOKEN");
 const double _userZoom = 14;
 
 
@@ -35,6 +34,9 @@ mixin _HomeScreenActions on State<HomeScreen> {
   bool _locationFailed = false;
   bool _cameraCenteredOnUser = false;
   bool _isListView = false;
+
+  /// Token do Mapbox resolvido na inicialização (main.dart).
+  String get _accessToken => MapboxTokenProvider.token;
 
   bool get _isEffectiveListView => _isListView || _accessToken.isEmpty;
 

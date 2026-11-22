@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "938254289433",
+    "project_id": "eco-monitor-34290",
+    "storage_bucket": "eco-monitor-34290.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938254289433:android:386e6fc9941749106d7888",
+        "android_client_info": {
+          "package_name": "br.edu.ufs.ecomonitor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqcpTQo9IPJe-g9MSQfJ0tzqr5IGs6lFw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
