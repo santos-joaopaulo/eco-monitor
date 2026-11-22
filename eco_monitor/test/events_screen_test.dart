@@ -9,10 +9,12 @@ import "package:eco_monitor/data/collect_points_repository.dart";
 import "package:eco_monitor/data/connectivity_service.dart";
 import "package:eco_monitor/data/disposal_guide_repository_synced.dart";
 import "package:eco_monitor/data/point_suggestions_repository.dart";
+import "package:eco_monitor/data/local_store.dart";
 import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/main.dart";
 import "package:eco_monitor/models/campaign.dart";
 import "package:eco_monitor/screens/events_screen.dart";
+import "package:eco_monitor/services/location_service.dart";
 import "package:eco_monitor/widgets/campaign_card.dart";
 
 
@@ -25,14 +27,59 @@ void useTallSurface(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
+class _FakeLocationService extends LocationService {
+  const _FakeLocationService();
+
+  @override
+  Future<LocationPermissionState> currentPermission() async =>
+      LocationPermissionState.denied;
+
+  @override
+  Future<UserLocation?> currentPosition() async => null;
+}
+
+class _FakeAssetBundle extends Fake implements AssetBundle {
+  @override
+  Future<String> loadString(String key, {bool cache = true}) async {
+    return '{"updatedAt": "2026-11-17T12:00:00Z", "points": []}';
+  }
+}
+
 AppDataSync _createTestDataSync() {
   final DateTime fixedClock = DateTime.utc(2026, 11, 17, 12);
+  final List<Campaign> testCampaigns = [
+    _sampleCampaign(
+      id: "orla",
+      title: "Mutirão de Lixo Eletrônico na Orla",
+      status: CampaignStatus.active,
+      locationName: "Arcos da Orla de Atalaia",
+    ),
+    _sampleCampaign(
+      id: "extra-pilhas",
+      title: "Ponto Extra de Pilhas e Baterias",
+      status: CampaignStatus.active,
+    ),
+    _sampleCampaign(
+      id: "remedios",
+      title: "Semana do Descarte Seguro de Medicamentos",
+      status: CampaignStatus.upcoming,
+    ),
+  ];
 
   return AppDataSync(
-    collectPointsRepository: CollectPointsRepository(clock: () => fixedClock),
-    campaignsRepository: CampaignsRepository(clock: () => fixedClock),
-    suggestionsRepository: PointSuggestionsRepository(),
-    guideRepository: DisposalGuideRepositorySynced(clock: () => fixedClock),
+    collectPointsRepository: CollectPointsRepository(
+      clock: () => fixedClock,
+      assetBundle: _FakeAssetBundle(),
+      localStore: InMemoryLocalStore(),
+    ),
+    campaignsRepository: _FakeCampaignsRepository(testCampaigns),
+    suggestionsRepository: PointSuggestionsRepository(
+      localStore: InMemoryLocalStore(),
+    ),
+    guideRepository: DisposalGuideRepositorySynced(
+      clock: () => fixedClock,
+      localStore: InMemoryLocalStore(),
+    ),
     connectivityService: ConnectivityService(
       checkConnectivity: () async => const [ConnectivityResult.wifi],
       connectivityStream: const Stream<List<ConnectivityResult>>.empty(),
@@ -96,9 +143,15 @@ void main() {
       useTallSurface(tester);
       final AppDataSync dataSync = _createTestDataSync();
       addTearDown(dataSync.dispose);
-      await tester.runAsync(dataSync.initialize);
+      await dataSync.initialize();
 
-      await tester.pumpWidget(MyApp(dataSync: dataSync));
+      await tester.pumpWidget(
+        MyApp(
+          key: UniqueKey(),
+          dataSync: dataSync,
+          locationService: const _FakeLocationService(),
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text("eventos"));
@@ -115,6 +168,8 @@ void main() {
         find.text("Semana do Descarte Seguro de Medicamentos"),
         findsOneWidget,
       );
+
+      await tester.pumpWidget(const SizedBox());
     },
   );
 
@@ -277,9 +332,15 @@ void main() {
       useTallSurface(tester);
       final AppDataSync dataSync = _createTestDataSync();
       addTearDown(dataSync.dispose);
-      await tester.runAsync(dataSync.initialize);
+      await dataSync.initialize();
 
-      await tester.pumpWidget(MyApp(dataSync: dataSync));
+      await tester.pumpWidget(
+        MyApp(
+          key: UniqueKey(),
+          dataSync: dataSync,
+          locationService: const _FakeLocationService(),
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text("eventos"));
@@ -303,6 +364,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Mutirão de Lixo Eletrônico na Orla"), findsNothing);
+
+      await tester.pumpWidget(const SizedBox());
     },
   );
 }

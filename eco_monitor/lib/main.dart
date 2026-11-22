@@ -11,6 +11,8 @@ import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
 import "screens/suggest_screen.dart";
+import "services/location_service.dart";
+import "services/mapbox_token_provider.dart";
 import "theme/app_colors.dart";
 import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
@@ -23,7 +25,10 @@ import "widgets/offline_banner.dart";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const accessToken = String.fromEnvironment("MAPBOX_ACCESS_TOKEN");
+  // Resolve o token do Mapbox (variável de compilação ou arquivo local)
+  // antes de criar o mapa, para que builds sem --dart-define funcionem.
+  await MapboxTokenProvider.loadLocalToken();
+  final accessToken = MapboxTokenProvider.token;
   if (accessToken.isNotEmpty) {
     MapboxOptions.setAccessToken(accessToken);
   }
@@ -40,10 +45,13 @@ Future<void> main() async {
 
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.dataSync});
+  const MyApp({super.key, this.dataSync, this.locationService});
 
   /// Coordenador de sincronização opcional utilizado em testes.
   final AppDataSync? dataSync;
+
+  /// Serviço de localização opcional utilizado em testes.
+  final LocationService? locationService;
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +61,27 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
       ),
-      home: MyHomePage(title: "ECOMONITOR", dataSync: dataSync),
+      home: MyHomePage(
+        key: ValueKey<Object?>(dataSync),
+        title: "ECOMONITOR",
+        dataSync: dataSync,
+        locationService: locationService,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, this.dataSync});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    this.dataSync,
+    this.locationService,
+  });
 
   final String title;
   final AppDataSync? dataSync;
+  final LocationService? locationService;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -93,6 +112,19 @@ class _MyHomePageState extends State<MyHomePage> {
     _ownsDataSync = widget.dataSync == null;
     _dataSync = widget.dataSync ?? AppDataSync.createDefault();
     unawaited(_dataSync.initialize());
+  }
+
+  @override
+  void didUpdateWidget(covariant MyHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataSync != widget.dataSync) {
+      if (_ownsDataSync) {
+        _dataSync.dispose();
+      }
+      _ownsDataSync = widget.dataSync == null;
+      _dataSync = widget.dataSync ?? AppDataSync.createDefault();
+      unawaited(_dataSync.initialize());
+    }
   }
 
   @override
@@ -182,6 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onClearCampaign: _clearFocusedCampaign,
                         repository: _dataSync.collectPointsRepository,
                         dataSync: _dataSync,
+                        locationService: widget.locationService ?? const LocationService(),
                         isActive: _selectedIndex == _homeTab,
                       ),
                     ),

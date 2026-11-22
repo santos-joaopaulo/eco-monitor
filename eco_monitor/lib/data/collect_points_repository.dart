@@ -4,6 +4,7 @@ import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "../models/collection_point.dart";
+import "local_store.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -11,6 +12,9 @@ import "../models/collection_point.dart";
 
 /// Arquivo empacotado no app, disponível sem conexão de rede.
 const String kCollectPointsAsset = "assets/data/collect_points.json";
+
+/// Versão do documento único de cache local.
+const int kCollectPointsCacheVersion = 1;
 
 const String _cacheJsonKey = "collect_points_json";
 const String _cacheLastUpdatedKey = "collect_points_last_updated";
@@ -61,11 +65,14 @@ class CollectPointsRepository {
   CollectPointsRepository({
     AssetBundle? assetBundle,
     this.fetcher,
+    LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
     DateTime Function()? clock,
   }) : _assetBundle = assetBundle ?? rootBundle,
-       _preferencesFactory =
-           preferencesFactory ?? SharedPreferences.getInstance,
+       _store = localStore ??
+           SharedPreferencesLocalStore(
+             preferencesFactory: preferencesFactory,
+           ),
        _clock = clock ?? DateTime.now;
 
   final AssetBundle _assetBundle;
@@ -73,7 +80,7 @@ class CollectPointsRepository {
   /// Fonte remota opcional; nula quando em modo exclusivamente offline.
   final CollectPointsFetcher? fetcher;
 
-  final Future<SharedPreferences> Function() _preferencesFactory;
+  final LocalStore _store;
   final DateTime Function() _clock;
 
   DateTime? _lastUpdated;
@@ -102,18 +109,78 @@ class CollectPointsRepository {
 
   /// Carrega os pontos sem rede, priorizando o cache local baixado.
   Future<List<CollectionPoint>> loadOffline() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    final String? cachedJson = preferences.getString(_cacheJsonKey);
-    final int? cachedTimestamp = preferences.getInt(_cacheLastUpdatedKey);
+    final String? cachedRaw = await _store.getString(_cacheJsonKey);
 
-    if (cachedJson != null) {
-      final _ParsedCollectPoints cached = _parsePointsJson(cachedJson);
-      if (cached.points.isNotEmpty) {
-        _lastUpdated = cachedTimestamp == null
-            ? cached.updatedAt
-            : DateTime.fromMillisecondsSinceEpoch(cachedTimestamp, isUtc: true);
-        _sourceOrigin = DataSourceOrigin.localCache;
-        return cached.points;
+    if (cachedRaw != null && cachedRaw.isNotEmpty) {
+      try {
+        final Object? decoded = jsonDecode(cachedRaw);
+        if (decoded is Map<String, dynamic>) {
+          final Object? versionObj = decoded["version"];
+
+          if (versionObj != null) {
+            // Formato de documento único versionado: {version, updatedAt, points}.
+            if (versionObj == kCollectPointsCacheVersion) {
+              final String? updatedAtStr = decoded["updatedAt"] as String?;
+              final Object? rawPoints = decoded["points"];
+              final List<dynamic> pointsList =
+                  rawPoints is List<dynamic> ? rawPoints : const <dynamic>[];
+              final List<CollectionPoint> parsed = _parsePointsList(pointsList);
+
+              if (parsed.isNotEmpty) {
+                _lastUpdated = updatedAtStr == null
+                    ? null
+                    : DateTime.tryParse(updatedAtStr)?.toUtc();
+                _sourceOrigin = DataSourceOrigin.localCache;
+                return parsed;
+              }
+            } else {
+              // Versão desconhecida de esquema: fallback seguro para o asset embarcado.
+            }
+          } else {
+            // Formato legado com chaves separadas (collect_points_json + collect_points_last_updated).
+            final _ParsedCollectPoints legacy = _parsePointsJson(cachedRaw);
+            if (legacy.points.isNotEmpty) {
+              final int? cachedTimestamp =
+                  await _store.getInt(_cacheLastUpdatedKey);
+              final DateTime updatedAt = cachedTimestamp == null
+                  ? (legacy.updatedAt ?? DateTime.now().toUtc())
+                  : DateTime.fromMillisecondsSinceEpoch(
+                      cachedTimestamp,
+                      isUtc: true,
+                    );
+
+              // Migração na primeira leitura para documento único versionado.
+              await _writeCache(legacy.points, updatedAt);
+              await _store.remove(_cacheLastUpdatedKey);
+
+              _lastUpdated = updatedAt;
+              _sourceOrigin = DataSourceOrigin.localCache;
+              return legacy.points;
+            }
+          }
+        } else if (decoded is List<dynamic>) {
+          // Formato legado com lista simples de pontos.
+          final List<CollectionPoint> parsed = _parsePointsList(decoded);
+          if (parsed.isNotEmpty) {
+            final int? cachedTimestamp =
+                await _store.getInt(_cacheLastUpdatedKey);
+            final DateTime updatedAt = cachedTimestamp == null
+                ? DateTime.now().toUtc()
+                : DateTime.fromMillisecondsSinceEpoch(
+                    cachedTimestamp,
+                    isUtc: true,
+                  );
+
+            await _writeCache(parsed, updatedAt);
+            await _store.remove(_cacheLastUpdatedKey);
+
+            _lastUpdated = updatedAt;
+            _sourceOrigin = DataSourceOrigin.localCache;
+            return parsed;
+          }
+        }
+      } catch (_) {
+        // Cache corrompido: descarta silenciosamente e recorre ao fallback dos assets.
       }
     }
 
@@ -156,30 +223,27 @@ class CollectPointsRepository {
 
   /// Remove o cache local baixado, mantendo disponível o conjunto empacotado.
   Future<void> clearCache() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    await preferences.remove(_cacheJsonKey);
-    await preferences.remove(_cacheLastUpdatedKey);
+    await _store.remove(_cacheJsonKey);
+    await _store.remove(_cacheLastUpdatedKey);
+    _lastUpdated = null;
+    _sourceOrigin = null;
   }
 
   Future<void> _writeCache(
     List<CollectionPoint> points,
     DateTime updatedAt,
   ) async {
-    final SharedPreferences preferences = await _preferencesFactory();
+    final Map<String, dynamic> document = <String, dynamic>{
+      "version": kCollectPointsCacheVersion,
+      "updatedAt": updatedAt.toUtc().toIso8601String(),
+      "points": points
+          .map((CollectionPoint point) => point.toJson())
+          .toList(),
+    };
 
-    await preferences.setString(
-      _cacheJsonKey,
-      jsonEncode(<String, dynamic>{
-        "updatedAt": updatedAt.toIso8601String(),
-        "points": points
-            .map((CollectionPoint point) => point.toJson())
-            .toList(),
-      }),
-    );
-    await preferences.setInt(
-      _cacheLastUpdatedKey,
-      updatedAt.millisecondsSinceEpoch,
-    );
+    await _store.setString(_cacheJsonKey, jsonEncode(document));
+    // Remove chave legada caso ainda exista.
+    await _store.remove(_cacheLastUpdatedKey);
   }
 }
 
@@ -197,6 +261,18 @@ class _ParsedCollectPoints {
 
 // Methods ----------------------------------------------------------------- //
 
+
+List<CollectionPoint> _parsePointsList(List<dynamic> rawPoints) {
+  return _sorted(
+    rawPoints
+        .whereType<Map<dynamic, dynamic>>()
+        .map(
+          (Map<dynamic, dynamic> json) =>
+              CollectionPoint.fromJson(json.cast<String, dynamic>()),
+        )
+        .toList(),
+  );
+}
 
 _ParsedCollectPoints _parsePointsJson(String source) {
   final Object? decoded = jsonDecode(source);
@@ -216,15 +292,7 @@ _ParsedCollectPoints _parsePointsJson(String source) {
     rawPoints = const <dynamic>[];
   }
 
-  final List<CollectionPoint> points = _sorted(
-    rawPoints
-        .whereType<Map<dynamic, dynamic>>()
-        .map(
-          (Map<dynamic, dynamic> json) =>
-              CollectionPoint.fromJson(json.cast<String, dynamic>()),
-        )
-        .toList(),
-  );
+  final List<CollectionPoint> points = _parsePointsList(rawPoints);
 
   return _ParsedCollectPoints(
     points: points,

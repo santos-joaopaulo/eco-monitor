@@ -8,6 +8,7 @@ import "../models/campaign.dart";
 import "collect_points_repository.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
+import "local_store.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -106,16 +107,19 @@ class CampaignsRepository {
   CampaignsRepository({
     AssetBundle? assetBundle,
     this.fetcher,
+    LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
     DateTime Function()? clock,
   }) : _assetBundle = assetBundle ?? rootBundle,
-       _preferencesFactory =
-           preferencesFactory ?? SharedPreferences.getInstance,
+       _store = localStore ??
+           SharedPreferencesLocalStore(
+             preferencesFactory: preferencesFactory,
+           ),
        _clock = clock ?? DateTime.now;
 
   final AssetBundle _assetBundle;
   final CampaignsFetcher? fetcher;
-  final Future<SharedPreferences> Function() _preferencesFactory;
+  final LocalStore _store;
   final DateTime Function() _clock;
 
   DateTime? _lastUpdated;
@@ -145,9 +149,8 @@ class CampaignsRepository {
   /// Carrega campanhas sem rede, priorizando o cache local e recorrendo
   /// ao arquivo empacotado quando nenhum cache existir.
   Future<List<Campaign>> loadOffline() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    final String? cachedJson = preferences.getString(_cacheJsonKey);
-    final int? cachedTimestamp = preferences.getInt(_cacheLastUpdatedKey);
+    final String? cachedJson = await _store.getString(_cacheJsonKey);
+    final int? cachedTimestamp = await _store.getInt(_cacheLastUpdatedKey);
 
     if (cachedJson != null) {
       final _ParsedCampaigns cached = _parseCampaignsJson(cachedJson);
@@ -197,15 +200,12 @@ class CampaignsRepository {
 
   /// Remove o cache local baixado, mantendo disponível o conjunto de dados empacotado.
   Future<void> clearCache() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    await preferences.remove(_cacheJsonKey);
-    await preferences.remove(_cacheLastUpdatedKey);
+    await _store.remove(_cacheJsonKey);
+    await _store.remove(_cacheLastUpdatedKey);
   }
 
   Future<void> _writeCache(List<Campaign> campaigns, DateTime updatedAt) async {
-    final SharedPreferences preferences = await _preferencesFactory();
-
-    await preferences.setString(
+    await _store.setString(
       _cacheJsonKey,
       jsonEncode(<String, dynamic>{
         "updatedAt": updatedAt.toIso8601String(),
@@ -214,7 +214,7 @@ class CampaignsRepository {
             .toList(),
       }),
     );
-    await preferences.setInt(
+    await _store.setInt(
       _cacheLastUpdatedKey,
       updatedAt.millisecondsSinceEpoch,
     );

@@ -11,6 +11,7 @@ import "collect_points_repository.dart";
 import "disposal_guide_repository_local.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
+import "local_store.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -146,17 +147,20 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   DisposalGuideRepositorySynced({
     this.fallback = const DisposalGuideRepositoryLocal(),
     this.fetcher,
+    LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
     DateTime Function()? clock,
-  }) : _preferencesFactory =
-           preferencesFactory ?? SharedPreferences.getInstance,
+  }) : _store = localStore ??
+           SharedPreferencesLocalStore(
+             preferencesFactory: preferencesFactory,
+           ),
        _clock = clock ?? DateTime.now {
     _resetToFallback();
   }
 
   final DisposalGuideRepository fallback;
   final DisposalGuidesFetcher? fetcher;
-  final Future<SharedPreferences> Function() _preferencesFactory;
+  final LocalStore _store;
   final DateTime Function() _clock;
 
   late List<Residue> _residues;
@@ -192,12 +196,11 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   @override
   DisposalGuide? stepsGuideFor(WasteType type) => _guides[type];
 
-  /// Carrega os guias em cache do [SharedPreferences], mantendo intactos os
+  /// Carrega os guias em cache do [LocalStore], mantendo intactos os
   /// padrões empacotados para qualquer resíduo não presente no cache.
   Future<void> loadOffline() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    final String? cachedJson = preferences.getString(_cacheJsonKey);
-    final int? cachedTimestamp = preferences.getInt(_cacheLastUpdatedKey);
+    final String? cachedJson = await _store.getString(_cacheJsonKey);
+    final int? cachedTimestamp = await _store.getInt(_cacheLastUpdatedKey);
 
     if (cachedJson == null || cachedJson.isEmpty) {
       _resetToFallback();
@@ -252,9 +255,8 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
 
   /// Limpa os guias em cache e restaura o conteúdo offline empacotado.
   Future<void> clearCache() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    await preferences.remove(_cacheJsonKey);
-    await preferences.remove(_cacheLastUpdatedKey);
+    await _store.remove(_cacheJsonKey);
+    await _store.remove(_cacheLastUpdatedKey);
     _lastUpdated = null;
     _sourceOrigin = DataSourceOrigin.bundledAsset;
     _resetToFallback();
@@ -302,9 +304,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
     Map<WasteType, DisposalGuide> guides,
     DateTime updatedAt,
   ) async {
-    final SharedPreferences preferences = await _preferencesFactory();
-
-    await preferences.setString(
+    await _store.setString(
       _cacheJsonKey,
       jsonEncode(<String, dynamic>{
         "updatedAt": updatedAt.toIso8601String(),
@@ -315,7 +315,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
         ),
       }),
     );
-    await preferences.setInt(
+    await _store.setInt(
       _cacheLastUpdatedKey,
       updatedAt.millisecondsSinceEpoch,
     );

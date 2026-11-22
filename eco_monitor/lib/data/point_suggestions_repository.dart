@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:convert";
 
 import "package:cloud_firestore/cloud_firestore.dart";
@@ -5,6 +6,7 @@ import "package:shared_preferences/shared_preferences.dart";
 
 import "../models/point_suggestion.dart";
 import "firebase_service.dart";
+import "local_store.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -12,6 +14,9 @@ import "firebase_service.dart";
 
 /// Nome da coleção no Firestore para sugestões anônimas de pontos.
 const String kPointSuggestionsCollection = "pointSuggestions";
+
+/// Versão do envelope da fila de sugestões offline.
+const int kPointSuggestionsQueueVersion = 1;
 
 const String _pendingQueueKey = "pending_point_suggestions_json";
 
@@ -67,17 +72,22 @@ PointSuggestionSender createFirestoreSuggestionSender({
 
 
 /// Envia sugestões anônimas de pontos ao Firestore com uma fila offline de contingência
-/// para que os envios nunca sejam perdidos silenciosamente sem internet (RF11, RNF06,
-/// RNF10, RNF14).
+/// protegida por mutex interno para evitar lost updates em chamadas concorrentes
+/// (RF11, RNF06, RNF10, RNF14).
 class PointSuggestionsRepository {
   PointSuggestionsRepository({
     this.sender,
+    LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
-  }) : _preferencesFactory =
-           preferencesFactory ?? SharedPreferences.getInstance;
+  }) : _store = localStore ??
+           SharedPreferencesLocalStore(
+             preferencesFactory: preferencesFactory,
+           );
 
   final PointSuggestionSender? sender;
-  final Future<SharedPreferences> Function() _preferencesFactory;
+  final LocalStore _store;
+
+  Future<void> _lock = Future<void>.value();
 
   bool get hasRemoteSender => sender != null;
 
@@ -88,47 +98,28 @@ class PointSuggestionsRepository {
   /// Envia [suggestion] anonimamente ao backend remoto.
   ///
   /// Quando [sender] for nulo ou lançar exceção (ex.: offline), a sugestão é enfileirada
-  /// localmente no [SharedPreferences] e [SuggestionSubmitResult.queuedOffline]
+  /// localmente no [LocalStore] e [SuggestionSubmitResult.queuedOffline]
   /// é retornado para ser reenviado automaticamente assim que a conectividade for restaurada.
-  Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) async {
-    final PointSuggestionSender? remoteSender = sender;
-    if (remoteSender != null) {
-      try {
-        await remoteSender(suggestion);
-        return SuggestionSubmitResult.sent;
-      } catch (_) {
-        // Recorre à fila offline para que a sugestão do usuário não seja perdida.
+  Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) {
+    return _synchronized(() async {
+      final PointSuggestionSender? remoteSender = sender;
+      if (remoteSender != null) {
+        try {
+          await remoteSender(suggestion);
+          return SuggestionSubmitResult.sent;
+        } catch (_) {
+          // Recorre à fila offline para que a sugestão do usuário não seja perdida.
+        }
       }
-    }
 
-    await _enqueue(suggestion);
-    return SuggestionSubmitResult.queuedOffline;
+      await _enqueueUnsafe(suggestion);
+      return SuggestionSubmitResult.queuedOffline;
+    });
   }
 
   /// Retorna todas as sugestões que estão atualmente aguardando na fila offline.
-  Future<List<PointSuggestion>> loadPending() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    final String? raw = preferences.getString(_pendingQueueKey);
-    if (raw == null || raw.isEmpty) {
-      return const <PointSuggestion>[];
-    }
-
-    try {
-      final Object? decoded = jsonDecode(raw);
-      if (decoded is! List<dynamic>) {
-        return const <PointSuggestion>[];
-      }
-
-      return decoded
-          .whereType<Map<dynamic, dynamic>>()
-          .map(
-            (Map<dynamic, dynamic> json) =>
-                PointSuggestion.fromJson(json.cast<String, dynamic>()),
-          )
-          .toList();
-    } catch (_) {
-      return const <PointSuggestion>[];
-    }
+  Future<List<PointSuggestion>> loadPending() {
+    return _synchronized(() => _readQueueUnsafe());
   }
 
   /// Quantidade de sugestões atualmente enfileiradas offline.
@@ -141,56 +132,119 @@ class PointSuggestionsRepository {
   ///
   /// Retorna o número de sugestões entregues com sucesso. Qualquer sugestão
   /// que ainda falhar permanece na fila local.
-  Future<int> flushPending() async {
-    final PointSuggestionSender? remoteSender = sender;
-    if (remoteSender == null) {
-      return 0;
-    }
-
-    final List<PointSuggestion> pending = await loadPending();
-    if (pending.isEmpty) {
-      return 0;
-    }
-
-    final List<PointSuggestion> remaining = <PointSuggestion>[];
-    int sentCount = 0;
-
-    for (final PointSuggestion suggestion in pending) {
-      try {
-        await remoteSender(suggestion);
-        sentCount++;
-      } catch (_) {
-        remaining.add(suggestion);
+  Future<int> flushPending() {
+    return _synchronized(() async {
+      final PointSuggestionSender? remoteSender = sender;
+      if (remoteSender == null) {
+        return 0;
       }
-    }
 
-    await _writeQueue(remaining);
-    return sentCount;
+      final List<PointSuggestion> pending = await _readQueueUnsafe();
+      if (pending.isEmpty) {
+        return 0;
+      }
+
+      final List<PointSuggestion> remaining = <PointSuggestion>[];
+      int sentCount = 0;
+
+      for (final PointSuggestion suggestion in pending) {
+        try {
+          await remoteSender(suggestion);
+          sentCount++;
+        } catch (_) {
+          remaining.add(suggestion);
+        }
+      }
+
+      await _writeQueueUnsafe(remaining);
+      return sentCount;
+    });
   }
 
   /// Limpa todas as sugestões enfileiradas localmente.
-  Future<void> clearPending() async {
-    final SharedPreferences preferences = await _preferencesFactory();
-    await preferences.remove(_pendingQueueKey);
+  Future<void> clearPending() {
+    return _synchronized(() async {
+      await _store.remove(_pendingQueueKey);
+    });
   }
 
-  Future<void> _enqueue(PointSuggestion suggestion) async {
+
+  // Helpers ----------------------------------------------------------------- //
+
+
+  Future<T> _synchronized<T>(Future<T> Function() computation) {
+    final Completer<T> completer = Completer<T>();
+    _lock = _lock.then((_) async {
+      try {
+        final T result = await computation();
+        completer.complete(result);
+      } catch (error, stackTrace) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+    return completer.future;
+  }
+
+  Future<void> _enqueueUnsafe(PointSuggestion suggestion) async {
     final List<PointSuggestion> queue = List<PointSuggestion>.of(
-      await loadPending(),
+      await _readQueueUnsafe(),
     )..add(suggestion);
-    await _writeQueue(queue);
+    await _writeQueueUnsafe(queue);
   }
 
-  Future<void> _writeQueue(List<PointSuggestion> queue) async {
-    final SharedPreferences preferences = await _preferencesFactory();
+  Future<List<PointSuggestion>> _readQueueUnsafe() async {
+    final String? raw = await _store.getString(_pendingQueueKey);
+    if (raw == null || raw.isEmpty) {
+      return const <PointSuggestion>[];
+    }
+
+    try {
+      final Object? decoded = jsonDecode(raw);
+
+      // Formato novo com envelope versionado: {version, items}
+      if (decoded is Map<String, dynamic>) {
+        final Object? version = decoded["version"];
+        if (version == kPointSuggestionsQueueVersion) {
+          final Object? items = decoded["items"];
+          if (items is List<dynamic>) {
+            return _parseItemsList(items);
+          }
+        }
+        return const <PointSuggestion>[];
+      }
+
+      // Formato legado com lista simples
+      if (decoded is List<dynamic>) {
+        return _parseItemsList(decoded);
+      }
+
+      return const <PointSuggestion>[];
+    } catch (_) {
+      return const <PointSuggestion>[];
+    }
+  }
+
+  List<PointSuggestion> _parseItemsList(List<dynamic> items) {
+    return items
+        .whereType<Map<dynamic, dynamic>>()
+        .map(
+          (Map<dynamic, dynamic> json) =>
+              PointSuggestion.fromJson(json.cast<String, dynamic>()),
+        )
+        .toList();
+  }
+
+  Future<void> _writeQueueUnsafe(List<PointSuggestion> queue) async {
     if (queue.isEmpty) {
-      await preferences.remove(_pendingQueueKey);
+      await _store.remove(_pendingQueueKey);
       return;
     }
 
-    await preferences.setString(
-      _pendingQueueKey,
-      jsonEncode(queue.map((PointSuggestion item) => item.toJson()).toList()),
-    );
+    final Map<String, dynamic> envelope = <String, dynamic>{
+      "version": kPointSuggestionsQueueVersion,
+      "items": queue.map((PointSuggestion item) => item.toJson()).toList(),
+    };
+
+    await _store.setString(_pendingQueueKey, jsonEncode(envelope));
   }
 }
