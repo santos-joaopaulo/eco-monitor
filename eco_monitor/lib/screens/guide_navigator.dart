@@ -50,6 +50,7 @@ class GuideNavigator extends StatefulWidget {
     required this.active,
     required this.onShowCollectionPoints,
     this.onBackToHome,
+    this.banner,
   });
 
   final DisposalGuideRepository repository;
@@ -64,6 +65,9 @@ class GuideNavigator extends StatefulWidget {
   /// Chamado quando o usuário aciona o botão voltar na raiz do guia,
   /// permitindo redirecionar para a aba inicial (HomeScreen) em vez de fechar o app.
   final VoidCallback? onBackToHome;
+
+  /// Banner de conectividade posicionado sob a AppBar das telas do guia.
+  final Widget? banner;
 
   @override
   State<GuideNavigator> createState() => _GuideNavigatorState();
@@ -162,12 +166,14 @@ class _GuideNavigatorState extends State<GuideNavigator> {
             wasteType: wasteType,
             repository: widget.repository,
             onShowCollectionPoints: _showCollectionPoints,
+            banner: widget.banner,
           );
         }
 
         return DisposalGuideScreen(
           repository: widget.repository,
           onStartGuide: _startGuide,
+          banner: widget.banner,
         );
       },
     );

@@ -447,7 +447,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   @override
   Widget build(BuildContext context) {
     final double bottomInset =
-        CustomBottomNavBar.reservedBottomInset(context) + 24;
+        CustomBottomNavBar.reservedBottomInset(context) + 48;
 
     return Center(
       child: ConstrainedBox(
@@ -701,6 +701,11 @@ class _SuggestScreenState extends State<SuggestScreen> {
   }
 
   Widget _buildWasteTypeSection() {
+    final double textScale = MediaQuery.textScalerOf(context).scale(1);
+    final bool singleColumn = textScale > 1.25;
+    final int crossAxisCount = singleColumn ? 1 : 2;
+    final double extent = (54 * textScale.clamp(1.0, 1.4)).roundToDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -711,11 +716,11 @@ class _SuggestScreenState extends State<SuggestScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _wasteTypeOrder.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            mainAxisExtent: 54,
+            mainAxisExtent: extent,
           ),
           itemBuilder: (BuildContext context, int index) {
             final WasteType type = _wasteTypeOrder[index];
@@ -763,27 +768,35 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
         Align(
           alignment: Alignment.centerRight,
-          child: MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.3,
-            child: Tooltip(
-              message: "Replicar horário para todos os dias",
-              child: TextButton.icon(
-                onPressed: _replicateSchedule,
-                icon: const Icon(Icons.content_copy_rounded, size: 16),
-                label: const Text("Replicar horário para todos os dias"),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
-                  ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  textStyle: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
+          child: Tooltip(
+            message: "Replicar horário para todos os dias",
+            child: TextButton(
+              onPressed: _replicateSchedule,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 6,
                 ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.content_copy_rounded, size: 16),
+                  SizedBox(width: 6),
+
+                  Flexible(
+                    child: Text(
+                      "Replicar horário para todos os dias",
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

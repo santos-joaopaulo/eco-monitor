@@ -23,6 +23,7 @@ class DisposalStepByStepScreen extends StatelessWidget {
     required this.wasteType,
     required this.repository,
     required this.onShowCollectionPoints,
+    this.banner,
   });
 
   final WasteType wasteType;
@@ -30,6 +31,9 @@ class DisposalStepByStepScreen extends StatelessWidget {
 
   /// Chamado com o tipo de resíduo quando "Ver pontos no mapa" é tocado.
   final ValueChanged<WasteType> onShowCollectionPoints;
+
+  /// Banner de conectividade exibido abaixo da barra superior.
+  final Widget? banner;
 
   static const double _buttonHeight = 56;
 
@@ -45,14 +49,22 @@ class DisposalStepByStepScreen extends StatelessWidget {
         onBack: () => Navigator.of(context).maybePop(),
       ),
 
-      body: guide == null
-          ? const Center(child: Text("Guia indisponível no momento."))
-          : _Content(
-              wasteType: wasteType,
-              guide: guide,
-              buttonHeight: _buttonHeight,
-              onShowCollectionPoints: onShowCollectionPoints,
-            ),
+      body: Column(
+        children: [
+          ?banner,
+
+          Expanded(
+            child: guide == null
+                ? const Center(child: Text("Guia indisponível no momento."))
+                : _Content(
+                    wasteType: wasteType,
+                    guide: guide,
+                    buttonHeight: _buttonHeight,
+                    onShowCollectionPoints: onShowCollectionPoints,
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -73,6 +85,9 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double navBarInset = CustomBottomNavBar.reservedBottomInset(context);
+    final double textScale = MediaQuery.textScalerOf(context).scale(1);
+    final double dynamicButtonHeight =
+        (buttonHeight * textScale.clamp(1.0, 1.8)).roundToDouble();
 
     return Stack(
       children: [
@@ -90,7 +105,7 @@ class _Content extends StatelessWidget {
                   0,
                   24,
                   0,
-                  navBarInset + buttonHeight + 32,
+                  navBarInset + dynamicButtonHeight + 36,
                 ),
                 children: [
                   Row(
@@ -158,16 +173,18 @@ class _Content extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: () => onShowCollectionPoints(wasteType),
-                icon: const Icon(Icons.location_on_outlined, size: 26),
-                label: const Text("Ver pontos no mapa"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 6,
                   shadowColor: Colors.black.withAlpha(80),
-                  minimumSize: Size(double.infinity, buttonHeight),
+                  minimumSize: const Size.fromHeight(52),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -175,6 +192,20 @@ class _Content extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_on_outlined, size: 26),
+                    SizedBox(width: 8),
+
+                    Flexible(
+                      child: Text(
+                        "Ver pontos no mapa",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

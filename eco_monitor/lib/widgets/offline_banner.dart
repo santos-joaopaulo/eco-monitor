@@ -5,14 +5,6 @@ import "../theme/app_colors.dart";
 
 
 
-// Constants ---------------------------------------------------------------- //
-
-
-/// Cores de superfície de alto contraste compatíveis com WCAG AA com texto branco (RNF04).
-const Color _offlineSurface = Color(0xFFB45309);
-const Color _staleSurface = Color(0xFF92400E);
-
-
 // Classes ----------------------------------------------------------------- //
 
 
@@ -44,7 +36,6 @@ class OfflineBanner extends StatelessWidget {
     }
 
     final String message;
-    final Color backgroundColor;
     final IconData icon;
 
     if (isOffline) {
@@ -52,18 +43,15 @@ class OfflineBanner extends StatelessWidget {
           ? " · ${_pendingLabel(pendingSuggestionsCount)}"
           : "";
       message = "Sem conexão — exibindo dados salvos$pendingSuffix";
-      backgroundColor = _offlineSurface;
-      icon = Icons.wifi_off;
+      icon = Icons.wifi_off_rounded;
     } else if (isStale) {
       final String dateSuffix = _formatDateSuffix(lastUpdated);
       message = "Dados podem estar desatualizados$dateSuffix";
-      backgroundColor = _staleSurface;
-      icon = Icons.update;
+      icon = Icons.update_rounded;
     } else {
       message = isSyncing
           ? "Sincronizando ${_pendingLabel(pendingSuggestionsCount)}..."
           : "${_pendingLabel(pendingSuggestionsCount)} aguardando envio";
-      backgroundColor = AppColors.primary;
       icon = Icons.cloud_upload_outlined;
     }
 
@@ -71,57 +59,56 @@ class OfflineBanner extends StatelessWidget {
       liveRegion: true,
       label: message,
       child: Material(
-        color: backgroundColor,
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Icon(icon, color: Colors.white, size: 18),
-                const SizedBox(width: 8),
+        color: AppColors.offlineSurface,
+        child: Container(
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.outline, width: 0.8)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Row(
+            children: [
+              Icon(icon, color: AppColors.textSecondary, size: 15),
+              const SizedBox(width: 8),
 
-                Expanded(
-                  child: Text(
-                    message,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+
+              if (!isOffline && isSyncing)
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
+                )
+              else if (!isOffline && onRetry != null)
+                TextButton(
+                  onPressed: onRetry,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    minimumSize: const Size(48, 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    "Atualizar",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
-
-                if (!isOffline && isSyncing)
-                  const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                else if (!isOffline && onRetry != null)
-                  TextButton(
-                    onPressed: onRetry,
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(48, 32),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: const Text(
-                      "Atualizar",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

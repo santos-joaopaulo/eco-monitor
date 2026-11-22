@@ -58,13 +58,19 @@ class CampaignDetailsSheet extends StatelessWidget {
     final List<WasteType> sortedWasteTypes = campaign.wasteTypes.toList()
       ..sort((WasteType a, WasteType b) => a.index.compareTo(b.index));
 
+    final bool isLargeFont = MediaQuery.textScalerOf(context).scale(1) > 1.25;
+    final double maxSheetHeight = MediaQuery.sizeOf(context).height * 0.85;
+
     return SafeArea(
       top: false,
       child: Align(
         alignment: Alignment.bottomCenter,
         heightFactor: 1.0,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+          constraints: BoxConstraints(
+            maxWidth: kEcoMaxContentWidth,
+            maxHeight: maxSheetHeight,
+          ),
           child: Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -218,56 +224,106 @@ class CampaignDetailsSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onClose,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(
-                              color: AppColors.timelineLine,
-                              width: 1.5,
-                            ),
-                            minimumSize: const Size(0, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                            ),
+                  if (isLargeFont) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: onViewLocation,
+                        icon: const Icon(
+                          Icons.location_on_outlined,
+                          size: 20,
+                        ),
+                        label: const Text("Ver no mapa"),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Text("Fechar"),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ),
+                    const SizedBox(height: 10),
 
-                      Expanded(
-                        flex: 2,
-                        child: FilledButton.icon(
-                          onPressed: onViewLocation,
-                          icon: const Icon(
-                            Icons.location_on_outlined,
-                            size: 20,
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: onClose,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(
+                            color: AppColors.timelineLine,
+                            width: 1.5,
                           ),
-                          label: const Text("Ver no mapa"),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(0, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child: const Text("Fechar"),
+                      ),
+                    ),
+                  ] else ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: onClose,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(
+                                color: AppColors.timelineLine,
+                                width: 1.5,
+                              ),
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            textStyle: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
+                            child: const Text("Fechar"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton.icon(
+                            onPressed: onViewLocation,
+                            icon: const Icon(
+                              Icons.location_on_outlined,
+                              size: 20,
+                            ),
+                            label: const Text("Ver no mapa"),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

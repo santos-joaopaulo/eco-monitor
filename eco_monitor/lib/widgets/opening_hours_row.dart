@@ -46,11 +46,15 @@ class OpeningHoursRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery.withClampedTextScaling(
-      maxScaleFactor: 1.3,
+      maxScaleFactor: 1.25,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
 
-        child: Row(
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 6,
           children: [
             Semantics(
               button: true,
@@ -71,12 +75,13 @@ class OpeningHoursRow extends StatelessWidget {
                     vertical: 6,
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       SelectionCheckbox(isSelected: isOpen, size: 20),
                       const SizedBox(width: 8),
 
-                      SizedBox(
-                        width: 30,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 32),
                         child: Text(
                           dayLabel,
                           style: TextStyle(
@@ -93,47 +98,45 @@ class OpeningHoursRow extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
 
-            Expanded(
-              child: isOpen
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        _TimePill(
-                          time: opensAt,
-                          semanticsLabel: "$dayLabel, horário de abertura",
-                          onTap: onOpeningTap,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            "às",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                        _TimePill(
-                          time: closesAt,
-                          semanticsLabel: "$dayLabel, horário de fechamento",
-                          onTap: onClosingTap,
-                        ),
-                      ],
-                    )
-                  : const Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        "Fechado",
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
+            if (isOpen)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _TimePill(
+                    time: opensAt,
+                    semanticsLabel: "$dayLabel, horário de abertura",
+                    onTap: onOpeningTap,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      "às",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
                       ),
                     ),
-            ),
+                  ),
+                  _TimePill(
+                    time: closesAt,
+                    semanticsLabel: "$dayLabel, horário de fechamento",
+                    onTap: onClosingTap,
+                  ),
+                ],
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 6),
+                child: Text(
+                  "Fechado",
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

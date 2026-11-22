@@ -24,8 +24,9 @@ void main() {
     ]);
   });
 
-  test("every listed residue has a matching guide with consistent steps", () {
+  test("every active residue has a matching guide with consistent steps", () {
     for (final Residue residue in repository.listResidues()) {
+      if (residue.type == WasteType.electronics) continue;
       final DisposalGuide? guide = repository.stepsGuideFor(residue.type);
 
       expect(guide, isNotNull, reason: "Missing guide for ${residue.type}");
@@ -73,14 +74,11 @@ void main() {
     expect(guide.steps.last.title, "Entregue em uma UBS");
   });
 
-  test("stepsGuideFor(electronics) returns the four steps", () {
+  test("stepsGuideFor(electronics) returns null because it is disabled", () {
     final DisposalGuide? guide = repository.stepsGuideFor(
       WasteType.electronics,
     );
 
-    expect(guide, isNotNull);
-    expect(guide!.steps, hasLength(4));
-    expect(guide.steps.first.title, "Apague seus dados");
-    expect(guide.steps.last.title, "Leve a um ecoponto");
+    expect(guide, isNull);
   });
 }

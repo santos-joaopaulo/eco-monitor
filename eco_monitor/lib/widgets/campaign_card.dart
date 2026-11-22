@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
 import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
 import "eco_card.dart";
 import "waste_style.dart";
@@ -237,22 +238,30 @@ class _MetaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: AppColors.textSecondary),
-        const SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+    final double maxItemWidth =
+        MediaQuery.sizeOf(context).width - (kEcoContentHorizontalPadding * 2) - 32;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxItemWidth.clamp(120.0, kEcoMaxContentWidth)),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: 5),
+
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

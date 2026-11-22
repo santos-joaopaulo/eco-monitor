@@ -118,31 +118,6 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
     ],
   );
 
-  static const DisposalGuide _electronicsGuide = DisposalGuide(
-    title: "Lixo eletrônico",
-    subtitle: "Siga os passos antes de ir até o ponto.",
-    warning: "Não desmonte aparelhos nem jogue no lixo comum: eles contêm substâncias tóxicas.",
-
-    steps: [
-      DisposalStep(
-        title: "Apague seus dados",
-        description: "Faça backup, remova chips e cartões de memória e restaure o aparelho de fábrica.",
-      ),
-      DisposalStep(
-        title: "Retire pilhas e baterias",
-        description: "Se forem removíveis, separe pilhas ou baterias para o coletor específico.",
-      ),
-      DisposalStep(
-        title: "Reúna cabos e acessórios",
-        description: "Junte carregadores, fones e pequenos aparelhos sem quebrar ou abrir as peças.",
-      ),
-      DisposalStep(
-        title: "Leve a um ecoponto",
-        description: 'Procure um ponto com o filtro "Lixo eletrônico".',
-      ),
-    ],
-  );
-
   @override
   List<Residue> listResidues() => _residues;
 
@@ -152,7 +127,7 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
       WasteType.medicines => _medicineGuide,
       WasteType.batteries => _batteryGuide,
       WasteType.sharps => _sharpsGuide,
-      WasteType.electronics => _electronicsGuide,
+      WasteType.electronics => null, // Guia desabilitado.
     };
   }
 }

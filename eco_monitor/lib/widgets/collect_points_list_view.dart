@@ -87,8 +87,8 @@ class CollectPointsListView extends StatelessWidget {
 
     if (sorted.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

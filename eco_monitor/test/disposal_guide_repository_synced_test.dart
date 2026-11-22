@@ -22,7 +22,7 @@ void main() {
     expect(repository.stepsGuideFor(WasteType.medicines), isNotNull);
     expect(repository.stepsGuideFor(WasteType.batteries), isNotNull);
     expect(repository.stepsGuideFor(WasteType.sharps), isNotNull);
-    expect(repository.stepsGuideFor(WasteType.electronics), isNotNull);
+    expect(repository.stepsGuideFor(WasteType.electronics), isNull);
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 

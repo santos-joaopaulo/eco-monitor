@@ -41,6 +41,8 @@ class RouteSummaryCard extends StatelessWidget {
     final RouteSummary? route = summary;
     final TravelMode currentMode = route?.travelMode ?? activeTravelMode;
     final bool isArrived = route?.isArrived ?? false;
+    final bool isLargeFont = MediaQuery.textScalerOf(context).scale(1) > 1.25;
+    final double maxCardHeight = MediaQuery.sizeOf(context).height * 0.72;
 
     return SafeArea(
       top: false,
@@ -49,7 +51,10 @@ class RouteSummaryCard extends StatelessWidget {
         alignment: Alignment.bottomCenter,
 
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+          constraints: BoxConstraints(
+            maxWidth: kEcoMaxContentWidth,
+            maxHeight: maxCardHeight,
+          ),
 
           child: Material(
             color: AppColors.surface,
@@ -58,7 +63,7 @@ class RouteSummaryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             clipBehavior: Clip.antiAlias,
 
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
 
               child: Column(
@@ -118,40 +123,43 @@ class RouteSummaryCard extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
 
-                    child: SegmentedButton<TravelMode>(
-                      segments: const <ButtonSegment<TravelMode>>[
-                        ButtonSegment<TravelMode>(
-                          value: TravelMode.walking,
-                          icon: Icon(Icons.directions_walk_rounded, size: 18),
-                          label: Text("A pé"),
+                    child: MediaQuery.withClampedTextScaling(
+                      maxScaleFactor: 1.2,
+                      child: SegmentedButton<TravelMode>(
+                        segments: const <ButtonSegment<TravelMode>>[
+                          ButtonSegment<TravelMode>(
+                            value: TravelMode.walking,
+                            icon: Icon(Icons.directions_walk_rounded, size: 18),
+                            label: Text("A pé"),
+                          ),
+                          ButtonSegment<TravelMode>(
+                            value: TravelMode.cycling,
+                            icon: Icon(Icons.directions_bike_rounded, size: 18),
+                            label: Text("Bicicleta"),
+                          ),
+                          ButtonSegment<TravelMode>(
+                            value: TravelMode.driving,
+                            icon: Icon(Icons.directions_car_rounded, size: 18),
+                            label: Text("Carro"),
+                          ),
+                        ],
+                        selected: <TravelMode>{currentMode},
+                        onSelectionChanged: (Set<TravelMode> selection) {
+                          if (selection.isNotEmpty) {
+                            onTravelModeChanged?.call(selection.first);
+                          }
+                        },
+                        style: SegmentedButton.styleFrom(
+                          selectedBackgroundColor: AppColors.primary,
+                          selectedForegroundColor: Colors.white,
+                          foregroundColor: AppColors.textPrimary,
+                          side: const BorderSide(color: AppColors.outline),
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          visualDensity: VisualDensity.compact,
                         ),
-                        ButtonSegment<TravelMode>(
-                          value: TravelMode.cycling,
-                          icon: Icon(Icons.directions_bike_rounded, size: 18),
-                          label: Text("Bicicleta"),
-                        ),
-                        ButtonSegment<TravelMode>(
-                          value: TravelMode.driving,
-                          icon: Icon(Icons.directions_car_rounded, size: 18),
-                          label: Text("Carro"),
-                        ),
-                      ],
-                      selected: <TravelMode>{currentMode},
-                      onSelectionChanged: (Set<TravelMode> selection) {
-                        if (selection.isNotEmpty) {
-                          onTravelModeChanged?.call(selection.first);
-                        }
-                      },
-                      style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: AppColors.primary,
-                        selectedForegroundColor: Colors.white,
-                        foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.outline),
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        visualDensity: VisualDensity.compact,
                       ),
                     ),
                   ),
@@ -270,55 +278,105 @@ class RouteSummaryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  Row(
-                    children: [
-                      if (onOpenExternal != null) ...[
+                  if (isLargeFont) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: onClose,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: isArrived
+                              ? AppColors.primary
+                              : AppColors.surfaceSection,
+                          foregroundColor: isArrived
+                              ? Colors.white
+                              : AppColors.textPrimary,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child: Text(isArrived ? "Concluir" : "Encerrar rota"),
+                      ),
+                    ),
+                    if (onOpenExternal != null) ...[
+                      const SizedBox(height: 8),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: onOpenExternal,
+                          icon: const Icon(Icons.open_in_new_rounded, size: 17),
+                          label: const Text("App externo"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: const BorderSide(color: AppColors.outline),
+                            minimumSize: const Size.fromHeight(48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ] else ...[
+                    Row(
+                      children: [
+                        if (onOpenExternal != null) ...[
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: onOpenExternal,
+                              icon: const Icon(Icons.open_in_new_rounded, size: 17),
+                              label: const Text("App externo"),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.textSecondary,
+                                side: const BorderSide(color: AppColors.outline),
+                                minimumSize: const Size(0, 46),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+
                         Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: onOpenExternal,
-                            icon: const Icon(Icons.open_in_new_rounded, size: 17),
-                            label: const Text("App externo"),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.textSecondary,
-                              side: const BorderSide(color: AppColors.outline),
+                          child: FilledButton(
+                            onPressed: onClose,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: isArrived
+                                  ? AppColors.primary
+                                  : AppColors.surfaceSection,
+                              foregroundColor: isArrived
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
                               minimumSize: const Size(0, 46),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               textStyle: const TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                            child: Text(isArrived ? "Concluir" : "Encerrar rota"),
                           ),
                         ),
-                        const SizedBox(width: 10),
                       ],
-
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: onClose,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: isArrived
-                                ? AppColors.primary
-                                : AppColors.surfaceSection,
-                            foregroundColor: isArrived
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                            minimumSize: const Size(0, 46),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          child: Text(isArrived ? "Concluir" : "Encerrar rota"),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ],
               ),
             ),

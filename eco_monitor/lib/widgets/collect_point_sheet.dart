@@ -44,7 +44,9 @@ class CollectPointSheet extends StatelessWidget {
     final bool filterIncompatible =
         activeFilter.isNotEmpty && !point.acceptsAny(activeFilter);
 
-    final double maxHeight = MediaQuery.sizeOf(context).height * 0.45;
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double maxHeight = (screenHeight * 0.72).clamp(300.0, screenHeight - 120.0);
+    final bool isLargeFont = MediaQuery.textScalerOf(context).scale(1) > 1.25;
 
     return SafeArea(
       top: false,
@@ -193,53 +195,100 @@ class CollectPointSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onCancel,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(
-                              color: AppColors.timelineLine,
-                              width: 1.5,
-                            ),
-                            minimumSize: const Size(0, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                            ),
+                  if (isLargeFont) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: onStartRoute,
+                        icon: const Icon(Icons.navigation_rounded, size: 20),
+                        label: const Text("Iniciar rota"),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Text("Cancelar"),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ),
+                    const SizedBox(height: 10),
 
-                      Expanded(
-                        flex: 2,
-                        child: FilledButton.icon(
-                          onPressed: onStartRoute,
-                          icon: const Icon(Icons.navigation_rounded, size: 20),
-                          label: const Text("Iniciar rota"),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(0, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: onCancel,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(
+                            color: AppColors.timelineLine,
+                            width: 1.5,
+                          ),
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child: const Text("Cancelar"),
+                      ),
+                    ),
+                  ] else ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: onCancel,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(
+                                color: AppColors.timelineLine,
+                                width: 1.5,
+                              ),
+                              minimumSize: const Size(0, 52),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            textStyle: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
+                            child: const Text("Cancelar"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton.icon(
+                            onPressed: onStartRoute,
+                            icon: const Icon(Icons.navigation_rounded, size: 20),
+                            label: const Text("Iniciar rota"),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(0, 52),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

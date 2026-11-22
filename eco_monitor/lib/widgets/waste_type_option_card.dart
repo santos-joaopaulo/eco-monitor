@@ -54,13 +54,13 @@ class WasteTypeOptionCard extends StatelessWidget {
             onTap: onTap,
 
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: MediaQuery.withClampedTextScaling(
                 maxScaleFactor: 1.3,
                 child: Row(
                   children: [
                     SelectionCheckbox(isSelected: isSelected),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
 
                     Icon(type.icon, size: 18, color: type.color),
                     const SizedBox(width: 6),
@@ -68,10 +68,11 @@ class WasteTypeOptionCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         type.filterLabel,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 13,
+                          height: 1.2,
                           fontWeight: isSelected
                               ? FontWeight.w700
                               : FontWeight.w600,

@@ -53,18 +53,18 @@ class HomeMapTopBar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (focusedCampaign != null) ...[
-              _FocusedCampaignChip(
-                campaign: focusedCampaign!,
-                onClear: onClearCampaign,
-              ),
-              const SizedBox(height: 8),
-            ],
-
             FilterBar(
               selectedTypes: selectedWasteTypes,
               onChanged: onFilterChanged,
             ),
+
+            if (focusedCampaign != null) ...[
+              const SizedBox(height: 8),
+              _FocusedCampaignChip(
+                campaign: focusedCampaign!,
+                onClear: onClearCampaign,
+              ),
+            ],
 
             if (showMapboxTokenWarning) ...[
               const SizedBox(height: 8),

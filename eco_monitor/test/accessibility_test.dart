@@ -4,8 +4,10 @@ import "package:material_ui/material_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+import "package:eco_monitor/data/disposal_guide_repository_local.dart";
 import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/collection_point.dart";
+import "package:eco_monitor/screens/disposal_step_by_step_screen.dart";
 import "package:eco_monitor/screens/home_screen.dart";
 import "package:eco_monitor/screens/suggest_screen.dart";
 import "package:eco_monitor/services/location_service.dart";
@@ -561,4 +563,142 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  group("1.8x and 2.0x high text scaling for elderly accessibility (RNF04, RNF18)", () {
+    Widget with18xScaling(Widget child, {Size size = const Size(360, 640)}) {
+      return MaterialApp(
+        home: Scaffold(
+          body: MediaQuery(
+            data: MediaQueryData(
+              size: size,
+              textScaler: const TextScaler.linear(1.8),
+            ),
+            child: child,
+          ),
+        ),
+      );
+    }
+
+    testWidgets("renders SuggestScreen at 1.8x scaling without overflow", (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(with18xScaling(const SuggestScreen()));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -900),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("renders RouteSummaryCard at 1.8x scaling without overflow", (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        with18xScaling(
+          RouteSummaryCard(
+            point: _samplePoint(),
+            summary: const RouteSummary(
+              distanceMeters: 1400,
+              estimatedMinutes: 18,
+            ),
+            onClose: () {},
+            onOpenExternal: () {},
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("renders CollectPointSheet at 1.8x scaling without overflow", (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        with18xScaling(
+          CollectPointSheet(
+            point: _samplePoint(),
+            distanceMeters: 1250,
+            activeFilter: const {},
+            isDataStale: false,
+            onCancel: () {},
+            onStartRoute: () {},
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("renders DisposalStepByStepScreen at 1.8x scaling without overflow", (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      final repo = DisposalGuideRepositoryLocal();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(
+              size: Size(360, 640),
+              textScaler: TextScaler.linear(1.8),
+            ),
+            child: DisposalStepByStepScreen(
+              wasteType: WasteType.medicines,
+              repository: repo,
+              onShowCollectionPoints: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("CustomBottomNavBar hides when keyboard opens", (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(
+              size: Size(360, 640),
+              viewInsets: EdgeInsets.only(bottom: 280),
+            ),
+            child: Scaffold(
+              bottomNavigationBar: CustomBottomNavBar(
+                currentIndex: 0,
+                onTap: _noop,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text("home"), findsNothing);
+    });
+  });
 }
+
+void _noop(int _) {}

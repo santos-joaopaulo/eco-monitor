@@ -19,8 +19,11 @@ abstract final class AppColors {
   static const Color background = Color(0xFFF6F9F8);
   static const Color surface = Colors.white; // Cards, modal e pílulas de filtro
 
-  /// Contêiner cinza interno dentro dos modais (ex.: "MATERIAIS ACEITOS" / "HORÁRIO").
+  /// Superfície cinza clara interna dentro dos modais (ex.: "MATERIAIS ACEITOS" / "HORÁRIO").
   static const Color surfaceSection = Color(0xFFeef1f1);
+
+  /// Superfície neutra suave (branco tendendo a cinza) usada em avisos discretos de conectividade.
+  static const Color offlineSurface = Color(0xFFF2F4F3);
 
   /// Contorno neutro de campos, cards e caixas de seleção não marcadas.
   static const Color outline = Color(0xFFDFE6E5);

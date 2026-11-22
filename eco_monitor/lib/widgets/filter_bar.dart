@@ -44,20 +44,23 @@ class FilterBar extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
-        child: Row(
-          children: [
-            for (int index = 0; index < _types.length; index++) ...[
-              if (index > 0) const SizedBox(width: 8),
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.15,
+          child: Row(
+            children: [
+              for (int index = 0; index < _types.length; index++) ...[
+                if (index > 0) const SizedBox(width: 8),
 
-              Expanded(
-                child: _MapFilterPill(
-                  type: _types[index],
-                  isSelected: selectedTypes.contains(_types[index]),
-                  onTap: () => _toggle(_types[index]),
+                Expanded(
+                  child: _MapFilterPill(
+                    type: _types[index],
+                    isSelected: selectedTypes.contains(_types[index]),
+                    onTap: () => _toggle(_types[index]),
+                  ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -96,7 +99,7 @@ class _MapFilterPill extends StatelessWidget {
 
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(24),

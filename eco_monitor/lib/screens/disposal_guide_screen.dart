@@ -15,10 +15,12 @@ class DisposalGuideScreen extends StatelessWidget {
     super.key,
     required this.repository,
     required this.onStartGuide,
+    this.banner,
   });
 
   final DisposalGuideRepository repository;
   final ValueChanged<Residue> onStartGuide;
+  final Widget? banner;
 
   @override
   Widget build(BuildContext context) {
@@ -27,45 +29,53 @@ class DisposalGuideScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const EcoAppBar(title: "GUIA DE DESCARTE"),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kEcoContentHorizontalPadding,
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-            child: ListView(
-              // O menu inferior flutua sobre o conteúdo: reserva o espaço necessário.
-              padding: EdgeInsets.fromLTRB(
-                0,
-                24,
-                0,
-                CustomBottomNavBar.reservedBottomInset(context),
-              ),
-              children: [
-                const _Header(),
-                const SizedBox(height: 24),
-                for (final Residue residue in residues) ...[
-                  ResidueCard(
-                    icon: residue.type.icon,
-                    iconColor: residue.type.color,
-                    title: residue.title,
-                    description: residue.description,
-                    buttonLabel: "Iniciar",
-                    info:
-                        "${residue.minutes} min · ${residue.totalSteps} passos",
-                    infoWithClock: true,
-                    // Retomada de progresso ainda não existe: cada categoria inicia
-                    // o guia a partir do primeiro passo.
-                    onPressed: () => onStartGuide(residue),
+      body: Column(
+        children: [
+          ?banner,
+
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kEcoContentHorizontalPadding,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+                  child: ListView(
+                    // O menu inferior flutua sobre o conteúdo: reserva o espaço necessário.
+                    padding: EdgeInsets.fromLTRB(
+                      0,
+                      24,
+                      0,
+                      CustomBottomNavBar.reservedBottomInset(context) + 56,
+                    ),
+                    children: [
+                      const _Header(),
+                      const SizedBox(height: 24),
+                      for (final Residue residue in residues) ...[
+                        ResidueCard(
+                          icon: residue.type.icon,
+                          iconColor: residue.type.color,
+                          title: residue.title,
+                          description: residue.description,
+                          buttonLabel: "Iniciar",
+                          info:
+                              "${residue.minutes} min · ${residue.totalSteps} passos",
+                          infoWithClock: true,
+                          // Retomada de progresso ainda não existe: cada categoria inicia
+                          // o guia a partir do primeiro passo.
+                          onPressed: () => onStartGuide(residue),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -202,8 +202,8 @@ class _HomeScreenState extends State<HomeScreen>
     final List<CollectionPoint> visiblePoints = _filteredPoints;
     final Widget? locationNotice = _buildLocationNotice();
     final CollectionPoint? selectedPoint = _selectedPoint;
-    final double cardBottom =
-        CustomBottomNavBar.reservedBottomInset(context) + 8;
+    final double navInset = CustomBottomNavBar.reservedBottomInset(context);
+    final double cardBottom = navInset + 8;
     final bool isListMode = _isEffectiveListView;
 
     Widget topBar({required bool isListMode}) {
@@ -275,13 +275,13 @@ class _HomeScreenState extends State<HomeScreen>
 
         if (selectedPoint == null)
           HomeLocateButton(
-            bottom: 80 + 32,
+            bottom: navInset + 20,
             onPressed: _handleLocationAction,
           ),
 
         if (selectedPoint == null && _accessToken.isNotEmpty)
           HomeViewToggleButton(
-            bottom: 80 + 32 + 12,
+            bottom: navInset + 20,
             isListMode: isListMode,
             onPressed: () {
               setState(() {

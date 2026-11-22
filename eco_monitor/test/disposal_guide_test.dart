@@ -139,7 +139,7 @@ void main() {
     expect(find.text("Entregue em uma UBS"), findsOneWidget);
   });
 
-  testWidgets("guide list opens the electronics step-by-step", (
+  testWidgets("guide list shows snackbar for disabled electronics guide", (
     WidgetTester tester,
   ) async {
     useTallSurface(tester);
@@ -147,17 +147,11 @@ void main() {
     await openGuideTab(tester);
     await openResidueGuide(tester, "Lixo eletrônico");
 
-    expect(find.text("LIXO ELETRÔNICO"), findsOneWidget);
     expect(
-      find.text(
-        "Não desmonte aparelhos nem jogue no lixo comum: eles contêm substâncias tóxicas.",
-      ),
+      find.text("O guia de lixo eletrônico está indisponível no momento."),
       findsOneWidget,
     );
-    expect(find.text("Apague seus dados"), findsOneWidget);
-    expect(find.text("Retire pilhas e baterias"), findsOneWidget);
-    expect(find.text("Reúna cabos e acessórios"), findsOneWidget);
-    expect(find.text("Leve a um ecoponto"), findsOneWidget);
+    expect(find.text("Como descartar certo?"), findsOneWidget);
   });
 
   testWidgets("back arrow returns to the guide list", (
@@ -181,7 +175,7 @@ void main() {
     useTallSurface(tester);
     await tester.pumpWidget(const MyApp());
     await openGuideTab(tester);
-    await openResidueGuide(tester, "Lixo eletrônico");
+    await openResidueGuide(tester, "Pilhas e baterias");
 
     await tester.tap(find.text("Ver pontos no mapa"));
     await tester.pumpAndSettle();
@@ -193,7 +187,7 @@ void main() {
     // A rota interna foi desempilhada: retornar ao guia exibe a listagem.
     await openGuideTab(tester);
     expect(find.text("Como descartar certo?"), findsOneWidget);
-    expect(find.text("Apague seus dados"), findsNothing);
+    expect(find.text("Isole os polos"), findsNothing);
   });
 
   testWidgets(
@@ -218,7 +212,6 @@ void main() {
         ("Remédios vencidos", WasteType.medicines),
         ("Pilhas e baterias", WasteType.batteries),
         ("Seringas e agulhas", WasteType.sharps),
-        ("Lixo eletrônico", WasteType.electronics),
       ]) {
         await openResidueGuide(tester, title);
         await tester.tap(find.text("Ver pontos no mapa"));
@@ -232,7 +225,6 @@ void main() {
         WasteType.medicines,
         WasteType.batteries,
         WasteType.sharps,
-        WasteType.electronics,
       ]);
     },
   );

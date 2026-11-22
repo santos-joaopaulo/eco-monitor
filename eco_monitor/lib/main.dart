@@ -181,10 +181,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Envolve uma aba com a [EcoAppBar] padrão. A aba de Guia não passa por
   /// aqui: o GuideNavigator renderiza sua própria AppBar em cada tela.
-  Widget _withAppBar(Widget body, {String? title}) {
+  Widget _withAppBar(Widget body, {String? title, Widget? banner}) {
     return Scaffold(
+      extendBody: true,
       appBar: EcoAppBar(title: title ?? widget.title),
-      body: body,
+      body: Column(
+        children: [
+          ?banner,
+          Expanded(child: body),
+        ],
+      ),
     );
   }
 
@@ -196,62 +202,61 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListenableBuilder(
         listenable: _dataSync,
         builder: (BuildContext context, Widget? child) {
-          return Column(
-            children: [
-              // Banner de conectividade, desatualização e fila pendente (RNF10, RNF17).
-              OfflineBanner(
-                isOffline: !_dataSync.isOnline,
-                isStale: _dataSync.isStale,
-                lastUpdated: _dataSync.lastUpdated,
-                pendingSuggestionsCount: _dataSync.pendingSuggestionsCount,
-                isSyncing: _dataSync.isSyncing,
-                onRetry: () {
-                  unawaited(_dataSync.refreshAll());
-                },
-              ),
+          // Banner de conectividade, desatualização e fila pendente posicionado
+          // abaixo da AppBar de cada tela (RNF10, RNF17).
+          final Widget offlineBanner = OfflineBanner(
+            isOffline: !_dataSync.isOnline,
+            isStale: _dataSync.isStale,
+            lastUpdated: _dataSync.lastUpdated,
+            pendingSuggestionsCount: _dataSync.pendingSuggestionsCount,
+            isSyncing: _dataSync.isSyncing,
+            onRetry: () {
+              unawaited(_dataSync.refreshAll());
+            },
+          );
 
-              Expanded(
-                child: IndexedStack(
-                  index: _selectedIndex,
-                  children: [
-                    _withAppBar(
-                      HomeScreen(
-                        wasteFilter: _wasteFilter,
-                        onClearFilter: _clearWasteFilter,
-                        focusedCampaign: _focusedCampaign,
-                        onClearCampaign: _clearFocusedCampaign,
-                        repository: _dataSync.collectPointsRepository,
-                        dataSync: _dataSync,
-                        locationService: widget.locationService ?? const LocationService(),
-                        isActive: _selectedIndex == _homeTab,
-                      ),
-                    ),
-                    GuideNavigator(
-                      repository: _dataSync.guideRepository,
-                      active: _selectedIndex == _guideTab,
-                      onShowCollectionPoints: _showCollectionPoints,
-                      onBackToHome: () => _selectTab(_homeTab),
-                    ),
-                    _withAppBar(
-                      TickerMode(
-                        enabled: _selectedIndex == _eventsTab,
-                        child: EventsScreen(
-                          repository: _dataSync.campaignsRepository,
-                          dataSync: _dataSync,
-                          onShowCampaignLocation: _showCampaignLocation,
-                        ),
-                      ),
-                      title: "CAMPANHAS ATIVAS",
-                    ),
-                    _withAppBar(
-                      SuggestScreen(
-                        repository: _dataSync.suggestionsRepository,
-                        dataSync: _dataSync,
-                      ),
-                      title: "SUGERIR NOVO PONTO",
-                    ),
-                  ],
+          return IndexedStack(
+            index: _selectedIndex,
+            children: [
+              _withAppBar(
+                HomeScreen(
+                  wasteFilter: _wasteFilter,
+                  onClearFilter: _clearWasteFilter,
+                  focusedCampaign: _focusedCampaign,
+                  onClearCampaign: _clearFocusedCampaign,
+                  repository: _dataSync.collectPointsRepository,
+                  dataSync: _dataSync,
+                  locationService: widget.locationService ?? const LocationService(),
+                  isActive: _selectedIndex == _homeTab,
                 ),
+                banner: offlineBanner,
+              ),
+              GuideNavigator(
+                repository: _dataSync.guideRepository,
+                active: _selectedIndex == _guideTab,
+                onShowCollectionPoints: _showCollectionPoints,
+                onBackToHome: () => _selectTab(_homeTab),
+                banner: offlineBanner,
+              ),
+              _withAppBar(
+                TickerMode(
+                  enabled: _selectedIndex == _eventsTab,
+                  child: EventsScreen(
+                    repository: _dataSync.campaignsRepository,
+                    dataSync: _dataSync,
+                    onShowCampaignLocation: _showCampaignLocation,
+                  ),
+                ),
+                title: "CAMPANHAS ATIVAS",
+                banner: offlineBanner,
+              ),
+              _withAppBar(
+                SuggestScreen(
+                  repository: _dataSync.suggestionsRepository,
+                  dataSync: _dataSync,
+                ),
+                title: "SUGERIR NOVO PONTO",
+                banner: offlineBanner,
               ),
             ],
           );

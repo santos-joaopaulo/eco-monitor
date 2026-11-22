@@ -37,7 +37,10 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: onBack,
             ),
 
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.35,
+        child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
       titleTextStyle: const TextStyle(
         color: Colors.white,
         fontSize: 17,

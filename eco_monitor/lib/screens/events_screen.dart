@@ -311,7 +311,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(0, 8, 0, bottomInset + 16),
+        padding: EdgeInsets.fromLTRB(0, 8, 0, bottomInset + 56),
         itemCount: visibleCampaigns.length,
         separatorBuilder: (BuildContext context, int index) =>
             const SizedBox(height: 16),
@@ -337,35 +337,44 @@ class _FilterChipBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return Padding(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 12),
 
-      child: Row(
-        children: [
-          _FilterPill(
-            label: "Todas",
-            icon: Icons.grid_view_rounded,
-            selected: selected == CampaignFilter.all,
-            onTap: () => onSelected(CampaignFilter.all),
-          ),
-          const SizedBox(width: 10),
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.15,
 
-          _FilterPill(
-            label: "Ativas",
-            icon: Icons.check_circle_outline_rounded,
-            selected: selected == CampaignFilter.active,
-            onTap: () => onSelected(CampaignFilter.active),
-          ),
-          const SizedBox(width: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: _FilterPill(
+                label: "Todas",
+                icon: Icons.grid_view_rounded,
+                selected: selected == CampaignFilter.all,
+                onTap: () => onSelected(CampaignFilter.all),
+              ),
+            ),
+            const SizedBox(width: 8),
 
-          _FilterPill(
-            label: "Em breve",
-            icon: Icons.schedule_outlined,
-            selected: selected == CampaignFilter.upcoming,
-            onTap: () => onSelected(CampaignFilter.upcoming),
-          ),
-        ],
+            Expanded(
+              child: _FilterPill(
+                label: "Ativas",
+                icon: Icons.check_circle_outline_rounded,
+                selected: selected == CampaignFilter.active,
+                onTap: () => onSelected(CampaignFilter.active),
+              ),
+            ),
+            const SizedBox(width: 8),
+
+            Expanded(
+              child: _FilterPill(
+                label: "Em breve",
+                icon: Icons.schedule_outlined,
+                selected: selected == CampaignFilter.upcoming,
+                onTap: () => onSelected(CampaignFilter.upcoming),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -379,6 +388,8 @@ class _FilterPill extends StatelessWidget {
     required this.onTap,
   });
 
+  static const Color _labelColor = Color(0xFF4A4A4A);
+
   final String label;
   final IconData icon;
   final bool selected;
@@ -386,50 +397,58 @@ class _FilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color background = selected
-        ? AppColors.primary
-        : AppColors.surface;
-    final Color foreground = selected ? Colors.white : AppColors.textPrimary;
-
     return Semantics(
       button: true,
       selected: selected,
       label: label,
       excludeSemantics: true,
 
-      child: Material(
-        color: background,
-        elevation: selected ? 2 : 1,
-        shadowColor: Colors.black.withAlpha(35),
-        borderRadius: BorderRadius.circular(24),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
 
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: selected
+                ? Border.all(color: AppColors.primary, width: 1.5)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
 
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 44),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 15,
+                color: selected ? AppColors.primary : AppColors.textSecondary,
+              ),
+              const SizedBox(width: 5),
 
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 18,
-                  color: selected ? Colors.white : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 6),
-                Text(
+              Flexible(
+                child: Text(
                   label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: foreground,
+                    fontSize: 12,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                    color: selected ? AppColors.primary : _labelColor,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

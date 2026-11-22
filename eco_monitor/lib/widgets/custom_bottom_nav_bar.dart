@@ -30,16 +30,33 @@ class CustomBottomNavBar extends StatelessWidget {
     _NavItem("sugerir", Icons.chat_bubble_outline),
   ];
 
-  /// Espaço total ocupado pela barra na parte inferior (incluindo a área de gestos
-  /// de navegação do sistema). Use como padding inferior do conteúdo rolável.
+  /// Espaço total ocupado pela barra na parte inferior (incluindo a barra de navegação
+  /// do sistema de 3 botões ou área de gestos do Android/iOS).
+  ///
+  /// Obtém o padding inferior diretamente da View raiz para garantir que o inset de
+  /// botões de navegação do sistema (~48px) nunca seja zerado por Scaffolds internos.
   static double reservedBottomInset(BuildContext context) {
-    return kEcoNavBarHeight +
-        kEcoNavBarMargin +
-        MediaQuery.viewPaddingOf(context).bottom;
+    if (MediaQuery.viewInsetsOf(context).bottom > 0) {
+      return 0;
+    }
+
+    final double windowBottom =
+        View.of(context).viewPadding.bottom / MediaQuery.devicePixelRatioOf(context);
+    final double mediaQueryBottom = MediaQuery.viewPaddingOf(context).bottom;
+    final double systemInset =
+        windowBottom > mediaQueryBottom ? windowBottom : mediaQueryBottom;
+
+    return kEcoNavBarHeight + kEcoNavBarMargin + systemInset;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Quando o teclado virtual está aberto, oculta o menu flutuante para não
+    // cobrir os campos e botões do formulário.
+    if (MediaQuery.viewInsetsOf(context).bottom > 0) {
+      return const SizedBox.shrink();
+    }
+
     return SafeArea(
       top: false,
       child: Center(
@@ -119,16 +136,19 @@ class _NavButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(item.icon, size: 26, color: color),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            Icon(item.icon, size: 24, color: color),
+            const SizedBox(height: 2),
+
+            Flexible(
+              child: Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
 import "eco_card.dart";
 
 /// Card de um resíduo na listagem do guia: ícone, título, descrição, botão
@@ -135,22 +136,35 @@ class _Indicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (withClock) ...[
-          const Icon(
-            Icons.schedule_outlined,
-            size: 18,
-            color: AppColors.textSecondary,
+    final double maxCardContentWidth =
+        MediaQuery.sizeOf(context).width - (kEcoContentHorizontalPadding * 2) - 32;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxCardContentWidth.clamp(120.0, kEcoMaxContentWidth)),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (withClock) ...[
+            const Icon(
+              Icons.schedule_outlined,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(width: 6),
+          ],
+
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ),
-          const SizedBox(width: 6),
         ],
-        Text(
-          text,
-          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-        ),
-      ],
+      ),
     );
   }
 }
