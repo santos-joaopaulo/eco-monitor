@@ -90,6 +90,22 @@ class LocationService {
     }
   }
 
+  /// Emite atualizações contínuas de localização durante a navegação.
+  Stream<UserLocation> positionStream({int distanceFilter = 5}) {
+    return Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilter,
+      ),
+    ).map((Position position) {
+      return UserLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracy: position.accuracy,
+      );
+    });
+  }
+
   Future<bool> openAppSettings() async {
     try {
       return await Geolocator.openAppSettings();

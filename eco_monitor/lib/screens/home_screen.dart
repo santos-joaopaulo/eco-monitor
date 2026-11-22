@@ -118,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.dataSync?.removeListener(_onSyncUpdated);
+    _cancelRouteSubscription();
     _pointsLayer?.dispose();
 
     final PolylineAnnotationManager? routeManager = _routeManager;
@@ -299,6 +300,9 @@ class _HomeScreenState extends State<HomeScreen>
                 ? RouteSummaryCard(
                     point: selectedPoint,
                     summary: _routeSummary,
+                    activeTravelMode: _activeTravelMode,
+                    onTravelModeChanged: _handleTravelModeChanged,
+                    onOpenExternal: _handleOpenExternalNavigation,
                     onClose: () => unawaited(_dismissSelection()),
                   )
                 : CollectPointSheet(

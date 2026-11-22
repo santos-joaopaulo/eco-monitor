@@ -1,4 +1,8 @@
+import "dart:async";
+import "dart:convert";
+
 import "package:flutter/foundation.dart";
+import "package:http/http.dart" as http;
 import "package:url_launcher/url_launcher.dart";
 
 import "../models/collection_point.dart";
@@ -9,22 +13,52 @@ import "../utils/geo.dart";
 // Constants ---------------------------------------------------------------- //
 
 
-/// Velocidade média de caminhada usada para a estimativa da rota (5 km/h).
-const double kWalkingSpeedMetersPerSecond = 5000 / 3600;
+/// Raio em metros para considerar que o usuário chegou ao destino.
+const double kArrivalThresholdMeters = 25;
+
+/// Timeout máximo para chamadas à API de direções antes do fallback offline.
+const Duration kRouteApiTimeout = Duration(seconds: 4);
 
 
 // Types ------------------------------------------------------------------- //
 
 
-/// Informações aproximadas da rota exibidas ao usuário.
+/// Informações detalhadas da rota ativa exibidas ao usuário no app (RF04).
 class RouteSummary {
   const RouteSummary({
     required this.distanceMeters,
     required this.estimatedMinutes,
+    this.travelMode = TravelMode.walking,
+    this.bearingDegrees = 0,
+    this.cardinalDirection = "Norte",
+    this.isArrived = false,
+    this.isOfflineFallback = true,
+    this.routeCoordinates = const <List<double>>[],
   });
 
+  /// Distância total prevista em metros.
   final double distanceMeters;
+
+  /// Tempo estimado em minutos.
   final int estimatedMinutes;
+
+  /// Modal de deslocamento ativo.
+  final TravelMode travelMode;
+
+  /// Azimute do usuário em relação ao ponto (0° a 360°).
+  final double bearingDegrees;
+
+  /// Direção cardeal aproximada ("Norte", "Nordeste", etc.).
+  final String cardinalDirection;
+
+  /// Indica se o usuário está dentro do raio de chegada ao ponto.
+  final bool isArrived;
+
+  /// Indica se a rota está operando em modo offline/vetor direto.
+  final bool isOfflineFallback;
+
+  /// Coordenadas [longitude, latitude] que compõem a polilinha no mapa.
+  final List<List<double>> routeCoordinates;
 }
 
 typedef UriLauncher = Future<bool> Function(Uri uri);
@@ -33,38 +67,217 @@ typedef UriLauncher = Future<bool> Function(Uri uri);
 // Classes ----------------------------------------------------------------- //
 
 
-/// Constrói a estimativa da rota e o URI de navegação externa (RF04).
+/// Constrói estimativas de rota (online via Mapbox Directions e fallback offline)
+/// e provê navegação no próprio aplicativo ou atalho externo (RF04, RF05).
 class RouteService {
-  const RouteService({this.launcher});
+  const RouteService({this.launcher, this.httpClient});
 
   final UriLauncher? launcher;
+  final http.Client? httpClient;
 
 
   // Methods --------------------------------------------------------------- //
 
 
+  /// Constrói a estimativa da rota offline baseada em vetor direto e fator viário urbano.
   RouteSummary buildRouteSummary(
     UserLocation userPosition,
-    CollectionPoint point,
-  ) {
-    final double distance = distanceInMeters(
+    CollectionPoint point, {
+    TravelMode travelMode = TravelMode.walking,
+  }) {
+    final double rawDistance = distanceInMeters(
       userPosition.latitude,
       userPosition.longitude,
       point.latitude,
       point.longitude,
     );
 
-    final double minutes = distance / kWalkingSpeedMetersPerSecond / 60;
-    final int estimatedMinutes = distance > 0
+    final double distance = rawDistance * kUrbanDetourFactor;
+    final double minutes = distance / travelMode.speedMetersPerSecond / 60;
+    final int estimatedMinutes = rawDistance > 0
         ? minutes.round().clamp(1, 1 << 30)
         : 0;
 
+    final double bearing = bearingInDegrees(
+      userPosition.latitude,
+      userPosition.longitude,
+      point.latitude,
+      point.longitude,
+    );
+
+    final bool arrived = rawDistance <= kArrivalThresholdMeters;
+
     return RouteSummary(
-      distanceMeters: distance,
-      estimatedMinutes: estimatedMinutes,
+      distanceMeters: rawDistance <= kArrivalThresholdMeters ? 0 : distance,
+      estimatedMinutes: arrived ? 0 : estimatedMinutes,
+      travelMode: travelMode,
+      bearingDegrees: bearing,
+      cardinalDirection: cardinalDirectionFromDegrees(bearing),
+      isArrived: arrived,
+      isOfflineFallback: true,
+      routeCoordinates: <List<double>>[
+        <double>[userPosition.longitude, userPosition.latitude],
+        <double>[point.longitude, point.latitude],
+      ],
     );
   }
 
+  /// Atualiza o resumo da rota a partir de uma nova coordenada de GPS em tempo real.
+  RouteSummary buildUpdatedSummary(
+    UserLocation userPosition,
+    CollectionPoint point,
+    TravelMode travelMode, {
+    RouteSummary? previousSummary,
+  }) {
+    final double rawDistance = distanceInMeters(
+      userPosition.latitude,
+      userPosition.longitude,
+      point.latitude,
+      point.longitude,
+    );
+
+    final double bearing = bearingInDegrees(
+      userPosition.latitude,
+      userPosition.longitude,
+      point.latitude,
+      point.longitude,
+    );
+
+    final bool arrived = rawDistance <= kArrivalThresholdMeters;
+    final bool isOffline = previousSummary?.isOfflineFallback ?? true;
+
+    final double distance = isOffline
+        ? rawDistance * kUrbanDetourFactor
+        : (rawDistance <= kArrivalThresholdMeters ? 0 : rawDistance * kUrbanDetourFactor);
+
+    final double minutes = distance / travelMode.speedMetersPerSecond / 60;
+    final int estimatedMinutes = rawDistance > 0
+        ? minutes.round().clamp(1, 1 << 30)
+        : 0;
+
+    final List<List<double>> coords = isOffline
+        ? <List<double>>[
+            <double>[userPosition.longitude, userPosition.latitude],
+            <double>[point.longitude, point.latitude],
+          ]
+        : (previousSummary?.routeCoordinates ?? const <List<double>>[]);
+
+    return RouteSummary(
+      distanceMeters: arrived ? 0 : distance,
+      estimatedMinutes: arrived ? 0 : estimatedMinutes,
+      travelMode: travelMode,
+      bearingDegrees: bearing,
+      cardinalDirection: cardinalDirectionFromDegrees(bearing),
+      isArrived: arrived,
+      isOfflineFallback: isOffline,
+      routeCoordinates: coords,
+    );
+  }
+
+  /// Busca a rota viária real na Mapbox Directions API, recorrendo a fallback offline em caso de erro ou sem rede.
+  Future<RouteSummary> fetchRoute({
+    required UserLocation origin,
+    required CollectionPoint destination,
+    TravelMode travelMode = TravelMode.walking,
+    bool isOnline = true,
+    String? accessToken,
+    http.Client? client,
+  }) async {
+    final String? token = accessToken;
+    if (!isOnline || token == null || token.isEmpty) {
+      return buildRouteSummary(origin, destination, travelMode: travelMode);
+    }
+
+    final http.Client effectiveClient = client ?? httpClient ?? http.Client();
+    final bool shouldCloseClient = client == null && httpClient == null;
+
+    final Uri uri = Uri.https(
+      "api.mapbox.com",
+      "/directions/v5/${travelMode.mapboxProfile}/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}",
+      <String, String>{
+        "geometries": "geojson",
+        "overview": "full",
+        "access_token": token,
+      },
+    );
+
+    try {
+      final http.Response response = await effectiveClient
+          .get(uri)
+          .timeout(kRouteApiTimeout);
+
+      if (response.statusCode != 200) {
+        return buildRouteSummary(origin, destination, travelMode: travelMode);
+      }
+
+      final Map<String, dynamic> json =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      final List<dynamic>? routes = json["routes"] as List<dynamic>?;
+
+      if (routes == null || routes.isEmpty) {
+        return buildRouteSummary(origin, destination, travelMode: travelMode);
+      }
+
+      final Map<String, dynamic> route = routes.first as Map<String, dynamic>;
+      final double distance = (route["distance"] as num).toDouble();
+      final double duration = (route["duration"] as num).toDouble();
+      final int minutes = (duration / 60).round().clamp(1, 1 << 30);
+
+      final Map<String, dynamic>? geometry =
+          route["geometry"] as Map<String, dynamic>?;
+      final List<dynamic>? rawCoords = geometry?["coordinates"] as List<dynamic>?;
+
+      final List<List<double>> coordinates = rawCoords != null
+          ? rawCoords
+              .map((dynamic coord) {
+                final List<dynamic> pair = coord as List<dynamic>;
+                return <double>[
+                  (pair[0] as num).toDouble(),
+                  (pair[1] as num).toDouble(),
+                ];
+              })
+              .toList()
+          : <List<double>>[
+              <double>[origin.longitude, origin.latitude],
+              <double>[destination.longitude, destination.latitude],
+            ];
+
+      final double rawDirectDistance = distanceInMeters(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude,
+      );
+
+      final double bearing = bearingInDegrees(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude,
+      );
+
+      final bool arrived = rawDirectDistance <= kArrivalThresholdMeters;
+
+      return RouteSummary(
+        distanceMeters: arrived ? 0 : distance,
+        estimatedMinutes: arrived ? 0 : minutes,
+        travelMode: travelMode,
+        bearingDegrees: bearing,
+        cardinalDirection: cardinalDirectionFromDegrees(bearing),
+        isArrived: arrived,
+        isOfflineFallback: false,
+        routeCoordinates: coordinates,
+      );
+    } catch (_) {
+      return buildRouteSummary(origin, destination, travelMode: travelMode);
+    } finally {
+      if (shouldCloseClient) {
+        effectiveClient.close();
+      }
+    }
+  }
+
+  /// Constrói o URI do aplicativo nativo de mapas.
   Uri buildNavigationUri(CollectionPoint point, {TargetPlatform? platform}) {
     final TargetPlatform target = platform ?? defaultTargetPlatform;
     final String coordinates = "${point.latitude},${point.longitude}";
@@ -86,6 +299,7 @@ class RouteService {
     };
   }
 
+  /// Abre o aplicativo nativo de mapas externo (ação opcional do usuário).
   Future<bool> openNavigation(
     CollectionPoint point, {
     TargetPlatform? platform,

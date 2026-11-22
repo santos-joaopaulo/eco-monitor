@@ -22,6 +22,7 @@ import "package:eco_monitor/widgets/collect_point_sheet.dart";
 import "package:eco_monitor/widgets/collect_points_list_view.dart";
 import "package:eco_monitor/widgets/filter_bar.dart";
 import "package:eco_monitor/widgets/home_map_controls.dart";
+import "package:eco_monitor/widgets/route_summary_card.dart";
 
 
 // Auxiliares -------------------------------------------------------------- //
@@ -79,6 +80,15 @@ class _FakeLocationService extends LocationService {
   Future<UserLocation?> currentPosition() async {
     currentPositionCalls++;
     return position;
+  }
+
+  @override
+  Stream<UserLocation> positionStream({int distanceFilter = 5}) {
+    final UserLocation? loc = position;
+    if (loc != null) {
+      return Stream<UserLocation>.value(loc);
+    }
+    return const Stream<UserLocation>.empty();
   }
 }
 
@@ -676,7 +686,7 @@ void main() {
     );
 
     testWidgets(
-      "shows snackbar when initiating route while offline",
+      "initiates in-app offline route navigation without blocking snackbar",
       (WidgetTester tester) async {
         useTallSurface(tester);
 
@@ -692,7 +702,12 @@ void main() {
             home: Scaffold(
               body: HomeScreen(
                 dataSync: dataSync,
-                locationService: _FakeLocationService(),
+                locationService: _FakeLocationService(
+                  position: const UserLocation(
+                    latitude: -10.945,
+                    longitude: -37.065,
+                  ),
+                ),
               ),
             ),
           ),
@@ -707,8 +722,28 @@ void main() {
 
         expect(
           find.text("A rota exige conexão com a internet."),
+          findsNothing,
+        );
+        expect(find.byType(RouteSummaryCard), findsOneWidget);
+        expect(find.text("A pé"), findsOneWidget);
+        expect(find.text("Bicicleta"), findsOneWidget);
+        expect(find.text("Carro"), findsOneWidget);
+        expect(
+          find.text(
+            "Modo offline: traçado direto por vetor e estimativa local.",
+          ),
           findsOneWidget,
         );
+
+        // Alterna para o modo Bicicleta
+        await tester.tap(find.text("Bicicleta"));
+        await tester.pumpAndSettle();
+
+        // Encerra a rota
+        await tester.tap(find.text("Encerrar rota"));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(RouteSummaryCard), findsNothing);
       },
     );
   });

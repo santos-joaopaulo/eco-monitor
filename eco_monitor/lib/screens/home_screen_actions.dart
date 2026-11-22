@@ -25,6 +25,8 @@ mixin _HomeScreenActions on State<HomeScreen> {
   Set<WasteType> _selectedWasteTypes = const <WasteType>{};
   CollectionPoint? _selectedPoint;
   RouteSummary? _routeSummary;
+  TravelMode _activeTravelMode = TravelMode.walking;
+  StreamSubscription<UserLocation>? _routePositionSubscription;
   bool _isRouteActive = false;
   bool _isLoadingPoints = true;
 
@@ -294,6 +296,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       return;
     }
 
+    _cancelRouteSubscription();
     await _clearRouteLine();
     if (!mounted) {
       return;
@@ -335,11 +338,17 @@ mixin _HomeScreenActions on State<HomeScreen> {
     );
   }
 
+  void _cancelRouteSubscription() {
+    _routePositionSubscription?.cancel();
+    _routePositionSubscription = null;
+  }
+
   Future<void> _dismissSelection() async {
     if (!mounted) {
       return;
     }
 
+    _cancelRouteSubscription();
     setState(() {
       _selectedPoint = null;
       _routeSummary = null;
@@ -355,23 +364,115 @@ mixin _HomeScreenActions on State<HomeScreen> {
       return;
     }
 
-    final AppDataSync? sync = widget.dataSync;
-    if (sync != null && !sync.isOnline) {
-      _showMessage("A rota exige conexão com a internet.");
-      return;
+    if (_userLocation == null) {
+      await _locateUser();
     }
 
     final UserLocation? userLocation = _userLocation;
-    final RouteSummary? summary = userLocation == null
-        ? null
-        : _routeService.buildRouteSummary(userLocation, point);
+    final bool isOnline = widget.dataSync?.isOnline ?? true;
+
+    final RouteSummary summary;
+    if (userLocation != null) {
+      summary = await _routeService.fetchRoute(
+        origin: userLocation,
+        destination: point,
+        travelMode: _activeTravelMode,
+        isOnline: isOnline,
+        accessToken: _accessToken,
+      );
+    } else {
+      summary = RouteSummary(
+        distanceMeters: 0,
+        estimatedMinutes: 0,
+        travelMode: _activeTravelMode,
+      );
+    }
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       _isRouteActive = true;
       _routeSummary = summary;
     });
 
-    await _drawRouteLine(point);
+    await _drawRouteLine(point, coordinates: summary.routeCoordinates);
+    _startRouteTracking(point);
+  }
+
+  void _startRouteTracking(CollectionPoint point) {
+    _cancelRouteSubscription();
+    _routePositionSubscription = widget.locationService
+        .positionStream(distanceFilter: 5)
+        .listen(
+          (UserLocation newLocation) =>
+              _onRoutePositionUpdated(point, newLocation),
+          onError: (_) {},
+        );
+  }
+
+  void _onRoutePositionUpdated(
+    CollectionPoint point,
+    UserLocation newLocation,
+  ) {
+    if (!mounted || !_isRouteActive) {
+      return;
+    }
+
+    setState(() {
+      _userLocation = newLocation;
+      _routeSummary = _routeService.buildUpdatedSummary(
+        newLocation,
+        point,
+        _activeTravelMode,
+        previousSummary: _routeSummary,
+      );
+    });
+
+    if (_routeSummary?.isOfflineFallback ?? true) {
+      unawaited(_drawRouteLine(point));
+    }
+  }
+
+  Future<void> _handleTravelModeChanged(TravelMode mode) async {
+    final CollectionPoint? point = _selectedPoint;
+    final UserLocation? userLocation = _userLocation;
+    if (point == null) {
+      return;
+    }
+
+    setState(() {
+      _activeTravelMode = mode;
+    });
+
+    if (userLocation != null) {
+      final bool isOnline = widget.dataSync?.isOnline ?? true;
+      final RouteSummary summary = await _routeService.fetchRoute(
+        origin: userLocation,
+        destination: point,
+        travelMode: mode,
+        isOnline: isOnline,
+        accessToken: _accessToken,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _routeSummary = summary;
+      });
+
+      await _drawRouteLine(point, coordinates: summary.routeCoordinates);
+    }
+  }
+
+  Future<void> _handleOpenExternalNavigation() async {
+    final CollectionPoint? point = _selectedPoint;
+    if (point == null) {
+      return;
+    }
 
     final bool opened = await _routeService.openNavigation(point);
     if (!mounted) {
@@ -383,7 +484,10 @@ mixin _HomeScreenActions on State<HomeScreen> {
     }
   }
 
-  Future<void> _drawRouteLine(CollectionPoint point) async {
+  Future<void> _drawRouteLine(
+    CollectionPoint point, {
+    List<List<double>>? coordinates,
+  }) async {
     final MapboxMap? map = _mapboxMap;
     final UserLocation? userLocation = _userLocation;
 
@@ -398,15 +502,22 @@ mixin _HomeScreenActions on State<HomeScreen> {
         return;
       }
 
+      final List<Position> positions;
+      if (coordinates != null && coordinates.length >= 2) {
+        positions = coordinates
+            .map((List<double> c) => Position(c[0], c[1]))
+            .toList();
+      } else {
+        positions = <Position>[
+          Position(userLocation.longitude, userLocation.latitude),
+          Position(point.longitude, point.latitude),
+        ];
+      }
+
       await manager.deleteAll();
       await manager.create(
         PolylineAnnotationOptions(
-          geometry: LineString(
-            coordinates: <Position>[
-              Position(userLocation.longitude, userLocation.latitude),
-              Position(point.longitude, point.latitude),
-            ],
-          ),
+          geometry: LineString(coordinates: positions),
           lineColor: AppColors.primary.toARGB32(),
           lineWidth: 5,
           lineBorderColor: Colors.white.toARGB32(),
@@ -451,6 +562,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _selectedWasteTypes = Set<WasteType>.unmodifiable(selection);
 
       if (hideSelection) {
+        _cancelRouteSubscription();
         _selectedPoint = null;
         _routeSummary = null;
         _isRouteActive = false;
