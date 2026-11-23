@@ -47,6 +47,21 @@ class MockCollectPointsRepository implements ICollectPointsRepository {
 
   @override
   bool get hasRemoteSource => true;
+
+  @override
+  Future<List<CollectionPoint>> upsertLocalPoints(
+    List<CollectionPoint> newPoints, {
+    DateTime? updatedAt,
+  }) async {
+    final Map<String, CollectionPoint> map = <String, CollectionPoint>{
+      for (final CollectionPoint p in points) p.id: p,
+    };
+    for (final CollectionPoint p in newPoints) {
+      map[p.id] = p;
+    }
+    points = map.values.toList();
+    return points;
+  }
 }
 
 class MockLocationService extends LocationService {

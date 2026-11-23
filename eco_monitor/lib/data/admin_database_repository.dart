@@ -18,6 +18,7 @@ abstract interface class AdminDatabaseRepository {
   // Pontos de Coleta
   Future<List<CollectionPoint>> fetchPoints();
   Future<void> savePoint(CollectionPoint point);
+  Future<void> savePointsBatch(List<CollectionPoint> points);
   Future<void> deletePoint(String pointId);
 
   // Campanhas
@@ -95,6 +96,39 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
       ..["updatedAt"] = FieldValue.serverTimestamp();
 
     await docRef.set(data, SetOptions(merge: true));
+
+    // Atualiza metadados globais da coleção para acionar sincronização
+    await _db
+        .collection("metadata")
+        .doc(kCollectPointsCollection)
+        .set(<String, dynamic>{
+          "updatedAt": FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+  }
+
+  @override
+  Future<void> savePointsBatch(List<CollectionPoint> points) async {
+    if (points.isEmpty) {
+      return;
+    }
+
+    final WriteBatch batch = _db.batch();
+    final CollectionReference<Map<String, dynamic>> collection = _db
+        .collection(kCollectPointsCollection);
+
+    for (final CollectionPoint point in points) {
+      final DocumentReference<Map<String, dynamic>> docRef = point.id.isEmpty
+          ? collection.doc()
+          : collection.doc(point.id);
+
+      final Map<String, dynamic> data = point.toJson()
+        ..remove("id")
+        ..["updatedAt"] = FieldValue.serverTimestamp();
+
+      batch.set(docRef, data, SetOptions(merge: true));
+    }
+
+    await batch.commit();
 
     // Atualiza metadados globais da coleção para acionar sincronização
     await _db

@@ -52,6 +52,13 @@ class FakeAdminDatabaseRepository implements AdminDatabaseRepository {
   }
 
   @override
+  Future<void> savePointsBatch(List<CollectionPoint> pointsList) async {
+    for (final CollectionPoint p in pointsList) {
+      await savePoint(p);
+    }
+  }
+
+  @override
   Future<void> deletePoint(String pointId) async {
     points.removeWhere((CollectionPoint p) => p.id == pointId);
   }

@@ -235,6 +235,31 @@ class CollectPointsRepository implements ICollectPointsRepository {
     _sourceOrigin = null;
   }
 
+  /// Insere ou atualiza pontos no armazenamento local de forma idempotente (upsert).
+  @override
+  Future<List<CollectionPoint>> upsertLocalPoints(
+    List<CollectionPoint> newPoints, {
+    DateTime? updatedAt,
+  }) async {
+    final List<CollectionPoint> current = await loadOffline();
+    final Map<String, CollectionPoint> map = <String, CollectionPoint>{
+      for (final CollectionPoint point in current) point.id: point,
+    };
+
+    for (final CollectionPoint point in newPoints) {
+      map[point.id] = point;
+    }
+
+    final List<CollectionPoint> sorted = _sorted(map.values.toList());
+    final DateTime timestamp = (updatedAt ?? _clock()).toUtc();
+
+    await _writeCache(sorted, timestamp);
+    _lastUpdated = timestamp;
+    _sourceOrigin = DataSourceOrigin.localCache;
+
+    return sorted;
+  }
+
   Future<void> _writeCache(
     List<CollectionPoint> points,
     DateTime updatedAt,

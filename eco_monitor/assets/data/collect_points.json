@@ -1,15 +1,211 @@
 {
-  "updatedAt": "2026-11-22T20:00:00Z",
+  "updatedAt": "2026-11-23T18:28:02.283620Z",
   "points": [
     {
-      "id": "ecoponto-berrini",
-      "name": "Ecoponto Pinheiros - Berrini",
+      "id": "pev_atacadao_tancredo_neves_aju",
+      "name": "Atacadão Tancredo Neves — PEV Green Eletron",
       "type": "ecoPoint",
-      "latitude": -23.5973,
-      "longitude": -46.6911,
-      "address": "Praça do Cancioneiro, 15 — Cidade Monções, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics", "glass"],
-      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
+      "latitude": -10.9381,
+      "longitude": -37.0811,
+      "address": "Av. Pres. Tancredo Neves, 3550 — Ponto Novo, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "batteries"
+      ],
+      "hours": "Seg a dom, 24h",
+      "status": "active"
+    },
+    {
+      "id": "recyclinghof-gradestrasse-berlin",
+      "name": "BSR Recyclinghof Plus Gradestraße",
+      "type": "ecoPoint",
+      "latitude": 52.452,
+      "longitude": 13.4285,
+      "address": "Gradestraße 73 — Neukölln, 12347 Berlim, Alemanha",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 19h",
+      "status": "active"
+    },
+    {
+      "id": "pev_casas_bahia_joao_pessoa_aju",
+      "name": "Casas Bahia — Centro (PEV Green Eletron)",
+      "type": "ecoPoint",
+      "latitude": -10.9098,
+      "longitude": -37.0491,
+      "address": "Rua João Pessoa, 320 — Centro, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 8h às 19h",
+      "status": "active"
+    },
+    {
+      "id": "cms-pindaro-gavea",
+      "name": "CMS Píndaro de Carvalho Rodrigues",
+      "type": "healthCenter",
+      "latitude": -22.9794,
+      "longitude": -43.2294,
+      "address": "Av. Padre Leonel França, s/n — Gávea, Rio de Janeiro - RJ",
+      "acceptedWasteTypes": [
+        "medicines",
+        "sharps"
+      ],
+      "hours": "Seg a sex, 8h às 20h; sáb, 8h às 12h",
+      "status": "active"
+    },
+    {
+      "id": "coopermiti-casa-verde",
+      "name": "Coopermiti - Reciclagem de Eletrônicos",
+      "type": "ecoPoint",
+      "latitude": -23.5158,
+      "longitude": -46.6572,
+      "address": "Rua João Rudge, 366 — Casa Verde, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sex, 8h às 16h",
+      "status": "active"
+    },
+    {
+      "id": "droga-raia-batel",
+      "name": "Droga Raia — Batel",
+      "type": "pharmacy",
+      "latitude": -25.445,
+      "longitude": -49.29,
+      "address": "Av. do Batel, 1602 — Batel, Curitiba - PR",
+      "acceptedWasteTypes": [
+        "batteries",
+        "medicines"
+      ],
+      "hours": "Seg a sáb, 7h às 23h",
+      "status": "active"
+    },
+    {
+      "id": "droga-raia-copacabana",
+      "name": "Droga Raia — Copacabana",
+      "type": "pharmacy",
+      "latitude": -22.9715,
+      "longitude": -43.1878,
+      "address": "Av. Nossa Senhora de Copacabana, 734 — Copacabana, Rio de Janeiro - RJ",
+      "acceptedWasteTypes": [
+        "batteries",
+        "medicines"
+      ],
+      "hours": "Seg a dom, 24 horas",
+      "status": "active"
+    },
+    {
+      "id": "drogaria-sao-paulo-praca-se",
+      "name": "Drogaria São Paulo — Praça da Sé",
+      "type": "pharmacy",
+      "latitude": -23.5503,
+      "longitude": -46.6339,
+      "address": "Praça da Sé, 415 — Sé, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "medicines"
+      ],
+      "hours": "Seg a sáb, 6h às 20h",
+      "status": "active"
+    },
+    {
+      "id": "drogasil-cls-102-sul",
+      "name": "Drogasil — Asa Sul 102",
+      "type": "pharmacy",
+      "latitude": -15.8078,
+      "longitude": -47.8967,
+      "address": "SHCS CLS 102, Bloco C, Loja 35 — Asa Sul, Brasília - DF",
+      "acceptedWasteTypes": [
+        "batteries",
+        "medicines"
+      ],
+      "hours": "Seg a sáb, 7h às 22h; dom, 8h às 22h",
+      "status": "active"
+    },
+    {
+      "id": "drogasil-avenida-paulista",
+      "name": "Drogasil — Av. Paulista",
+      "type": "pharmacy",
+      "latitude": -23.5583,
+      "longitude": -46.6587,
+      "address": "Av. Paulista, 2064 — Bela Vista, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "batteries",
+        "medicines"
+      ],
+      "hours": "Seg a sex, 8h às 22h; sáb e dom, 10h às 22h",
+      "status": "active"
+    },
+    {
+      "id": "drogasil_industrial_aju",
+      "name": "Drogasil — Industrial",
+      "type": "pharmacy",
+      "latitude": -10.9029,
+      "longitude": -37.0565,
+      "address": "Av. Simeão Sobral, 542 — Industrial, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "medicines",
+        "batteries"
+      ],
+      "hours": "Seg a dom, 7h às 23h",
+      "status": "active"
+    },
+    {
+      "id": "drogasil_luzia_aju",
+      "name": "Drogasil — Luzia",
+      "type": "pharmacy",
+      "latitude": -10.9291,
+      "longitude": -37.066,
+      "address": "Av. Gonçalo Rolemberg Leite, 1813 — Luzia, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "medicines"
+      ],
+      "hours": "Seg a dom, 7h às 23h",
+      "status": "active"
+    },
+    {
+      "id": "ecocentro-antas-porto",
+      "name": "Ecocentro das Antas (Porto Ambiente / LIPOR)",
+      "type": "ecoPoint",
+      "latitude": 41.1668,
+      "longitude": -8.5832,
+      "address": "Rua do Vigorosa, s/n — Antas, 4200 Porto, Portugal",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 8h30 às 20h",
+      "status": "active"
+    },
+    {
+      "id": "ecocentro-monsanto-lisboa",
+      "name": "Ecocentro de Monsanto (CML)",
+      "type": "ecoPoint",
+      "latitude": 38.718,
+      "longitude": -9.182,
+      "address": "Estrada da Pimenteira, s/n — Monsanto, 1300 Lisboa, Portugal",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 9h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoestacao-arruda",
+      "name": "Ecoestação Arruda (EMLURB)",
+      "type": "ecoPoint",
+      "latitude": -8.0261,
+      "longitude": -34.8876,
+      "address": "Av. Professor José dos Anjos, s/n — Arruda, Recife - PE",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 8h às 16h",
       "status": "active"
     },
     {
@@ -19,29 +215,10 @@
       "latitude": -23.5567,
       "longitude": -46.711,
       "address": "Praça Arcipreste Anselmo de Oliveira, s/n — Alto de Pinheiros, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
-      "status": "active"
-    },
-    {
-      "id": "ecoponto-glicerio",
-      "name": "Ecoponto Glicério",
-      "type": "ecoPoint",
-      "latitude": -23.554,
-      "longitude": -46.6265,
-      "address": "Praça Ministro Francisco Sá Carneiro, 6 — Liberdade, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
-      "status": "active"
-    },
-    {
-      "id": "ecoponto-mooca",
-      "name": "Ecoponto Mooca",
-      "type": "ecoPoint",
-      "latitude": -23.5474,
-      "longitude": -46.6029,
-      "address": "Av. Pires do Rio, 600 — Mooca, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
       "status": "active"
     },
@@ -52,8 +229,26 @@
       "latitude": -23.5255,
       "longitude": -46.629,
       "address": "Rua da Polka, 100 — Bom Retiro, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-bairro-industrial-aracaju",
+      "name": "Ecoponto Bairro Industrial (Emsurb)",
+      "type": "ecoPoint",
+      "latitude": -10.8967,
+      "longitude": -37.0543,
+      "address": "Av. Confiança, s/n — Bairro Industrial, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "glass",
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 17h",
       "status": "active"
     },
     {
@@ -63,74 +258,53 @@
       "latitude": -23.5435,
       "longitude": -46.6112,
       "address": "Praça Giuseppe Cesari, 54 — Brás, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Fechado temporariamente para manutenção preventiva",
       "status": "inactive"
     },
     {
-      "id": "coopermiti-casa-verde",
-      "name": "Coopermiti - Reciclagem de Eletrônicos",
+      "id": "ecoponto-coroa-do-meio-aracaju",
+      "name": "Ecoponto Coroa do Meio (Emsurb)",
       "type": "ecoPoint",
-      "latitude": -23.5158,
-      "longitude": -46.6572,
-      "address": "Rua João Rudge, 366 — Casa Verde, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sex, 8h às 16h",
+      "latitude": -10.9622,
+      "longitude": -37.0425,
+      "address": "Av. Desembargador José Antônio de Andrade Góis, s/n — Coroa do Meio, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "glass",
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 17h",
       "status": "active"
     },
     {
-      "id": "ecoponto-madureira",
-      "name": "Ecoponto Madureira (Comlurb)",
+      "id": "ecoponto-glicerio",
+      "name": "Ecoponto Glicério",
       "type": "ecoPoint",
-      "latitude": -22.8732,
-      "longitude": -43.3396,
-      "address": "Viaduto Negrão de Lima, s/n — Madureira, Rio de Janeiro - RJ",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a dom, 6h às 18h",
+      "latitude": -23.554,
+      "longitude": -46.6265,
+      "address": "Praça Ministro Francisco Sá Carneiro, 6 — Liberdade, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
       "status": "active"
     },
     {
-      "id": "ecoponto-parque-royal",
-      "name": "Ecoponto Parque Royal (Comlurb)",
+      "id": "ecoponto_industrial_aju",
+      "name": "Ecoponto Industrial — Emsurb",
       "type": "ecoPoint",
-      "latitude": -22.7981,
-      "longitude": -43.2089,
-      "address": "Estrada Governador Chagas Freitas, 1600 — Ilha do Governador, Rio de Janeiro - RJ",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a dom, 6h às 18h",
-      "status": "active"
-    },
-    {
-      "id": "urpv-silva-lobo",
-      "name": "URPV Silva Lobo (SLU)",
-      "type": "ecoPoint",
-      "latitude": -19.9275,
-      "longitude": -43.962,
-      "address": "Av. Tereza Cristina, 2195 — Calafate, Belo Horizonte - MG",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sex, 7h às 18h; sáb e dom, 7h40 às 16h",
-      "status": "active"
-    },
-    {
-      "id": "pev-silva-so",
-      "name": "PEV Silva Só (DMLU)",
-      "type": "ecoPoint",
-      "latitude": -30.0355,
-      "longitude": -51.2066,
-      "address": "Av. Silva Só, s/n (sob Viaduto Tiradentes) — Santa Cecília / Bom Fim, Porto Alegre - RS",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sex, 8h às 17h; sáb, 8h às 12h",
-      "status": "active"
-    },
-    {
-      "id": "estacao-sustentabilidade-barigui",
-      "name": "Estação de Sustentabilidade Parque Barigui",
-      "type": "ecoPoint",
-      "latitude": -25.4241,
-      "longitude": -49.2965,
-      "address": "Alameda Ecológica Burle Marx, 1042 — Santo Inácio, Curitiba - PR",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a dom, 24 horas",
+      "latitude": -10.8963,
+      "longitude": -37.0544,
+      "address": "Av. Confiança, 131 — Industrial, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 12h e 13h às 17h",
       "status": "active"
     },
     {
@@ -140,8 +314,83 @@
       "latitude": -12.9989,
       "longitude": -38.4551,
       "address": "Rua Wanderley de Pinho, s/n — Itaigara, Salvador - BA",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Seg a sáb, 7h às 19h; dom, 8h às 12h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-madureira",
+      "name": "Ecoponto Madureira (Comlurb)",
+      "type": "ecoPoint",
+      "latitude": -22.8732,
+      "longitude": -43.3396,
+      "address": "Viaduto Negrão de Lima, s/n — Madureira, Rio de Janeiro - RJ",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a dom, 6h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-mooca",
+      "name": "Ecoponto Mooca",
+      "type": "ecoPoint",
+      "latitude": -23.5474,
+      "longitude": -46.6029,
+      "address": "Av. Pires do Rio, 600 — Mooca, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-parque-royal",
+      "name": "Ecoponto Parque Royal (Comlurb)",
+      "type": "ecoPoint",
+      "latitude": -22.7981,
+      "longitude": -43.2089,
+      "address": "Estrada Governador Chagas Freitas, 1600 — Ilha do Governador, Rio de Janeiro - RJ",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a dom, 6h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-berrini",
+      "name": "Ecoponto Pinheiros - Berrini",
+      "type": "ecoPoint",
+      "latitude": -23.5973,
+      "longitude": -46.6911,
+      "address": "Praça do Cancioneiro, 15 — Cidade Monções, São Paulo - SP",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics",
+        "glass"
+      ],
+      "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-santos-dumont-aracaju",
+      "name": "Ecoponto Santos Dumont (Emsurb)",
+      "type": "ecoPoint",
+      "latitude": -10.8911,
+      "longitude": -37.0789,
+      "address": "Rua Maracaju, s/n — Santos Dumont, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "glass",
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 17h",
       "status": "active"
     },
     {
@@ -151,85 +400,52 @@
       "latitude": -3.7316,
       "longitude": -38.4831,
       "address": "Av. Antônio Justa, 4188 — Varjota, Fortaleza - CE",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Seg a sáb, 8h às 12h e 14h às 17h",
       "status": "active"
     },
     {
-      "id": "ecoestacao-arruda",
-      "name": "Ecoestação Arruda (EMLURB)",
+      "id": "espace-tri-porte-des-lilas-paris",
+      "name": "Espace Tri Porte des Lilas",
       "type": "ecoPoint",
-      "latitude": -8.0261,
-      "longitude": -34.8876,
-      "address": "Av. Professor José dos Anjos, s/n — Arruda, Recife - PE",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 8h às 16h",
+      "latitude": 48.8783,
+      "longitude": 2.4124,
+      "address": "11 Rue Paul Meurice — 75020 Paris, França",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a dom, 9h30 às 19h",
       "status": "active"
     },
     {
-      "id": "papa-entulho-asa-sul",
-      "name": "Papa-Entulho Asa Sul (SLU DF)",
+      "id": "estacao-sustentabilidade-barigui",
+      "name": "Estação de Sustentabilidade Parque Barigui",
       "type": "ecoPoint",
-      "latitude": -15.8242,
-      "longitude": -47.9015,
-      "address": "Av. das Nações (L4 Sul), s/n — Asa Sul, Brasília - DF",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 7h às 18h",
-      "status": "active"
-    },
-    {
-      "id": "drogasil-avenida-paulista",
-      "name": "Drogasil — Av. Paulista",
-      "type": "pharmacy",
-      "latitude": -23.5583,
-      "longitude": -46.6587,
-      "address": "Av. Paulista, 2064 — Bela Vista, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "medicines"],
-      "hours": "Seg a sex, 8h às 22h; sáb e dom, 10h às 22h",
-      "status": "active"
-    },
-    {
-      "id": "drogaria-sao-paulo-praca-se",
-      "name": "Drogaria São Paulo — Praça da Sé",
-      "type": "pharmacy",
-      "latitude": -23.5503,
-      "longitude": -46.6339,
-      "address": "Praça da Sé, 415 — Sé, São Paulo - SP",
-      "acceptedWasteTypes": ["medicines"],
-      "hours": "Seg a sáb, 6h às 20h",
-      "status": "active"
-    },
-    {
-      "id": "droga-raia-copacabana",
-      "name": "Droga Raia — Copacabana",
-      "type": "pharmacy",
-      "latitude": -22.9715,
-      "longitude": -43.1878,
-      "address": "Av. Nossa Senhora de Copacabana, 734 — Copacabana, Rio de Janeiro - RJ",
-      "acceptedWasteTypes": ["batteries", "medicines"],
+      "latitude": -25.4241,
+      "longitude": -49.2965,
+      "address": "Alameda Ecológica Burle Marx, 1042 — Santo Inácio, Curitiba - PR",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
       "hours": "Seg a dom, 24 horas",
       "status": "active"
     },
     {
-      "id": "droga-raia-batel",
-      "name": "Droga Raia — Batel",
+      "id": "pague_menos_centro_aju",
+      "name": "Farmácia Pague Menos — Centro",
       "type": "pharmacy",
-      "latitude": -25.445,
-      "longitude": -49.29,
-      "address": "Av. do Batel, 1602 — Batel, Curitiba - PR",
-      "acceptedWasteTypes": ["batteries", "medicines"],
-      "hours": "Seg a sáb, 7h às 23h",
-      "status": "active"
-    },
-    {
-      "id": "panvel-rua-24-de-outubro",
-      "name": "Panvel Farmácias — Moinhos de Vento",
-      "type": "pharmacy",
-      "latitude": -30.0223,
-      "longitude": -51.2035,
-      "address": "Rua 24 de Outubro, 742 — Independência / Moinhos de Vento, Porto Alegre - RS",
-      "acceptedWasteTypes": ["medicines"],
-      "hours": "Seg a dom, 24 horas",
+      "latitude": -10.9116,
+      "longitude": -37.0528,
+      "address": "Rua Laranjeiras, 238 — Centro, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "medicines"
+      ],
+      "hours": "Seg a sex, 6h20 às 19h30; sáb, 6h20 às 16h30",
       "status": "active"
     },
     {
@@ -239,19 +455,134 @@
       "latitude": -13.0089,
       "longitude": -38.531,
       "address": "Rua Marquês de Caravelas, 386 — Barra, Salvador - BA",
-      "acceptedWasteTypes": ["medicines"],
+      "acceptedWasteTypes": [
+        "medicines"
+      ],
       "hours": "Seg a dom, 7h às 22h",
       "status": "active"
     },
     {
-      "id": "drogasil-cls-102-sul",
-      "name": "Drogasil — Asa Sul 102",
+      "id": "les-ecology-center-nyc",
+      "name": "Lower East Side Ecology Center (E-Waste Warehouse)",
+      "type": "ecoPoint",
+      "latitude": 40.6786,
+      "longitude": -73.9876,
+      "address": "469 President Street — Gowanus, Brooklyn, NY 11215, Estados Unidos",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Ter a sáb, 10h às 17h",
+      "status": "active"
+    },
+    {
+      "id": "panvel-rua-24-de-outubro",
+      "name": "Panvel Farmácias — Moinhos de Vento",
       "type": "pharmacy",
-      "latitude": -15.8078,
-      "longitude": -47.8967,
-      "address": "SHCS CLS 102, Bloco C, Loja 35 — Asa Sul, Brasília - DF",
-      "acceptedWasteTypes": ["batteries", "medicines"],
-      "hours": "Seg a sáb, 7h às 22h; dom, 8h às 22h",
+      "latitude": -30.0223,
+      "longitude": -51.2035,
+      "address": "Rua 24 de Outubro, 742 — Independência / Moinhos de Vento, Porto Alegre - RS",
+      "acceptedWasteTypes": [
+        "medicines"
+      ],
+      "hours": "Seg a dom, 24 horas",
+      "status": "active"
+    },
+    {
+      "id": "papa-entulho-asa-sul",
+      "name": "Papa-Entulho Asa Sul (SLU DF)",
+      "type": "ecoPoint",
+      "latitude": -15.8242,
+      "longitude": -47.9015,
+      "address": "Av. das Nações (L4 Sul), s/n — Asa Sul, Brasília - DF",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 7h às 18h",
+      "status": "active"
+    },
+    {
+      "id": "pev-silva-so",
+      "name": "PEV Silva Só (DMLU)",
+      "type": "ecoPoint",
+      "latitude": -30.0355,
+      "longitude": -51.2066,
+      "address": "Av. Silva Só, s/n (sob Viaduto Tiradentes) — Santa Cecília / Bom Fim, Porto Alegre - RS",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sex, 8h às 17h; sáb, 8h às 12h",
+      "status": "active"
+    },
+    {
+      "id": "punto-limpio-chamartin-madrid",
+      "name": "Punto Limpio Fijo Chamartín",
+      "type": "ecoPoint",
+      "latitude": 40.4589,
+      "longitude": -3.6665,
+      "address": "Av. de Alfonso XIII, 128 — Chamartín, 28016 Madrid, Espanha",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 8h às 20h; dom e feriados, 9h às 14h",
+      "status": "active"
+    },
+    {
+      "id": "pev_shopping_jardins_aju",
+      "name": "Shopping Jardins — PEV Green Eletron",
+      "type": "ecoPoint",
+      "latitude": -10.9423,
+      "longitude": -37.0598,
+      "address": "Av. Ministro Geraldo Barreto Sobral, 215 — Jardins, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sáb, 10h às 22h; dom, 12h às 21h",
+      "status": "active"
+    },
+    {
+      "id": "hwrc-smugglers-way-london",
+      "name": "Smugglers Way Household Waste and Recycling Centre",
+      "type": "ecoPoint",
+      "latitude": 51.4625,
+      "longitude": -0.1912,
+      "address": "Smugglers Way, Wandsworth — SW18 1JS London, Reino Unido",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sex, 9h às 16h; sáb, 8h às 18h; dom, 8h às 17h",
+      "status": "active"
+    },
+    {
+      "id": "ubs-1-asa-sul",
+      "name": "UBS 1 Asa Sul",
+      "type": "healthCenter",
+      "latitude": -15.8328,
+      "longitude": -47.9094,
+      "address": "SGAS 612, Lotes 38/39 — Asa Sul, Brasília - DF",
+      "acceptedWasteTypes": [
+        "medicines",
+        "sharps"
+      ],
+      "hours": "Seg a sex, 7h às 22h",
+      "status": "active"
+    },
+    {
+      "id": "ubs_augusto_franco_aju",
+      "name": "UBS Augusto Franco",
+      "type": "healthCenter",
+      "latitude": -10.9688,
+      "longitude": -37.071,
+      "address": "Rua José Francisco Prejuízo, 151 — Farolândia, Aracaju - SE",
+      "acceptedWasteTypes": [
+        "sharps"
+      ],
+      "hours": "Seg a sex, 7h às 18h30",
       "status": "active"
     },
     {
@@ -261,7 +592,10 @@
       "latitude": -23.5354,
       "longitude": -46.6521,
       "address": "Rua Vitorino Carmilo, 599 — Santa Cecília, São Paulo - SP",
-      "acceptedWasteTypes": ["medicines", "sharps"],
+      "acceptedWasteTypes": [
+        "medicines",
+        "sharps"
+      ],
       "hours": "Seg a sex, 7h às 19h",
       "status": "active"
     },
@@ -272,30 +606,11 @@
       "latitude": -23.5455,
       "longitude": -46.6343,
       "address": "Praça do Patriarca, 100 — Centro Histórico, São Paulo - SP",
-      "acceptedWasteTypes": ["medicines", "sharps"],
+      "acceptedWasteTypes": [
+        "medicines",
+        "sharps"
+      ],
       "hours": "Seg a sex, 7h às 19h",
-      "status": "active"
-    },
-    {
-      "id": "cms-pindaro-gavea",
-      "name": "CMS Píndaro de Carvalho Rodrigues",
-      "type": "healthCenter",
-      "latitude": -22.9794,
-      "longitude": -43.2294,
-      "address": "Av. Padre Leonel França, s/n — Gávea, Rio de Janeiro - RJ",
-      "acceptedWasteTypes": ["medicines", "sharps"],
-      "hours": "Seg a sex, 8h às 20h; sáb, 8h às 12h",
-      "status": "active"
-    },
-    {
-      "id": "ubs-1-asa-sul",
-      "name": "UBS 1 Asa Sul",
-      "type": "healthCenter",
-      "latitude": -15.8328,
-      "longitude": -47.9094,
-      "address": "SGAS 612, Lotes 38/39 — Asa Sul, Brasília - DF",
-      "acceptedWasteTypes": ["medicines", "sharps"],
-      "hours": "Seg a sex, 7h às 22h",
       "status": "active"
     },
     {
@@ -305,118 +620,25 @@
       "latitude": -30.045,
       "longitude": -51.176,
       "address": "Rua São Manoel, 543 — Santa Cecília, Porto Alegre - RS",
-      "acceptedWasteTypes": ["medicines", "sharps"],
+      "acceptedWasteTypes": [
+        "medicines",
+        "sharps"
+      ],
       "hours": "Seg a sex, 8h às 18h",
       "status": "active"
     },
     {
-      "id": "ecocentro-monsanto-lisboa",
-      "name": "Ecocentro de Monsanto (CML)",
+      "id": "urpv-silva-lobo",
+      "name": "URPV Silva Lobo (SLU)",
       "type": "ecoPoint",
-      "latitude": 38.718,
-      "longitude": -9.182,
-      "address": "Estrada da Pimenteira, s/n — Monsanto, 1300 Lisboa, Portugal",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 9h às 18h",
-      "status": "active"
-    },
-    {
-      "id": "ecocentro-antas-porto",
-      "name": "Ecocentro das Antas (Porto Ambiente / LIPOR)",
-      "type": "ecoPoint",
-      "latitude": 41.1668,
-      "longitude": -8.5832,
-      "address": "Rua do Vigorosa, s/n — Antas, 4200 Porto, Portugal",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 8h30 às 20h",
-      "status": "active"
-    },
-    {
-      "id": "punto-limpio-chamartin-madrid",
-      "name": "Punto Limpio Fijo Chamartín",
-      "type": "ecoPoint",
-      "latitude": 40.4589,
-      "longitude": -3.6665,
-      "address": "Av. de Alfonso XIII, 128 — Chamartín, 28016 Madrid, Espanha",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 8h às 20h; dom e feriados, 9h às 14h",
-      "status": "active"
-    },
-    {
-      "id": "espace-tri-porte-des-lilas-paris",
-      "name": "Espace Tri Porte des Lilas",
-      "type": "ecoPoint",
-      "latitude": 48.8783,
-      "longitude": 2.4124,
-      "address": "11 Rue Paul Meurice — 75020 Paris, França",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a dom, 9h30 às 19h",
-      "status": "active"
-    },
-    {
-      "id": "hwrc-smugglers-way-london",
-      "name": "Smugglers Way Household Waste and Recycling Centre",
-      "type": "ecoPoint",
-      "latitude": 51.4625,
-      "longitude": -0.1912,
-      "address": "Smugglers Way, Wandsworth — SW18 1JS London, Reino Unido",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sex, 9h às 16h; sáb, 8h às 18h; dom, 8h às 17h",
-      "status": "active"
-    },
-    {
-      "id": "recyclinghof-gradestrasse-berlin",
-      "name": "BSR Recyclinghof Plus Gradestraße",
-      "type": "ecoPoint",
-      "latitude": 52.452,
-      "longitude": 13.4285,
-      "address": "Gradestraße 73 — Neukölln, 12347 Berlim, Alemanha",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Seg a sáb, 7h às 19h",
-      "status": "active"
-    },
-    {
-      "id": "les-ecology-center-nyc",
-      "name": "Lower East Side Ecology Center (E-Waste Warehouse)",
-      "type": "ecoPoint",
-      "latitude": 40.6786,
-      "longitude": -73.9876,
-      "address": "469 President Street — Gowanus, Brooklyn, NY 11215, Estados Unidos",
-      "acceptedWasteTypes": ["batteries", "electronics"],
-      "hours": "Ter a sáb, 10h às 17h",
-      "status": "active"
-    },
-    {
-      "id": "ecoponto-bairro-industrial-aracaju",
-      "name": "Ecoponto Bairro Industrial (Emsurb)",
-      "type": "ecoPoint",
-      "latitude": -10.8967,
-      "longitude": -37.0543,
-      "address": "Av. Confiança, s/n — Bairro Industrial, Aracaju - SE",
-      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
-      "hours": "Seg a sáb, 7h às 17h",
-      "status": "active"
-    },
-    {
-      "id": "ecoponto-coroa-do-meio-aracaju",
-      "name": "Ecoponto Coroa do Meio (Emsurb)",
-      "type": "ecoPoint",
-      "latitude": -10.9622,
-      "longitude": -37.0425,
-      "address": "Av. Desembargador José Antônio de Andrade Góis, s/n — Coroa do Meio, Aracaju - SE",
-      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
-      "hours": "Seg a sáb, 7h às 17h",
-      "status": "active"
-    },
-    {
-      "id": "ecoponto-santos-dumont-aracaju",
-      "name": "Ecoponto Santos Dumont (Emsurb)",
-      "type": "ecoPoint",
-      "latitude": -10.8911,
-      "longitude": -37.0789,
-      "address": "Rua Maracaju, s/n — Santos Dumont, Aracaju - SE",
-      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
-      "hours": "Seg a sáb, 7h às 17h",
+      "latitude": -19.9275,
+      "longitude": -43.962,
+      "address": "Av. Tereza Cristina, 2195 — Calafate, Belo Horizonte - MG",
+      "acceptedWasteTypes": [
+        "batteries",
+        "electronics"
+      ],
+      "hours": "Seg a sex, 7h às 18h; sáb e dom, 7h40 às 16h",
       "status": "active"
     }
   ]

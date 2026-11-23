@@ -20,4 +20,10 @@ abstract interface class ICollectPointsRepository {
 
   /// Indica se o repositório possui uma fonte remota configurada.
   bool get hasRemoteSource;
+
+  /// Insere ou atualiza pontos no armazenamento local de forma idempotente (upsert).
+  Future<List<CollectionPoint>> upsertLocalPoints(
+    List<CollectionPoint> newPoints, {
+    DateTime? updatedAt,
+  });
 }
