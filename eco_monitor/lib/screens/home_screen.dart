@@ -113,20 +113,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool _isSearching = false;
 
-  @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-    final double bottomInset = View.of(context).viewInsets.bottom;
-    if (bottomInset == 0 && _isSearching) {
-      if (mounted) {
-        setState(() {
-          _isSearching = false;
-        });
-      }
-      FocusScope.of(context).unfocus();
-    }
-  }
-
   void _handlePopInvoked(bool didPop, dynamic result) {
     if (didPop) {
       return;
@@ -251,7 +237,6 @@ class _HomeScreenState extends State<HomeScreen>
     final Widget? locationNotice = _buildLocationNotice();
     final CollectionPoint? selectedPoint = _selectedPoint;
     final double navInset = CustomBottomNavBar.reservedBottomInset(context);
-    final double cardBottom = navInset + 20;
     final bool isListMode = _isEffectiveListView;
     final bool hideAuxiliaryButtons = _isSearching ||
         (MediaQuery.viewInsetsOf(context).bottom > 0);
@@ -381,9 +366,9 @@ class _HomeScreenState extends State<HomeScreen>
         if (selectedPoint != null)
           _isRouteActive
               ? Positioned(
-                  left: 12,
-                  right: 12,
-                  bottom: cardBottom,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
 
                   child: RouteSummaryCard(
                     point: selectedPoint,

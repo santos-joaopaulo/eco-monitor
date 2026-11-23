@@ -43,37 +43,61 @@ class RouteSummaryCard extends StatelessWidget {
     final bool isArrived = route?.isArrived ?? false;
     final bool isLargeFont = MediaQuery.textScalerOf(context).scale(1) > 1.25;
     final double screenHeight = MediaQuery.sizeOf(context).height;
-    // Garante que o topo do card fique estritamente abaixo da metade da tela.
-    final double maxCardHeight =
-        (screenHeight * 0.38).clamp(180.0, (screenHeight * 0.5) - 60.0);
+    // Ocupa no máximo 1/3 da tela
+    final double maxSheetHeight = screenHeight * (1.0 / 3.0);
 
     return SafeArea(
       top: false,
-      bottom: false,
 
       child: Align(
         alignment: Alignment.bottomCenter,
+        heightFactor: 1.0,
 
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: kEcoMaxContentWidth,
-            maxHeight: maxCardHeight,
+            maxHeight: maxSheetHeight,
           ),
 
           child: Material(
             color: AppColors.surface,
-            elevation: 12,
+            elevation: 16,
             shadowColor: Colors.black.withAlpha(60),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
             clipBehavior: Clip.antiAlias,
 
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
 
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onVerticalDragEnd: (DragEndDetails details) {
+                      if ((details.primaryVelocity ?? 0) > 200) {
+                        onClose();
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.inactive.withAlpha(140),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

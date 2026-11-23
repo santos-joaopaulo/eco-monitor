@@ -280,10 +280,6 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
                 focusNode: _focusNode,
                 onChanged: _onQueryChanged,
                 textInputAction: TextInputAction.search,
-                onTapOutside: (_) {
-                  _focusNode.unfocus();
-                  FocusScope.of(context).unfocus();
-                },
                 onSubmitted: (String value) {
                   final WasteType? match = widget.searchService
                       .matchSingleWasteType(value);
