@@ -283,6 +283,38 @@ Future<void> _seedCollectPoints({
     );
   }
 
+  // Remove pontos obsoletos que não constam mais no arquivo JSON local.
+  final Set<String> validIds = points
+      .cast<Map<String, dynamic>>()
+      .map((Map<String, dynamic> point) => point["id"] as String)
+      .toSet();
+
+  try {
+    final List<Map<String, dynamic>> existingDocs = await _listDocuments(
+      client: client,
+      url: "$baseUrl/collectPoints?pageSize=100",
+      token: token,
+    );
+
+    for (final Map<String, dynamic> doc in existingDocs) {
+      final String? fullPath = doc["name"] as String?;
+      if (fullPath == null) {
+        continue;
+      }
+      final String docId = fullPath.split("/").last;
+      if (!validIds.contains(docId)) {
+        await _deleteDocument(
+          client: client,
+          url: "$baseUrl/collectPoints/$docId",
+          token: token,
+        );
+        stdout.writeln("Removido ponto obsoleto do Firestore: $docId");
+      }
+    }
+  } catch (error) {
+    stderr.writeln("Aviso: falha ao limpar pontos obsoletos: $error");
+  }
+
   await _upsertDocument(
     client: client,
     url: "$baseUrl/metadata/collectPoints",
@@ -527,6 +559,28 @@ Future<void> _upsertDocument({
 
   if (response.statusCode < 200 || response.statusCode >= 300) {
     throw HttpException("Failed to write $url (${response.statusCode}): $body");
+  }
+}
+
+Future<void> _deleteDocument({
+  required HttpClient client,
+  required String url,
+  required String? token,
+}) async {
+  final HttpClientRequest request = await client.deleteUrl(Uri.parse(url));
+  if (token != null && token.isNotEmpty) {
+    request.headers.set(HttpHeaders.authorizationHeader, "Bearer $token");
+  }
+
+  final HttpClientResponse response = await request.close();
+  final String body = await response.transform(utf8.decoder).join();
+
+  if (response.statusCode != 200 &&
+      response.statusCode != 204 &&
+      response.statusCode != 404) {
+    throw HttpException(
+      "Failed to delete $url (${response.statusCode}): $body",
+    );
   }
 }
 

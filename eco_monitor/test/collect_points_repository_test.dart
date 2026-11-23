@@ -66,7 +66,7 @@ void main() {
     final List<CollectionPoint> points = await repository.loadOffline();
 
     final CollectionPoint inactive = points.firstWhere(
-      (CollectionPoint point) => point.id == "ecoponto-sao-conrado",
+      (CollectionPoint point) => point.id == "ecoponto-bresser",
     );
 
     expect(inactive.status, PointStatus.inactive);
