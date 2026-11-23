@@ -2,7 +2,7 @@
 
 
 /// Categorias de resíduos tratadas pelo aplicativo (guia, pontos de coleta e campanhas).
-enum WasteType { medicines, sharps, batteries, electronics }
+enum WasteType { medicines, sharps, batteries, electronics, glass }
 
 
 // Methods ----------------------------------------------------------------- //
@@ -12,13 +12,14 @@ enum WasteType { medicines, sharps, batteries, electronics }
 ///
 /// Aceita os nomes canônicos gravados pelo app e também os apelidos no singular
 /// ainda presentes em dados antigos do Firestore e do cache local (`medicine`,
-/// `battery`, `electronic`). Retorna `null` para valores desconhecidos.
+/// `battery`, `electronic`, `glass`, `vidro`). Retorna `null` para valores desconhecidos.
 WasteType? wasteTypeByName(String name) {
   return switch (name.trim().toLowerCase()) {
     "medicines" || "medicine" => WasteType.medicines,
     "sharps" => WasteType.sharps,
     "batteries" || "battery" => WasteType.batteries,
     "electronics" || "electronic" => WasteType.electronics,
+    "glass" || "vidro" => WasteType.glass,
     _ => null,
   };
 }

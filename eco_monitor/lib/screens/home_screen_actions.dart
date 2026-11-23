@@ -522,9 +522,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
         PolylineAnnotationOptions(
           geometry: LineString(coordinates: positions),
           lineColor: AppColors.routeLine.toARGB32(),
-          lineWidth: 6,
-          lineBorderColor: Colors.white.toARGB32(),
-          lineBorderWidth: 3.5,
+          lineWidth: 5.5,
           lineJoin: LineJoin.ROUND,
         ),
       );
@@ -588,9 +586,81 @@ mixin _HomeScreenActions on State<HomeScreen> {
     layer.update(_filteredPoints, selectedId: _selectedPoint?.id);
   }
 
+  /// Conduz o fluxo rápido "Ponto mais próximo" em 1 toque (T8.1).
+  Future<void> _handleQuickNearestPoint() async {
+    if (_userLocation == null) {
+      await _locateUser();
+    }
+
+    final UserLocation? userLocation = _userLocation;
+    if (userLocation == null) {
+      if (mounted) {
+        _showMessage(
+          "Permita o acesso à localização para ver o ponto mais próximo.",
+        );
+      }
+      return;
+    }
+
+    final NearestPointResult? nearest = const GetNearestPointUseCase().execute(
+      userLatitude: userLocation.latitude,
+      userLongitude: userLocation.longitude,
+      points: _points,
+      selectedWasteTypes: _selectedWasteTypes,
+    );
+
+    if (nearest == null) {
+      if (mounted) {
+        _showMessage("Nenhum ponto de coleta ativo encontrado por perto.");
+      }
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isListView = false;
+      _selectedPoint = nearest.point;
+      _routeSummary = null;
+      _isRouteActive = false;
+    });
+    _syncPointsLayer();
+
+    await _focusPoint(nearest.point);
+    await _handleStartRoute();
+  }
+
+  /// Aplica busca textual rápida de resíduo e foca o ecoponto compatível mais próximo (T8.2).
+  Future<void> _handleResidueSearched(WasteType type) async {
+    _handleFilterChanged(<WasteType>{type});
+
+    unawaited(WasteSearchAnalyticsRepository().recordSearch(type));
+
+    final UserLocation? userLocation = _userLocation;
+    if (userLocation != null) {
+      final NearestPointResult? nearest = const GetNearestPointUseCase().execute(
+        userLatitude: userLocation.latitude,
+        userLongitude: userLocation.longitude,
+        points: _points,
+        selectedWasteTypes: <WasteType>{type},
+      );
+
+      if (nearest != null) {
+        await _handlePointSelected(nearest.point);
+      }
+    }
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(message),
+        ),
+      );
   }
 }

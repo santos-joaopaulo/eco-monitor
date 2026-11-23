@@ -18,11 +18,12 @@ void main() {
     final DisposalGuideRepositorySynced repository =
         DisposalGuideRepositorySynced();
 
-    expect(repository.listResidues(), hasLength(4));
+    expect(repository.listResidues(), hasLength(5));
     expect(repository.stepsGuideFor(WasteType.medicines), isNotNull);
     expect(repository.stepsGuideFor(WasteType.batteries), isNotNull);
     expect(repository.stepsGuideFor(WasteType.sharps), isNotNull);
     expect(repository.stepsGuideFor(WasteType.electronics), isNull);
+    expect(repository.stepsGuideFor(WasteType.glass), isNotNull);
     expect(repository.sourceOrigin, DataSourceOrigin.bundledAsset);
   });
 
@@ -75,6 +76,7 @@ void main() {
         WasteType.batteries,
         WasteType.sharps,
         WasteType.electronics,
+        WasteType.glass,
       ],
     );
 

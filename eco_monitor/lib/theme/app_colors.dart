@@ -61,4 +61,7 @@ abstract final class AppColors {
   static const Color battery = Color(0xFF2E7D32);
   static const Color sharps = Color(0xFF5B7C99);
   static const Color electronics = Color(0xFF5E35B1);
+
+  /// Verde universal regulamentar para o resíduo vidro (código universal de cores).
+  static const Color glass = Color(0xFF2E7D32);
 }

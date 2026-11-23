@@ -21,6 +21,8 @@ class FilterBar extends StatelessWidget {
     WasteType.medicines,
     WasteType.sharps,
     WasteType.batteries,
+    WasteType.electronics,
+    WasteType.glass,
   ];
 
   final Set<WasteType> selectedTypes;
@@ -78,8 +80,6 @@ class _MapFilterPill extends StatelessWidget {
     required this.onTap,
   });
 
-  static const Color _labelColor = Color(0xFF4A4A4A);
-
   final WasteType type;
   final bool isSelected;
   final VoidCallback onTap;
@@ -91,21 +91,19 @@ class _MapFilterPill extends StatelessWidget {
       selected: isSelected,
       label: type.filterLabel,
       hint: "Filtrar pontos de coleta",
-      excludeSemantics: true,
 
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+      child: Tooltip(
+        message: type.filterLabel,
 
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: isSelected ? AppColors.primaryTint : AppColors.surface,
             borderRadius: BorderRadius.circular(24),
-            border: isSelected
-                ? Border.all(color: AppColors.primary, width: 1.5)
-                : null,
+            border: Border.all(
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
@@ -115,26 +113,25 @@ class _MapFilterPill extends StatelessWidget {
             ],
           ),
 
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(type.icon, size: 15, color: type.color),
-              const SizedBox(width: 5),
+          child: Material(
+            color: Colors.transparent,
 
-              Flexible(
-                child: Text(
-                  type.filterLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? AppColors.primary : _labelColor,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: onTap,
+
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+
+                child: Center(
+                  child: Icon(
+                    type.icon,
+                    size: 20,
+                    color: type.color,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

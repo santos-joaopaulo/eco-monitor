@@ -79,6 +79,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
     WasteType.batteries: "/pilhas",
     WasteType.sharps: "/seringas",
     WasteType.electronics: "/eletronicos",
+    WasteType.glass: "/vidro",
   };
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -174,6 +175,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
           repository: widget.repository,
           onStartGuide: _startGuide,
           banner: widget.banner,
+          onShowCollectionPoints: _showCollectionPoints,
         );
       },
     );

@@ -6,7 +6,9 @@ import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
+import "../data/waste_search_analytics_repository.dart";
 import "../domain/entities/waste_type.dart";
+import "../domain/usecases/get_nearest_point_use_case.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
@@ -107,6 +109,34 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  bool _isSearching = false;
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    final double bottomInset = View.of(context).viewInsets.bottom;
+    if (bottomInset == 0 && _isSearching) {
+      if (mounted) {
+        setState(() {
+          _isSearching = false;
+        });
+      }
+      FocusScope.of(context).unfocus();
+    }
+  }
+
+  void _handlePopInvoked(bool didPop, dynamic result) {
+    if (didPop) {
+      return;
+    }
+    if (_isSearching) {
+      setState(() {
+        _isSearching = false;
+      });
+      FocusScope.of(context).unfocus();
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -192,6 +222,22 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  double? get _nearestPointDistance {
+    final UserLocation? location = _userLocation;
+    if (location == null || _points.isEmpty) {
+      return null;
+    }
+
+    final NearestPointResult? nearest = const GetNearestPointUseCase().execute(
+      userLatitude: location.latitude,
+      userLongitude: location.longitude,
+      points: _points,
+      selectedWasteTypes: _selectedWasteTypes,
+    );
+
+    return nearest?.distanceMeters;
+  }
+
 
   // Build ----------------------------------------------------------------- //
 
@@ -205,6 +251,8 @@ class _HomeScreenState extends State<HomeScreen>
     final double navInset = CustomBottomNavBar.reservedBottomInset(context);
     final double cardBottom = navInset + 20;
     final bool isListMode = _isEffectiveListView;
+    final bool hideAuxiliaryButtons = _isSearching ||
+        (MediaQuery.viewInsetsOf(context).bottom > 0);
 
     Widget topBar({required bool isListMode}) {
       return HomeMapTopBar(
@@ -220,75 +268,109 @@ class _HomeScreenState extends State<HomeScreen>
             : "Nenhum ponto aceita esse resíduo por perto.",
         locationNotice: locationNotice,
         isListMode: isListMode,
+        onQuickNearestPoint: () => unawaited(_handleQuickNearestPoint()),
+        nearestDistanceMeters: _nearestPointDistance,
+        onResidueSearched: (WasteType type) {
+          setState(() {
+            _isSearching = false;
+          });
+          unawaited(_handleResidueSearched(type));
+        },
+        showQuickAction: selectedPoint == null && !isListMode,
+        isSearchActive: _isSearching,
+        onSearchActiveChanged: (bool active) {
+          if (_isSearching != active && mounted) {
+            setState(() {
+              _isSearching = active;
+            });
+          }
+        },
       );
     }
 
-    return Stack(
-      children: [
-        // O mapa permanece montado mesmo no modo de lista: a lista é um
-        // sobreposição opaca por cima. Remover e recriar a view nativa do mapa
-        // (Offstage) deixa a tela em branco sem reiniciar o app.
-        if (_accessToken.isNotEmpty)
-          Positioned.fill(
-            child: MapWidget(
-              key: const ValueKey("aracaju-map"),
-              onMapCreated: _onMapCreated,
-              onStyleLoadedListener: _onStyleLoaded,
+    return PopScope(
+      canPop: !_isSearching,
+      onPopInvokedWithResult: _handlePopInvoked,
 
-              viewport: CameraViewportState(
-                center: Point(coordinates: Position(0, 20)),
-                zoom: 1.5,
+      child: Stack(
+        children: [
+          // O mapa permanece montado mesmo no modo de lista: a lista é um
+          // sobreposição opaca por cima. Remover e recriar a view nativa do mapa
+          // (Offstage) deixa a tela em branco sem reiniciar o app.
+          if (_accessToken.isNotEmpty)
+            Positioned.fill(
+              child: MapWidget(
+                key: const ValueKey("aracaju-map"),
+                onMapCreated: _onMapCreated,
+                onStyleLoadedListener: _onStyleLoaded,
+
+                viewport: CameraViewportState(
+                  center: Point(coordinates: Position(0, 20)),
+                  zoom: 1.5,
+                ),
               ),
             ),
-          ),
 
-        if (isListMode)
-          Positioned.fill(
-            child: Container(
-              color: AppColors.background,
+          if (_isSearching)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  setState(() {
+                    _isSearching = false;
+                  });
+                  FocusScope.of(context).unfocus();
+                },
+              ),
+            ),
 
-              child: Column(
-                children: [
-                  topBar(isListMode: true),
+          if (isListMode)
+            Positioned.fill(
+              child: Container(
+                color: AppColors.background,
 
-                  Expanded(
-                    child: CollectPointsListView(
-                      points: visiblePoints,
-                      userLocation: _userLocation,
-                      activeFilter: _selectedWasteTypes,
-                      isDataStale: widget.dataSync?.isStale ?? false,
-                      onPointSelected: _handlePointSelected,
+                child: Column(
+                  children: [
+                    topBar(isListMode: true),
+
+                    Expanded(
+                      child: CollectPointsListView(
+                        points: visiblePoints,
+                        userLocation: _userLocation,
+                        activeFilter: _selectedWasteTypes,
+                        isDataStale: widget.dataSync?.isStale ?? false,
+                        onPointSelected: _handlePointSelected,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+            )
+          else
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+
+              child: topBar(isListMode: false),
             ),
-          )
-        else
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
 
-            child: topBar(isListMode: false),
-          ),
+          if (selectedPoint == null && !_isListView && !hideAuxiliaryButtons)
+            HomeLocateButton(
+              bottom: navInset + 20,
+              onPressed: _handleLocationAction,
+            ),
 
-        if (selectedPoint == null && !_isListView)
-          HomeLocateButton(
-            bottom: navInset + 20,
-            onPressed: _handleLocationAction,
-          ),
-
-        if (selectedPoint == null && _accessToken.isNotEmpty)
-          HomeViewToggleButton(
-            bottom: navInset + 20,
-            isListMode: isListMode,
-            onPressed: () {
-              setState(() {
-                _isListView = !_isListView;
-              });
-            },
-          ),
+          if (selectedPoint == null && _accessToken.isNotEmpty && !hideAuxiliaryButtons)
+            HomeViewToggleButton(
+              bottom: navInset + 20,
+              isListMode: isListMode,
+              onPressed: () {
+                setState(() {
+                  _isListView = !_isListView;
+                });
+              },
+            ),
 
         if (selectedPoint != null)
           Positioned(
@@ -314,7 +396,8 @@ class _HomeScreenState extends State<HomeScreen>
                     onStartRoute: () => unawaited(_handleStartRoute()),
                   ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }

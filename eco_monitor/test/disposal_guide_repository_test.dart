@@ -13,7 +13,7 @@ void main() {
   const DisposalGuideRepositoryLocal repository =
       DisposalGuideRepositoryLocal();
 
-  test("listResidues returns all four residue categories", () {
+  test("listResidues returns all residue categories", () {
     final List<Residue> residues = repository.listResidues();
 
     expect(residues.map((Residue residue) => residue.type), [
@@ -21,6 +21,7 @@ void main() {
       WasteType.batteries,
       WasteType.sharps,
       WasteType.electronics,
+      WasteType.glass,
     ]);
   });
 

@@ -17,6 +17,8 @@ void main() {
     expect(wasteTypeByName("medicine"), WasteType.medicines);
     expect(wasteTypeByName("battery"), WasteType.batteries);
     expect(wasteTypeByName("electronic"), WasteType.electronics);
+    expect(wasteTypeByName("glass"), WasteType.glass);
+    expect(wasteTypeByName("vidro"), WasteType.glass);
   });
 
   test("wasteTypeByName tolerates surrounding whitespace and casing", () {

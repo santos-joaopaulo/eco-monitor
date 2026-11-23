@@ -8,7 +8,7 @@
       "latitude": -23.5973,
       "longitude": -46.6911,
       "address": "Praça do Cancioneiro, 15 — Cidade Monções, São Paulo - SP",
-      "acceptedWasteTypes": ["batteries", "electronics"],
+      "acceptedWasteTypes": ["batteries", "electronics", "glass"],
       "hours": "Seg a sáb, 6h às 22h; dom e feriados, 6h às 18h",
       "status": "active"
     },
@@ -384,6 +384,39 @@
       "address": "469 President Street — Gowanus, Brooklyn, NY 11215, Estados Unidos",
       "acceptedWasteTypes": ["batteries", "electronics"],
       "hours": "Ter a sáb, 10h às 17h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-bairro-industrial-aracaju",
+      "name": "Ecoponto Bairro Industrial (Emsurb)",
+      "type": "ecoPoint",
+      "latitude": -10.8967,
+      "longitude": -37.0543,
+      "address": "Av. Confiança, s/n — Bairro Industrial, Aracaju - SE",
+      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
+      "hours": "Seg a sáb, 7h às 17h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-coroa-do-meio-aracaju",
+      "name": "Ecoponto Coroa do Meio (Emsurb)",
+      "type": "ecoPoint",
+      "latitude": -10.9622,
+      "longitude": -37.0425,
+      "address": "Av. Desembargador José Antônio de Andrade Góis, s/n — Coroa do Meio, Aracaju - SE",
+      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
+      "hours": "Seg a sáb, 7h às 17h",
+      "status": "active"
+    },
+    {
+      "id": "ecoponto-santos-dumont-aracaju",
+      "name": "Ecoponto Santos Dumont (Emsurb)",
+      "type": "ecoPoint",
+      "latitude": -10.8911,
+      "longitude": -37.0789,
+      "address": "Rua Maracaju, s/n — Santos Dumont, Aracaju - SE",
+      "acceptedWasteTypes": ["glass", "batteries", "electronics"],
+      "hours": "Seg a sáb, 7h às 17h",
       "status": "active"
     }
   ]

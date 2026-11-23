@@ -534,6 +534,44 @@ Map<String, Map<String, dynamic>> _buildDisposalGuides(String nowIso) {
       ]),
       "updatedAt": _timestampValue(nowIso),
     },
+    "glass": <String, dynamic>{
+      "type": _stringValue("glass"),
+      "title": _stringValue("Vidro e frascos"),
+      "description": _stringValue(
+        "Frascos de medicamentos, xaropes e ampolas. Higienize e proteja contra quebra.",
+      ),
+      "minutes": _intValue(2),
+      "totalSteps": _intValue(4),
+      "subtitle": _stringValue(
+        "Higienize e proteja contra quebra antes de levar ao ponto.",
+      ),
+      "warning": _stringValue(
+        "Em caso de frasco quebrado, embale em jornal ou caixa rígida para proteger os coletores.",
+      ),
+      "steps": _stepsArrayValue(<Map<String, String>>[
+        <String, String>{
+          "title": "Esvazie e higienize o frasco",
+          "description":
+              "Retire restos de medicamento líquido e enxágue levemente com água.",
+        },
+        <String, String>{
+          "title": "Separe tampas e bulas",
+          "description":
+              "Tampas plásticas/metálicas e caixas de papel devem ir para a coleta seletiva correspondente.",
+        },
+        <String, String>{
+          "title": "Proteja contra quebra",
+          "description":
+              "Embale frascos ou cacos em caixa rígida ou folhas de jornal e vede com fita adesiva.",
+        },
+        <String, String>{
+          "title": "Leve ao ecoponto ou farmácia",
+          "description":
+              'Entregue em um ponto de coleta com coletor para frascos ou filtro "Vidro".',
+        },
+      ]),
+      "updatedAt": _timestampValue(nowIso),
+    },
   };
 }
 

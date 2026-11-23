@@ -60,6 +60,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
     WasteType.batteries,
     WasteType.sharps,
     WasteType.electronics,
+    WasteType.glass,
   ];
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();

@@ -36,6 +36,13 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
       minutes: 2,
       totalSteps: 4,
     ),
+    Residue(
+      type: WasteType.glass,
+      title: "Vidro e frascos",
+      description: "Frascos de medicamentos, xaropes e ampolas. Higienize e proteja contra quebra.",
+      minutes: 2,
+      totalSteps: 4,
+    ),
   ];
 
   static const DisposalGuide _medicineGuide = DisposalGuide(
@@ -118,6 +125,31 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
     ],
   );
 
+  static const DisposalGuide _glassGuide = DisposalGuide(
+    title: "Frascos de vidro e ampolas",
+    subtitle: "Higienize e proteja contra quebra antes de levar ao ponto.",
+    warning: "Em caso de frasco quebrado, embale em jornal ou caixa rígida para proteger os coletores.",
+
+    steps: [
+      DisposalStep(
+        title: "Esvazie e higienize o frasco",
+        description: "Retire restos de medicamento líquido e enxágue levemente com água.",
+      ),
+      DisposalStep(
+        title: "Separe tampas e bulas",
+        description: "Tampas plásticas/metálicas e caixas de papel devem ir para a coleta seletiva correspondente.",
+      ),
+      DisposalStep(
+        title: "Proteja contra quebra",
+        description: "Embale frascos ou cacos em caixa rígida ou folhas de jornal e vede com fita adesiva.",
+      ),
+      DisposalStep(
+        title: "Leve ao ecoponto ou farmácia",
+        description: 'Entregue em um ponto de coleta com coletor para frascos ou filtro "Vidro".',
+      ),
+    ],
+  );
+
   @override
   List<Residue> listResidues() => _residues;
 
@@ -128,6 +160,7 @@ class DisposalGuideRepositoryLocal implements DisposalGuideRepository {
       WasteType.batteries => _batteryGuide,
       WasteType.sharps => _sharpsGuide,
       WasteType.electronics => null, // Guia desabilitado.
+      WasteType.glass => _glassGuide,
     };
   }
 }

@@ -37,7 +37,7 @@ void useTallSurface(WidgetTester tester) {
 Finder _filterChip(String label) {
   return find.descendant(
     of: find.byType(FilterBar),
-    matching: find.text(label),
+    matching: find.byTooltip(label),
   );
 }
 

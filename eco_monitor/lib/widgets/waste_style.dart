@@ -14,6 +14,7 @@ extension WasteTypeStyle on WasteType {
     WasteType.batteries => Icons.battery_full_rounded,
     WasteType.sharps => Icons.vaccines_rounded,
     WasteType.electronics => Icons.devices_other_rounded,
+    WasteType.glass => Icons.wine_bar_rounded,
   };
 
   Color get color => switch (this) {
@@ -21,6 +22,7 @@ extension WasteTypeStyle on WasteType {
     WasteType.batteries => AppColors.battery,
     WasteType.sharps => AppColors.sharps,
     WasteType.electronics => AppColors.electronics,
+    WasteType.glass => AppColors.glass,
   };
 
   String get label => switch (this) {
@@ -28,6 +30,7 @@ extension WasteTypeStyle on WasteType {
     WasteType.batteries => "Pilhas e baterias",
     WasteType.sharps => "Seringas e agulhas",
     WasteType.electronics => "Lixo eletrônico",
+    WasteType.glass => "Vidro",
   };
 
   /// Rótulo curto usado pelos filtros compactos do mapa.
@@ -36,6 +39,7 @@ extension WasteTypeStyle on WasteType {
     WasteType.batteries => "Pilhas",
     WasteType.sharps => "Seringas",
     WasteType.electronics => "Eletrônicos",
+    WasteType.glass => "Vidro",
   };
 
   /// Título em letras maiúsculas exibido na AppBar da tela de passo a passo.

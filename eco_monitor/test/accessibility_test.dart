@@ -302,6 +302,14 @@ void main() {
         find.bySemanticsLabel("Pilhas"),
         findsOneWidget,
       );
+      expect(
+        find.bySemanticsLabel("Eletrônicos"),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel("Vidro"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("CustomBottomNavBar items have semantics with button and label", (
