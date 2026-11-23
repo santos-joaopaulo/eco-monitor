@@ -68,6 +68,7 @@ PointSuggestionSender createFirestoreSuggestionSender({
 class PointSuggestionsRepository implements IPointSuggestionsRepository {
   PointSuggestionsRepository({
     this.sender,
+    this.isOnlineChecker,
     LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
   }) : _store = localStore ??
@@ -76,6 +77,7 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
            );
 
   final PointSuggestionSender? sender;
+  final Future<bool> Function()? isOnlineChecker;
   final LocalStore _store;
 
   Future<void> _lock = Future<void>.value();
@@ -96,11 +98,22 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
     return _synchronized(() async {
       final PointSuggestionSender? remoteSender = sender;
       if (remoteSender != null) {
-        try {
-          await remoteSender(suggestion);
-          return SuggestionSubmitResult.sent;
-        } catch (_) {
-          // Recorre à fila offline para que a sugestão do usuário não seja perdida.
+        bool isOnline = true;
+        if (isOnlineChecker != null) {
+          try {
+            isOnline = await isOnlineChecker!();
+          } catch (_) {
+            isOnline = true;
+          }
+        }
+
+        if (isOnline) {
+          try {
+            await remoteSender(suggestion).timeout(const Duration(seconds: 4));
+            return SuggestionSubmitResult.sent;
+          } catch (_) {
+            // Recorre à fila offline para que a sugestão do usuário não seja perdida.
+          }
         }
       }
 
@@ -143,7 +156,7 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
 
       for (final PointSuggestion suggestion in pending) {
         try {
-          await remoteSender(suggestion);
+          await remoteSender(suggestion).timeout(const Duration(seconds: 4));
           sentCount++;
         } catch (_) {
           remaining.add(suggestion);

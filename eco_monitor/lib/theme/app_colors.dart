@@ -64,4 +64,17 @@ abstract final class AppColors {
 
   /// Verde universal regulamentar para o resíduo vidro (código universal de cores).
   static const Color glass = Color(0xFF2E7D32);
+
+  // Engajamento Cidadão e Favoritos (Onda 8)
+  /// Vermelho vibrante usado no ícone e destaque de pontos de coleta favoritados.
+  static const Color favorite = Color(0xFFE53935);
+
+  /// Fundo suave avermelhado para o botão de favorito quando ativo.
+  static const Color favoriteTint = Color(0xFFFFEBEE);
+
+  /// Tom dourado/âmbar usado nas estrelas de avaliação dos ecopontos.
+  static const Color ratingStar = Color(0xFFF59E0B);
+
+  /// Tom neutro usado nas estrelas vazias de avaliação.
+  static const Color ratingStarEmpty = Color(0xFFDFE6E5);
 }

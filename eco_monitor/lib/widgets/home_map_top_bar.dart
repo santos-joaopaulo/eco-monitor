@@ -27,6 +27,8 @@ class HomeMapTopBar extends StatelessWidget {
     required this.emptyMessage,
     required this.locationNotice,
     required this.isListMode,
+    this.isFavoritesOnly = false,
+    this.onFavoritesToggle,
     this.onQuickNearestPoint,
     this.nearestDistanceMeters,
     this.onResidueSearched,
@@ -46,6 +48,8 @@ class HomeMapTopBar extends StatelessWidget {
   final String emptyMessage;
   final Widget? locationNotice;
   final bool isListMode;
+  final bool isFavoritesOnly;
+  final VoidCallback? onFavoritesToggle;
 
   /// Ação rápida para localizar e iniciar rota ao ponto mais próximo em 1 toque (T8.1).
   final VoidCallback? onQuickNearestPoint;
@@ -110,6 +114,8 @@ class HomeMapTopBar extends StatelessWidget {
               FilterBar(
                 selectedTypes: selectedWasteTypes,
                 onChanged: onFilterChanged,
+                isFavoritesOnly: isFavoritesOnly,
+                onFavoritesToggle: onFavoritesToggle,
               ),
             ],
 

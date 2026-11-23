@@ -231,4 +231,24 @@ void main() {
     expect(await repository.pendingCount(), 0);
     expect(await repository.loadPending(), isEmpty);
   });
+
+  test("isOnlineChecker falso pula remoteSender e enfileira offline imediatamente", () async {
+    final InMemoryLocalStore store = InMemoryLocalStore();
+    bool senderCalled = false;
+
+    final PointSuggestionsRepository repository = PointSuggestionsRepository(
+      localStore: store,
+      isOnlineChecker: () async => false,
+      sender: (PointSuggestion suggestion) async {
+        senderCalled = true;
+      },
+    );
+
+    final SuggestionSubmitResult result =
+        await repository.submit(testSuggestion("Ponto Rápido Offline"));
+
+    expect(result, SuggestionSubmitResult.queuedOffline);
+    expect(senderCalled, isFalse);
+    expect(await repository.pendingCount(), 1);
+  });
 }

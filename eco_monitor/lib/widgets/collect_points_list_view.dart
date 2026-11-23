@@ -1,7 +1,14 @@
+import "dart:async";
+
+import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
+import "package:provider/provider.dart";
 
 import "../domain/entities/waste_type.dart";
+import "../domain/repositories/point_reviews_repository_contract.dart";
 import "../models/collection_point.dart";
+import "../models/point_review.dart";
+import "../presentation/state/favorites_notifier.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -227,38 +234,52 @@ class _CollectPointCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
 
-                        Text(
-                          _pointLabel(point.type),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: _pointColor(point.type),
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              _pointLabel(point.type),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: _pointColor(point.type),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _CardRatingDisplay(pointId: point.id),
+                          ],
                         ),
                       ],
                     ),
                   ),
 
-                  if (distanceMeters != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryTint,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (distanceMeters != null) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryTint,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
 
-                      child: Text(
-                        formatDistance(distanceMeters!),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                          child: Text(
+                            formatDistance(distanceMeters!),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                        const SizedBox(width: 4),
+                      ],
+                      _CardFavoriteButton(pointId: point.id),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -388,4 +409,150 @@ String _pointLabel(PointType type) {
     PointType.healthCenter => "UBS",
     PointType.ecoPoint => "Ecoponto",
   };
+}
+
+
+// Favorites and Ratings --------------------------------------------------- //
+
+
+class _CardFavoriteButton extends StatefulWidget {
+  const _CardFavoriteButton({required this.pointId});
+
+  final String pointId;
+
+  @override
+  State<_CardFavoriteButton> createState() => _CardFavoriteButtonState();
+}
+
+class _CardFavoriteButtonState extends State<_CardFavoriteButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.3), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.3, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _animController, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    FavoritesNotifier? notifier;
+    try {
+      notifier = Provider.of<FavoritesNotifier>(context);
+    } catch (_) {
+      notifier = null;
+    }
+
+    final bool isFav = notifier?.isFavorite(widget.pointId) ?? false;
+
+    return Semantics(
+      button: true,
+      label: isFav ? "Remover dos favoritos" : "Adicionar aos favoritos",
+      child: Tooltip(
+        message: isFav ? "Remover dos favoritos" : "Adicionar aos favoritos",
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: IconButton(
+            iconSize: 22,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: Icon(
+              isFav ? Icons.favorite : Icons.favorite_border,
+              color: isFav ? AppColors.favorite : AppColors.textSecondary,
+            ),
+            onPressed: () async {
+              unawaited(HapticFeedback.lightImpact());
+              _animController.forward(from: 0.0);
+              if (notifier != null) {
+                await notifier.toggleFavorite(widget.pointId);
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardRatingDisplay extends StatefulWidget {
+  const _CardRatingDisplay({required this.pointId});
+
+  final String pointId;
+
+  @override
+  State<_CardRatingDisplay> createState() => _CardRatingDisplayState();
+}
+
+class _CardRatingDisplayState extends State<_CardRatingDisplay> {
+  PointReviewStats? _stats;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CardRatingDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pointId != widget.pointId) {
+      _loadStats();
+    }
+  }
+
+  Future<void> _loadStats() async {
+    IPointReviewsRepository? repo;
+    try {
+      repo = Provider.of<IPointReviewsRepository>(context, listen: false);
+    } catch (_) {
+      repo = null;
+    }
+
+    if (repo != null) {
+      final PointReviewStats stats = await repo.getStatsForPoint(widget.pointId);
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final PointReviewStats? stats = _stats;
+    if (stats == null || !stats.hasReviews) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.star_rounded, size: 14, color: AppColors.ratingStar),
+        const SizedBox(width: 2),
+        Text(
+          "${stats.averageRating.toStringAsFixed(1)} (${stats.totalReviews})",
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
 }

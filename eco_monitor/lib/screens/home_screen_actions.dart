@@ -35,6 +35,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
   bool _isLocating = false;
   bool _locationFailed = false;
   bool _isListView = false;
+  bool _isFavoritesOnly = false;
 
   /// Token do Mapbox resolvido na inicialização (main.dart).
   String get _accessToken => MapboxTokenProvider.token;
@@ -42,7 +43,27 @@ mixin _HomeScreenActions on State<HomeScreen> {
   bool get _isEffectiveListView => _isListView || _accessToken.isEmpty;
 
   List<CollectionPoint> get _filteredPoints {
-    return filterCollectionPoints(_points, _selectedWasteTypes);
+    Set<String> favIds = const <String>{};
+    if (mounted) {
+      try {
+        favIds = Provider.of<FavoritesNotifier>(context, listen: false).favoriteIds;
+      } catch (_) {
+        favIds = const <String>{};
+      }
+    }
+    return filterCollectionPoints(
+      _points,
+      _selectedWasteTypes,
+      onlyFavorites: _isFavoritesOnly,
+      favoriteIds: favIds,
+    );
+  }
+
+  void _handleFavoritesToggle() {
+    setState(() {
+      _isFavoritesOnly = !_isFavoritesOnly;
+    });
+    _syncPointsLayer();
   }
 
   Future<void> _flyToCampaign(Campaign campaign) async {

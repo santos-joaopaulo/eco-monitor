@@ -1,7 +1,9 @@
 import "package:material_ui/material_ui.dart";
+import "package:provider/provider.dart";
 
 import "../domain/entities/waste_type.dart";
 import "../models/campaign.dart";
+import "../presentation/state/campaign_reminders_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
@@ -77,25 +79,33 @@ class CampaignCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
 
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: onViewLocation,
-                  icon: const Icon(Icons.location_on_outlined, size: 20),
-                  label: const Text("Ver local"),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+              Row(
+                children: [
+                  Expanded(
+                    child: _CampaignReminderButton(campaign: campaign),
+                  ),
+                  const SizedBox(width: 10),
+
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: onViewLocation,
+                      icon: const Icon(Icons.location_on_outlined, size: 20),
+                      label: const Text("Ver local"),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -305,4 +315,100 @@ _StatusVisual _visualForStatus(CampaignStatus status) {
       textColor: AppColors.textSecondary,
     ),
   };
+}
+
+
+// Campaign Reminders ------------------------------------------------------ //
+
+
+class _CampaignReminderButton extends StatelessWidget {
+  const _CampaignReminderButton({required this.campaign});
+
+  final Campaign campaign;
+
+  @override
+  Widget build(BuildContext context) {
+    CampaignRemindersNotifier? notifier;
+    try {
+      notifier = Provider.of<CampaignRemindersNotifier>(context);
+    } catch (_) {
+      notifier = null;
+    }
+
+    final bool isReminderActive =
+        notifier?.isReminderActive(campaign.id) ?? false;
+
+    if (isReminderActive) {
+      return FilledButton.icon(
+        onPressed: () async {
+          final ScaffoldMessengerState? messenger =
+              ScaffoldMessenger.maybeOf(context);
+          if (notifier != null) {
+            await notifier.toggleReminder(campaign);
+          }
+          messenger
+            ?..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                content: Text("Lembrete cancelado."),
+                duration: Duration(seconds: 2),
+              ),
+            );
+        },
+        icon: const Icon(Icons.notifications_active_rounded, size: 18),
+        label: const Text(
+          "Lembrete ativado",
+          overflow: TextOverflow.ellipsis,
+        ),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primaryAccessible,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(0, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
+
+    return OutlinedButton.icon(
+      onPressed: () async {
+        final ScaffoldMessengerState? messenger =
+            ScaffoldMessenger.maybeOf(context);
+        if (notifier != null) {
+          await notifier.toggleReminder(campaign);
+        }
+        messenger
+          ?..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text("Lembrete ativado para esta campanha!"),
+              backgroundColor: AppColors.primaryAccessible,
+              duration: Duration(seconds: 2),
+            ),
+          );
+      },
+      icon: const Icon(Icons.notifications_none_outlined, size: 18),
+      label: const Text(
+        "Lembrar-me",
+        overflow: TextOverflow.ellipsis,
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary, width: 1.5),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 }

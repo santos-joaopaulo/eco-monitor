@@ -15,6 +15,8 @@ class FilterBar extends StatelessWidget {
     super.key,
     required this.selectedTypes,
     required this.onChanged,
+    this.isFavoritesOnly = false,
+    this.onFavoritesToggle,
   });
 
   static const List<WasteType> _types = <WasteType>[
@@ -27,6 +29,8 @@ class FilterBar extends StatelessWidget {
 
   final Set<WasteType> selectedTypes;
   final ValueChanged<Set<WasteType>> onChanged;
+  final bool isFavoritesOnly;
+  final VoidCallback? onFavoritesToggle;
 
 
   // Methods --------------------------------------------------------------- //
@@ -61,7 +65,84 @@ class FilterBar extends StatelessWidget {
                   ),
                 ),
               ],
+              if (onFavoritesToggle != null) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _FavoritesFilterPill(
+                    isSelected: isFavoritesOnly,
+                    onTap: onFavoritesToggle!,
+                  ),
+                ),
+              ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// Classes ----------------------------------------------------------------- //
+
+
+class _FavoritesFilterPill extends StatelessWidget {
+  const _FavoritesFilterPill({
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: "Favoritos",
+      hint: "Filtrar apenas pontos favoritados",
+
+      child: Tooltip(
+        message: "Favoritos",
+
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.favoriteTint : AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isSelected ? AppColors.favorite : Colors.transparent,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+
+          child: Material(
+            color: Colors.transparent,
+
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: onTap,
+
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+
+                child: Center(
+                  child: Icon(
+                    isSelected ? Icons.favorite : Icons.favorite_border,
+                    size: 20,
+                    color: AppColors.favorite,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

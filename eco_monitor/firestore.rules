@@ -27,5 +27,10 @@ service cloud.firestore {
     match /pointSuggestions/{suggestionId} {
       allow read, write: if true;
     }
+
+    // Avaliações anônimas de qualidade e estado dos ecopontos (RNF06, RNF14).
+    match /point_reviews/{reviewId} {
+      allow read, write: if true;
+    }
   }
 }

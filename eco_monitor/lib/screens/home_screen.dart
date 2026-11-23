@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
+import "package:provider/provider.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
@@ -11,6 +12,7 @@ import "../domain/entities/waste_type.dart";
 import "../domain/usecases/get_nearest_point_use_case.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
+import "../presentation/state/favorites_notifier.dart";
 import "../services/location_service.dart";
 import "../services/mapbox_token_provider.dart";
 import "../services/route_service.dart";
@@ -258,14 +260,18 @@ class _HomeScreenState extends State<HomeScreen>
       return HomeMapTopBar(
         selectedWasteTypes: _selectedWasteTypes,
         onFilterChanged: _handleFilterChanged,
+        isFavoritesOnly: _isFavoritesOnly,
+        onFavoritesToggle: _handleFavoritesToggle,
         focusedCampaign: focusedCampaign,
         onClearCampaign: widget.onClearCampaign,
         showMapboxTokenWarning: _accessToken.isEmpty,
         isLoadingPoints: _isLoadingPoints,
         isEmptyResult: visiblePoints.isEmpty && selectedPoint == null,
-        emptyMessage: _selectedWasteTypes.isEmpty
-            ? "Nenhum ponto de coleta disponível."
-            : "Nenhum ponto aceita esse resíduo por perto.",
+        emptyMessage: _isFavoritesOnly
+            ? "Nenhum ponto favorito encontrado."
+            : (_selectedWasteTypes.isEmpty
+                ? "Nenhum ponto de coleta disponível."
+                : "Nenhum ponto aceita esse resíduo por perto."),
         locationNotice: locationNotice,
         isListMode: isListMode,
         onQuickNearestPoint: () => unawaited(_handleQuickNearestPoint()),
@@ -373,21 +379,27 @@ class _HomeScreenState extends State<HomeScreen>
             ),
 
         if (selectedPoint != null)
-          Positioned(
-            left: 12,
-            right: 12,
-            bottom: cardBottom,
+          _isRouteActive
+              ? Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: cardBottom,
 
-            child: _isRouteActive
-                ? RouteSummaryCard(
+                  child: RouteSummaryCard(
                     point: selectedPoint,
                     summary: _routeSummary,
                     activeTravelMode: _activeTravelMode,
                     onTravelModeChanged: _handleTravelModeChanged,
                     onOpenExternal: _handleOpenExternalNavigation,
                     onClose: () => unawaited(_dismissSelection()),
-                  )
-                : CollectPointSheet(
+                  ),
+                )
+              : Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+
+                  child: CollectPointSheet(
                     point: selectedPoint,
                     distanceMeters: _distanceToSelectedPoint,
                     activeFilter: _selectedWasteTypes,
@@ -395,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen>
                     onCancel: () => unawaited(_dismissSelection()),
                     onStartRoute: () => unawaited(_handleStartRoute()),
                   ),
-          ),
+                ),
         ],
       ),
     );

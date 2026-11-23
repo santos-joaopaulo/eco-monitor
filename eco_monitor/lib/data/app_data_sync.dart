@@ -4,6 +4,7 @@ import "package:flutter/foundation.dart";
 
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
+import "../models/point_review.dart";
 import "../models/point_suggestion.dart";
 import "campaigns_repository.dart";
 import "collect_points_fetcher_firestore.dart";
@@ -11,6 +12,7 @@ import "collect_points_repository.dart";
 import "connectivity_service.dart";
 import "disposal_guide_repository_synced.dart";
 import "firebase_service.dart";
+import "point_reviews_repository.dart";
 import "point_suggestions_repository.dart";
 
 
@@ -26,12 +28,14 @@ class AppDataSync extends ChangeNotifier {
     required this.suggestionsRepository,
     required this.guideRepository,
     required this.connectivityService,
+    this.reviewsRepository,
   });
 
   /// Constrói a instância de produção de [AppDataSync] conectada ao Cloud Firestore
   /// quando o Firebase estiver inicializado, ou apenas offline caso contrário.
   factory AppDataSync.createDefault({bool? firebaseEnabled}) {
     final bool useRemote = firebaseEnabled ?? isFirebaseReady;
+    final ConnectivityService connectivity = ConnectivityService();
 
     return AppDataSync(
       collectPointsRepository: CollectPointsRepository(
@@ -42,11 +46,16 @@ class AppDataSync extends ChangeNotifier {
       ),
       suggestionsRepository: PointSuggestionsRepository(
         sender: useRemote ? createFirestoreSuggestionSender() : null,
+        isOnlineChecker: () => connectivity.checkNow(),
       ),
       guideRepository: DisposalGuideRepositorySynced(
         fetcher: useRemote ? createFirestoreGuidesFetcher() : null,
       ),
-      connectivityService: ConnectivityService(),
+      reviewsRepository: PointReviewsRepository(
+        sender: useRemote ? createFirestorePointReviewSender() : null,
+        isOnlineChecker: () => connectivity.checkNow(),
+      ),
+      connectivityService: connectivity,
     );
   }
 
@@ -55,6 +64,7 @@ class AppDataSync extends ChangeNotifier {
   final PointSuggestionsRepository suggestionsRepository;
   final DisposalGuideRepositorySynced guideRepository;
   final ConnectivityService connectivityService;
+  final PointReviewsRepository? reviewsRepository;
 
   StreamSubscription<bool>? _connectivitySubscription;
   bool _initialized = false;
@@ -121,6 +131,7 @@ class AppDataSync extends ChangeNotifier {
             .refresh();
         await guideRepository.refresh();
         await suggestionsRepository.flushPending();
+        await reviewsRepository?.flushPending();
 
         _points = List<CollectionPoint>.unmodifiable(fetchedPoints);
         _campaigns = List<Campaign>.unmodifiable(fetchedCampaigns);
@@ -145,6 +156,20 @@ class AppDataSync extends ChangeNotifier {
       suggestion,
     );
     _pendingSuggestionsCount = await suggestionsRepository.pendingCount();
+    _notifySafely();
+    return result;
+  }
+
+  /// Envia uma avaliação de ecoponto anonimamente, enfileirando-a offline
+  /// caso o usuário esteja sem conexão com a internet.
+  Future<PointReviewSubmitResult> submitReview(
+    PointReview review,
+  ) async {
+    final PointReviewsRepository? repo = reviewsRepository;
+    if (repo == null) {
+      return PointReviewSubmitResult.queuedOffline;
+    }
+    final PointReviewSubmitResult result = await repo.submitReview(review);
     _notifySafely();
     return result;
   }
