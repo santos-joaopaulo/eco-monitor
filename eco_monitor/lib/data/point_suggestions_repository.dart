@@ -4,6 +4,7 @@ import "dart:convert";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+import "../domain/repositories/point_suggestions_repository_contract.dart";
 import "../models/point_suggestion.dart";
 import "firebase_service.dart";
 import "local_store.dart";
@@ -21,17 +22,7 @@ const int kPointSuggestionsQueueVersion = 1;
 const String _pendingQueueKey = "pending_point_suggestions_json";
 
 
-// Enums ------------------------------------------------------------------- //
 
-
-/// Resultado do envio de uma nova sugestão de ponto de coleta (RF10, RNF10).
-enum SuggestionSubmitResult {
-  /// Entregue diretamente ao backend remoto.
-  sent,
-
-  /// Salva localmente na fila anônima offline para reenvio automático.
-  queuedOffline,
-}
 
 
 // Types ------------------------------------------------------------------- //
@@ -74,7 +65,7 @@ PointSuggestionSender createFirestoreSuggestionSender({
 /// Envia sugestões anônimas de pontos ao Firestore com uma fila offline de contingência
 /// protegida por mutex interno para evitar lost updates em chamadas concorrentes
 /// (RF11, RNF06, RNF10, RNF14).
-class PointSuggestionsRepository {
+class PointSuggestionsRepository implements IPointSuggestionsRepository {
   PointSuggestionsRepository({
     this.sender,
     LocalStore? localStore,
@@ -100,6 +91,7 @@ class PointSuggestionsRepository {
   /// Quando [sender] for nulo ou lançar exceção (ex.: offline), a sugestão é enfileirada
   /// localmente no [LocalStore] e [SuggestionSubmitResult.queuedOffline]
   /// é retornado para ser reenviado automaticamente assim que a conectividade for restaurada.
+  @override
   Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) {
     return _synchronized(() async {
       final PointSuggestionSender? remoteSender = sender;
@@ -123,6 +115,7 @@ class PointSuggestionsRepository {
   }
 
   /// Quantidade de sugestões atualmente enfileiradas offline.
+  @override
   Future<int> pendingCount() async {
     final List<PointSuggestion> pending = await loadPending();
     return pending.length;
@@ -132,6 +125,7 @@ class PointSuggestionsRepository {
   ///
   /// Retorna o número de sugestões entregues com sucesso. Qualquer sugestão
   /// que ainda falhar permanece na fila local.
+  @override
   Future<int> flushPending() {
     return _synchronized(() async {
       final PointSuggestionSender? remoteSender = sender;

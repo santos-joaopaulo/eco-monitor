@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+import "../domain/repositories/collect_points_repository_contract.dart";
 import "../models/collection_point.dart";
 import "local_store.dart";
 
@@ -61,7 +62,7 @@ typedef CollectPointsFetcher = Future<CollectPointsRemoteSnapshot> Function();
 ///
 /// [loadOffline] lê o cache baixado (ou recorre ao arquivo empacotado)
 /// e [refresh] atualiza o cache quando um [CollectPointsFetcher] é fornecido.
-class CollectPointsRepository {
+class CollectPointsRepository implements ICollectPointsRepository {
   CollectPointsRepository({
     AssetBundle? assetBundle,
     this.fetcher,
@@ -87,13 +88,16 @@ class CollectPointsRepository {
   DataSourceOrigin? _sourceOrigin;
 
   /// Timestamp do conjunto de dados atualmente carregado, ou nulo antes do primeiro carregamento.
+  @override
   DateTime? get lastUpdated => _lastUpdated;
 
   /// Origem do conjunto de dados carregado mais recentemente.
   DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
+  @override
   bool get hasRemoteSource => fetcher != null;
 
+  @override
   bool get isStale {
     final DateTime? lastUpdated = _lastUpdated;
     if (lastUpdated == null) {
@@ -108,6 +112,7 @@ class CollectPointsRepository {
 
 
   /// Carrega os pontos sem rede, priorizando o cache local baixado.
+  @override
   Future<List<CollectionPoint>> loadOffline() async {
     final String? cachedRaw = await _store.getString(_cacheJsonKey);
 
@@ -196,6 +201,7 @@ class CollectPointsRepository {
   ///
   /// Sem um [CollectPointsFetcher], retorna [loadOffline] sem alterações, garantindo
   /// que o timestamp da última atualização nunca seja forjado.
+  @override
   Future<List<CollectionPoint>> refresh() async {
     final CollectPointsFetcher? fetcher = this.fetcher;
     if (fetcher == null) {

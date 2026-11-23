@@ -4,6 +4,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+import "../domain/repositories/campaigns_repository_contract.dart";
 import "../models/campaign.dart";
 import "collect_points_repository.dart";
 import "firebase_service.dart";
@@ -103,7 +104,7 @@ CampaignsFetcher createFirestoreCampaignsFetcher({
 /// Segue o padrão offline-first: [loadOffline] prioriza o cache salvo no
 /// [SharedPreferences] e recorre ao arquivo empacotado [kCampaignsAsset];
 /// [refresh] busca dados atualizados de [fetcher] e atualiza o cache.
-class CampaignsRepository {
+class CampaignsRepository implements ICampaignsRepository {
   CampaignsRepository({
     AssetBundle? assetBundle,
     this.fetcher,
@@ -126,13 +127,16 @@ class CampaignsRepository {
   DataSourceOrigin? _sourceOrigin;
 
   /// Timestamp do conjunto de dados atualmente carregado, ou nulo antes do primeiro carregamento.
+  @override
   DateTime? get lastUpdated => _lastUpdated;
 
   /// Origem do conjunto de dados carregado mais recentemente.
   DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
+  @override
   bool get hasRemoteSource => fetcher != null;
 
+  @override
   bool get isStale {
     final DateTime? lastUpdated = _lastUpdated;
     if (lastUpdated == null) {
@@ -148,6 +152,7 @@ class CampaignsRepository {
 
   /// Carrega campanhas sem rede, priorizando o cache local e recorrendo
   /// ao arquivo empacotado quando nenhum cache existir.
+  @override
   Future<List<Campaign>> loadOffline() async {
     final String? cachedJson = await _store.getString(_cacheJsonKey);
     final int? cachedTimestamp = await _store.getInt(_cacheLastUpdatedKey);
@@ -177,6 +182,7 @@ class CampaignsRepository {
   /// Busca campanhas a partir de [fetcher] e atualiza o cache local.
   ///
   /// Sem um [fetcher] ou em falhas de rede, recorre a [loadOffline].
+  @override
   Future<List<Campaign>> refresh() async {
     final CampaignsFetcher? fetcher = this.fetcher;
     if (fetcher == null) {

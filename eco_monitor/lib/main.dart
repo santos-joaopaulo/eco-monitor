@@ -3,12 +3,15 @@ import "dart:async";
 import "package:firebase_core/firebase_core.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 import "package:material_ui/material_ui.dart";
+import "package:provider/provider.dart";
 
 import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
 import "domain/entities/waste_type.dart";
 import "firebase_options.dart";
 import "models/campaign.dart";
+import "presentation/state/app_providers.dart";
+import "presentation/state/sync_notifier.dart";
 import "screens/events_screen.dart";
 import "screens/guide_navigator.dart";
 import "screens/home_screen.dart";
@@ -199,76 +202,81 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-
-      body: ListenableBuilder(
-        listenable: _dataSync,
-        builder: (BuildContext context, Widget? child) {
-          // Banner de conectividade, desatualização e fila pendente posicionado
-          // abaixo da AppBar de cada tela (RNF10, RNF17).
-          final Widget offlineBanner = OfflineBanner(
-            isOffline: !_dataSync.isOnline,
-            isStale: _dataSync.isStale,
-            lastUpdated: _dataSync.lastUpdated,
-            pendingSuggestionsCount: _dataSync.pendingSuggestionsCount,
-            isSyncing: _dataSync.isSyncing,
-            onRetry: () {
-              unawaited(_dataSync.refreshAll());
-            },
-          );
-
-          return IndexedStack(
-            index: _selectedIndex,
-            children: [
-              _withAppBar(
-                HomeScreen(
-                  wasteFilter: _wasteFilter,
-                  onClearFilter: _clearWasteFilter,
-                  focusedCampaign: _focusedCampaign,
-                  onClearCampaign: _clearFocusedCampaign,
-                  repository: _dataSync.collectPointsRepository,
-                  dataSync: _dataSync,
-                  locationService: widget.locationService ?? const LocationService(),
-                  isActive: _selectedIndex == _homeTab,
-                ),
-                banner: offlineBanner,
-              ),
-              GuideNavigator(
-                repository: _dataSync.guideRepository,
-                active: _selectedIndex == _guideTab,
-                onShowCollectionPoints: _showCollectionPoints,
-                onBackToHome: () => _selectTab(_homeTab),
-                banner: offlineBanner,
-              ),
-              _withAppBar(
-                TickerMode(
-                  enabled: _selectedIndex == _eventsTab,
-                  child: EventsScreen(
-                    repository: _dataSync.campaignsRepository,
-                    dataSync: _dataSync,
-                    onShowCampaignLocation: _showCampaignLocation,
-                  ),
-                ),
-                title: "CAMPANHAS ATIVAS",
-                banner: offlineBanner,
-              ),
-              _withAppBar(
-                SuggestScreen(
-                  repository: _dataSync.suggestionsRepository,
-                  dataSync: _dataSync,
-                ),
-                title: "SUGERIR NOVO PONTO",
-                banner: offlineBanner,
-              ),
-            ],
-          );
-        },
+    return MultiProvider(
+      providers: buildAppProviders(
+        dataSync: _dataSync,
+        locationService: widget.locationService ?? const LocationService(),
       ),
+      child: Scaffold(
+        extendBody: true,
 
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _selectTab,
+        body: Consumer<SyncNotifier>(
+          builder: (BuildContext context, SyncNotifier sync, Widget? child) {
+            // Banner de conectividade, desatualização e fila pendente posicionado
+            // abaixo da AppBar de cada tela (RNF10, RNF17).
+            final Widget offlineBanner = OfflineBanner(
+              isOffline: !sync.isOnline,
+              isStale: sync.isStale,
+              lastUpdated: sync.lastUpdated,
+              pendingSuggestionsCount: sync.pendingSuggestionsCount,
+              isSyncing: sync.isSyncing,
+              onRetry: () {
+                unawaited(sync.refreshAll());
+              },
+            );
+
+            return IndexedStack(
+              index: _selectedIndex,
+              children: [
+                _withAppBar(
+                  HomeScreen(
+                    wasteFilter: _wasteFilter,
+                    onClearFilter: _clearWasteFilter,
+                    focusedCampaign: _focusedCampaign,
+                    onClearCampaign: _clearFocusedCampaign,
+                    repository: _dataSync.collectPointsRepository,
+                    dataSync: _dataSync,
+                    locationService: widget.locationService ?? const LocationService(),
+                    isActive: _selectedIndex == _homeTab,
+                  ),
+                  banner: offlineBanner,
+                ),
+                GuideNavigator(
+                  repository: _dataSync.guideRepository,
+                  active: _selectedIndex == _guideTab,
+                  onShowCollectionPoints: _showCollectionPoints,
+                  onBackToHome: () => _selectTab(_homeTab),
+                  banner: offlineBanner,
+                ),
+                _withAppBar(
+                  TickerMode(
+                    enabled: _selectedIndex == _eventsTab,
+                    child: EventsScreen(
+                      repository: _dataSync.campaignsRepository,
+                      dataSync: _dataSync,
+                      onShowCampaignLocation: _showCampaignLocation,
+                    ),
+                  ),
+                  title: "CAMPANHAS ATIVAS",
+                  banner: offlineBanner,
+                ),
+                _withAppBar(
+                  SuggestScreen(
+                    repository: _dataSync.suggestionsRepository,
+                    dataSync: _dataSync,
+                  ),
+                  title: "SUGERIR NOVO PONTO",
+                  banner: offlineBanner,
+                ),
+              ],
+            );
+          },
+        ),
+
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _selectedIndex,
+          onTap: _selectTab,
+        ),
       ),
     );
   }
