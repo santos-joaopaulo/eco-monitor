@@ -184,7 +184,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _withAppBar(Widget body, {String? title, Widget? banner}) {
     return Scaffold(
       extendBody: true,
-      appBar: EcoAppBar(title: title ?? widget.title),
+      appBar: EcoAppBar(
+        title: title ?? widget.title,
+        dataSync: _dataSync,
+      ),
       body: Column(
         children: [
           ?banner,

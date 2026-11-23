@@ -1,21 +1,76 @@
 import "package:material_ui/material_ui.dart";
 import "package:flutter/services.dart";
 
+import "../data/app_data_sync.dart";
+import "../screens/admin/admin_dashboard_screen.dart";
+import "../screens/admin/admin_key_screen.dart";
+import "../services/admin_auth_service.dart";
 import "../theme/app_colors.dart";
+import "admin_secret_gesture_detector.dart";
+
+
+// Classes ----------------------------------------------------------------- //
 
 
 /// AppBar padrão do EcoMonitor: fundo verde-água, título branco centralizado.
 ///
-/// Sem [onBack], exibe o logo (ícone de reciclagem branco) à esquerda;
-/// com [onBack], exibe a seta de retorno.
+/// Sem [onBack], exibe o logo (ícone de reciclagem branco) à esquerda com suporte
+/// ao gesto secreto de administrador; com [onBack], exibe a seta de retorno.
 class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const EcoAppBar({super.key, required this.title, this.onBack});
+  const EcoAppBar({
+    super.key,
+    required this.title,
+    this.onBack,
+    this.onAdminTrigger,
+    this.authService,
+    this.dataSync,
+    this.enableAdminTrigger = true,
+    this.adminHoldDuration = const Duration(seconds: 3),
+  });
 
   final String title;
   final VoidCallback? onBack;
+  final VoidCallback? onAdminTrigger;
+  final AdminAuthService? authService;
+  final AppDataSync? dataSync;
+  final bool enableAdminTrigger;
+  final Duration adminHoldDuration;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+
+  // Methods --------------------------------------------------------------- //
+
+
+  Future<void> _handleDefaultAdminTrigger(BuildContext context) async {
+    final AdminAuthService service = authService ?? AdminAuthService();
+    final bool authorized = await service.isAuthorized();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (authorized) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => AdminDashboardScreen(
+            authService: service,
+            dataSync: dataSync,
+          ),
+        ),
+      );
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => AdminKeyScreen(
+            authService: service,
+            dataSync: dataSync,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +84,19 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
       systemOverlayStyle: SystemUiOverlayStyle.light,
 
       leading: onBack == null
-          ? const _Logo()
+          ? (enableAdminTrigger
+              ? AdminSecretGestureDetector(
+                  holdDuration: adminHoldDuration,
+                  onTrigger: () {
+                    if (onAdminTrigger != null) {
+                      onAdminTrigger!();
+                    } else {
+                      _handleDefaultAdminTrigger(context);
+                    }
+                  },
+                  child: const _Logo(),
+                )
+              : const _Logo())
           : IconButton(
               icon: const Icon(Icons.arrow_back),
               iconSize: 28,

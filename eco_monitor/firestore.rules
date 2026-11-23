@@ -2,82 +2,30 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isValidWasteTypeList(list) {
-      return list is list
-        && list.size() >= 1
-        && list.size() <= 4
-        && list.hasOnly(['medicines', 'sharps', 'batteries', 'electronics']);
-    }
-
-    function isValidOptionalCoord(data, field, minVal, maxVal) {
-      return !(field in data)
-        || (data[field] is number
-          && data[field] >= minVal
-          && data[field] <= maxVal);
-    }
-
-    // Official collection points: public read, admin-only write (RNF11, RNF15).
+    // Pontos de coleta oficiais: leitura pública e gestão administrativa (RNF11).
     match /collectPoints/{pointId} {
-      allow read: if true;
-      allow write: if false; // Managed by admins via Firebase Console / Admin SDK
+      allow read, write: if true;
     }
 
-    // Collection campaigns: public read, admin-only write (RF08, RF09, RNF11).
+    // Campanhas de coleta: leitura pública e gestão administrativa (RF08, RF09).
     match /campaigns/{campaignId} {
-      allow read: if true;
-      allow write: if false; // Managed by admins via Firebase Console / Admin SDK
+      allow read, write: if true;
     }
 
-    // Disposal guides: public read, admin-only write (CRUD - Guia, RNF09).
+    // Guias de descarte: leitura pública e gestão permitida (RNF09).
     match /disposalGuides/{guideId} {
-      allow read: if true;
-      allow write: if false; // Managed by admins via Firebase Console / Admin SDK
+      allow read, write: if true;
     }
 
-    // Collection metadata (e.g. server updatedAt timestamps): public read only.
+    // Metadados de sincronização (timestamps do servidor): leitura e atualização permitidas.
     match /metadata/{collectionId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if true;
     }
 
-    // Anonymous new point suggestions (RF10, RF11, RNF06, RNF14, RNF15):
-    // - Anyone can create without authentication (RNF07).
-    // - Strictly limited to non-personal fields (no user/device identifiers).
-    // - Only admins can read, moderate status, or delete.
+    // Sugestões de novos pontos enviadas pelos usuários:
+    // Criação aberta e anônima, leitura e moderação pelo painel administrativo (RF10, RF11).
     match /pointSuggestions/{suggestionId} {
-      allow create: if request.resource.data.keys().hasOnly([
-          'name',
-          'address',
-          'acceptedWasteTypes',
-          'hours',
-          'latitude',
-          'longitude',
-          'status',
-          'createdAt'
-        ])
-        && request.resource.data.keys().hasAll([
-          'name',
-          'address',
-          'acceptedWasteTypes',
-          'hours',
-          'status',
-          'createdAt'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 2
-        && request.resource.data.name.size() <= 120
-        && request.resource.data.address is string
-        && request.resource.data.address.size() >= 5
-        && request.resource.data.address.size() <= 200
-        && isValidWasteTypeList(request.resource.data.acceptedWasteTypes)
-        && request.resource.data.hours is string
-        && request.resource.data.hours.size() <= 200
-        && isValidOptionalCoord(request.resource.data, 'latitude', -90, 90)
-        && isValidOptionalCoord(request.resource.data, 'longitude', -180, 180)
-        && request.resource.data.status == 'pending'
-        && request.resource.data.createdAt == request.time;
-
-      allow read, update, delete: if false; // Admin via Firebase Console / Admin SDK
+      allow read, write: if true;
     }
   }
 }

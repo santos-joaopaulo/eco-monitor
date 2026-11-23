@@ -94,6 +94,12 @@ String formatCampaignPeriod(DateTime startDate, DateTime endDate) {
   return "$datePart · $startTime às $endTime";
 }
 
+/// Formata uma data no formato dia/mês/ano em pt-BR.
+String formatDate(DateTime dateTime) {
+  final DateTime local = dateTime.toLocal();
+  return "${_twoDigits(local.day)}/${_twoDigits(local.month)}/${local.year}";
+}
+
 String _twoDigits(int value) => value.toString().padLeft(2, "0");
 
 String _formatTime(DateTime dateTime) {
