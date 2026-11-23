@@ -18,10 +18,14 @@ class CustomBottomNavBar extends StatelessWidget {
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.isVisible = true,
   });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+
+  /// Controla a visibilidade da barra inferior flutuante.
+  final bool isVisible;
 
   static const List<_NavItem> _items = [
     _NavItem("home", Icons.home_outlined),
@@ -51,9 +55,9 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Quando o teclado virtual está aberto, oculta o menu flutuante para não
-    // cobrir os campos e botões do formulário.
-    if (MediaQuery.viewInsetsOf(context).bottom > 0) {
+    // Quando o teclado virtual está aberto ou a visibilidade está desativada,
+    // oculta o menu flutuante para sobreposição completa de sheets e formulários.
+    if (!isVisible || MediaQuery.viewInsetsOf(context).bottom > 0) {
       return const SizedBox.shrink();
     }
 

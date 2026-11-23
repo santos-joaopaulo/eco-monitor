@@ -313,6 +313,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _routeSummary = null;
       _isRouteActive = false;
     });
+    widget.onActiveSheetChanged?.call(true);
     _syncPointsLayer();
 
     await _focusPoint(point);
@@ -378,6 +379,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _routeSummary = null;
       _isRouteActive = false;
     });
+    widget.onActiveSheetChanged?.call(false);
     _syncPointsLayer();
     await _clearRouteLine();
   }
@@ -588,6 +590,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
         _selectedPoint = null;
         _routeSummary = null;
         _isRouteActive = false;
+        widget.onActiveSheetChanged?.call(false);
       }
     });
 
@@ -647,6 +650,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _routeSummary = null;
       _isRouteActive = false;
     });
+    widget.onActiveSheetChanged?.call(true);
     _syncPointsLayer();
 
     await _focusPoint(nearest.point);

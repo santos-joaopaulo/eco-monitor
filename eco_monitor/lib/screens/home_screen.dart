@@ -45,6 +45,7 @@ class HomeScreen extends StatefulWidget {
     this.dataSync,
     this.locationService = const LocationService(),
     this.isActive = true,
+    this.onActiveSheetChanged,
   });
 
   /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
@@ -66,6 +67,10 @@ class HomeScreen extends StatefulWidget {
 
   /// Indica se a aba do mapa está visível no momento.
   final bool isActive;
+
+  /// Notifica quando um Bottom Sheet (detalhes do ponto ou rota) está ativo,
+  /// permitindo que a barra de navegação seja sobreposta por completo.
+  final ValueChanged<bool>? onActiveSheetChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -290,6 +295,7 @@ class _HomeScreenState extends State<HomeScreen>
           // (Offstage) deixa a tela em branco sem reiniciar o app.
           if (_accessToken.isNotEmpty)
             Positioned.fill(
+              key: const ValueKey("home-map-layer"),
               child: MapWidget(
                 key: const ValueKey("aracaju-map"),
                 onMapCreated: _onMapCreated,
@@ -304,6 +310,7 @@ class _HomeScreenState extends State<HomeScreen>
 
           if (_isSearching)
             Positioned.fill(
+              key: const ValueKey("home-search-backdrop"),
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
@@ -317,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen>
 
           if (isListMode)
             Positioned.fill(
+              key: const ValueKey("home-list-layer"),
               child: Container(
                 color: AppColors.background,
 
@@ -339,6 +347,7 @@ class _HomeScreenState extends State<HomeScreen>
             )
           else
             Positioned(
+              key: const ValueKey("home-top-bar-layer"),
               top: 0,
               left: 0,
               right: 0,

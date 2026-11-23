@@ -116,6 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Campanha selecionada na aba de eventos para focar no mapa (RF09).
   Campaign? _focusedCampaign;
 
+  /// Controla a visibilidade da barra de navegação inferior quando um Bottom Sheet está ativo na Home.
+  bool _isBottomSheetActive = false;
+
   @override
   void initState() {
     super.initState();
@@ -238,6 +241,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     dataSync: _dataSync,
                     locationService: widget.locationService ?? const LocationService(),
                     isActive: _selectedIndex == _homeTab,
+                    onActiveSheetChanged: (bool active) {
+                      if (_isBottomSheetActive != active && mounted) {
+                        setState(() {
+                          _isBottomSheetActive = active;
+                        });
+                      }
+                    },
                   ),
                   banner: offlineBanner,
                 ),
@@ -276,6 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _selectedIndex,
           onTap: _selectTab,
+          isVisible: !_isBottomSheetActive,
         ),
       ),
     );
