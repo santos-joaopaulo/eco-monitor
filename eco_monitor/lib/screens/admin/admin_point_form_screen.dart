@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
+import "../../domain/entities/point_review.dart";
 import "../../domain/entities/waste_type.dart";
 import "../../models/collection_point.dart";
 import "../../models/point_suggestion.dart";
@@ -10,6 +11,7 @@ import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../widgets/eco_app_bar.dart";
 import "../../widgets/waste_style.dart";
+import "admin_reviews_screen.dart";
 
 
 // Classes ----------------------------------------------------------------- //
@@ -51,6 +53,8 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
   bool _isLoadingGps = false;
   bool _isSaving = false;
+  bool _isLoadingReviews = false;
+  PointReviewStats? _reviewStats;
   String? _errorMessage;
 
 
@@ -75,6 +79,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
       _pointType = existing.type;
       _status = existing.status;
       _selectedWastes = Set<WasteType>.of(existing.acceptedWasteTypes);
+      _loadReviewStats(existing.id);
     } else if (suggestion != null) {
       _nameController = TextEditingController(text: suggestion.name);
       _addressController = TextEditingController(text: suggestion.address);
@@ -114,6 +119,58 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
   // Methods --------------------------------------------------------------- //
 
+
+  Future<void> _loadReviewStats(String pointId) async {
+    setState(() {
+      _isLoadingReviews = true;
+    });
+
+    try {
+      final List<PointReview> reviews =
+          await widget.databaseRepository.fetchReviews(pointId: pointId);
+      if (!mounted) {
+        return;
+      }
+
+      if (reviews.isEmpty) {
+        setState(() {
+          _reviewStats = PointReviewStats(
+            pointId: pointId,
+            averageRating: 0.0,
+            totalReviews: 0,
+          );
+          _isLoadingReviews = false;
+        });
+        return;
+      }
+
+      int sumRating = 0;
+      final Map<String, int> tagCounts = <String, int>{};
+      for (final PointReview r in reviews) {
+        sumRating += r.rating;
+        for (final String t in r.tags) {
+          tagCounts[t] = (tagCounts[t] ?? 0) + 1;
+        }
+      }
+
+      final double avg = sumRating / reviews.length;
+      setState(() {
+        _reviewStats = PointReviewStats(
+          pointId: pointId,
+          averageRating: double.parse(avg.toStringAsFixed(1)),
+          totalReviews: reviews.length,
+          tagCounts: tagCounts,
+        );
+        _isLoadingReviews = false;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoadingReviews = false;
+        });
+      }
+    }
+  }
 
   Future<void> _fetchCurrentLocation() async {
     setState(() {
@@ -262,6 +319,191 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Avaliação Cidadã (durante edição)
+                    if (isEditing) ...[
+                      Card(
+                        elevation: 0,
+                        color: AppColors.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: AppColors.outline),
+                        ),
+
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Expanded(
+                                    child: Text(
+                                      "AVALIAÇÃO DA POPULAÇÃO",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textSecondary,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_reviewStats != null &&
+                                      _reviewStats!.hasReviews)
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute<void>(
+                                            builder: (BuildContext context) =>
+                                                AdminReviewsScreen(
+                                              databaseRepository:
+                                                  widget.databaseRepository,
+                                              dataSync: widget.dataSync,
+                                              initialPointId:
+                                                  widget.existingPoint!.id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.visibility_outlined,
+                                        size: 16,
+                                      ),
+                                      label: const Text(
+                                        "Ver Reportes",
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+
+                              if (_isLoadingReviews)
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                )
+                              else if (_reviewStats != null &&
+                                  _reviewStats!.hasReviews) ...[
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: AppColors.ratingStar,
+                                      size: 26,
+                                    ),
+                                    const SizedBox(width: 6),
+
+                                    Text(
+                                      "${_reviewStats!.averageRating.toStringAsFixed(1)} / 5.0",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+
+                                    Expanded(
+                                      child: Text(
+                                        "(${_reviewStats!.totalReviews} ${_reviewStats!.totalReviews == 1 ? "avaliação" : "avaliações"})",
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (_reviewStats!.topTags.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: _reviewStats!.topTags.map((
+                                      String tag,
+                                    ) {
+                                      final int count =
+                                          _reviewStats!.tagCounts[tag] ?? 0;
+                                      final bool isAlert =
+                                          tag == PointReviewTags.fullCollector;
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isAlert
+                                              ? AppColors.warningBackground
+                                              : AppColors.surfaceSection,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          border: isAlert
+                                              ? Border.all(
+                                                  color: AppColors.warningText
+                                                      .withAlpha(60),
+                                                )
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          "$tag ($count)",
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: isAlert
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                            color: isAlert
+                                                ? AppColors.warningText
+                                                : AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ] else ...[
+                                const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.star_outline_rounded,
+                                      color: AppColors.textSecondary,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+
+                                    Expanded(
+                                      child: Text(
+                                        "Nenhuma avaliação de cidadão registrada para este ecoponto até o momento.",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // Dados Principais
                     Card(
                       elevation: 0,
@@ -499,13 +741,20 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                                 final bool isSelected =
                                     _selectedWastes.contains(type);
                                 return FilterChip(
+                                  avatar: Icon(
+                                    type.icon,
+                                    size: 16,
+                                    color: isSelected
+                                        ? type.color
+                                        : AppColors.textSecondary,
+                                  ),
                                   label: Text(type.label),
                                   selected: isSelected,
-                                  selectedColor: AppColors.primaryTint,
-                                  checkmarkColor: AppColors.primaryAccessible,
+                                  selectedColor: type.color.withAlpha(35),
+                                  checkmarkColor: type.color,
                                   labelStyle: TextStyle(
                                     color: isSelected
-                                        ? AppColors.primaryAccessible
+                                        ? type.color
                                         : AppColors.textPrimary,
                                     fontWeight: isSelected
                                         ? FontWeight.w700

@@ -6,11 +6,14 @@ import "package:eco_monitor/data/local_store.dart";
 import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/campaign.dart";
 import "package:eco_monitor/models/collection_point.dart";
+import "package:eco_monitor/models/point_review.dart";
 import "package:eco_monitor/models/point_suggestion.dart";
 import "package:eco_monitor/screens/admin/admin_campaigns_screen.dart";
 import "package:eco_monitor/screens/admin/admin_dashboard_screen.dart";
 import "package:eco_monitor/screens/admin/admin_key_screen.dart";
+import "package:eco_monitor/screens/admin/admin_point_form_screen.dart";
 import "package:eco_monitor/screens/admin/admin_points_screen.dart";
+import "package:eco_monitor/screens/admin/admin_reviews_screen.dart";
 import "package:eco_monitor/screens/admin/admin_suggestions_screen.dart";
 import "package:eco_monitor/services/admin_auth_service.dart";
 import "package:eco_monitor/widgets/eco_app_bar.dart";
@@ -23,6 +26,7 @@ class FakeAdminDatabaseRepository implements AdminDatabaseRepository {
   final List<CollectionPoint> points = <CollectionPoint>[];
   final List<Campaign> campaigns = <Campaign>[];
   final List<PointSuggestion> suggestions = <PointSuggestion>[];
+  final List<PointReview> reviews = <PointReview>[];
 
   @override
   Future<List<CollectionPoint>> fetchPoints() async =>
@@ -130,6 +134,41 @@ class FakeAdminDatabaseRepository implements AdminDatabaseRepository {
   @override
   Future<void> deleteSuggestion(String suggestionId) async {
     suggestions.removeWhere((PointSuggestion s) => s.id == suggestionId);
+  }
+
+  @override
+  Future<List<PointReview>> fetchReviews({String? pointId}) async {
+    if (pointId != null && pointId.isNotEmpty) {
+      return reviews.where((PointReview r) => r.pointId == pointId).toList();
+    }
+    return List<PointReview>.of(reviews);
+  }
+
+  @override
+  Future<void> deleteReview(String reviewId) async {
+    reviews.removeWhere((PointReview r) => r.id == reviewId);
+  }
+
+  @override
+  Future<List<CollectionPoint>> fetchPointsWithCriticalReports({
+    String criticalTag = PointReviewTags.fullCollector,
+    int minReports = 2,
+  }) async {
+    final Map<String, int> counts = <String, int>{};
+    for (final PointReview r in reviews) {
+      if (r.tags.contains(criticalTag)) {
+        counts[r.pointId] = (counts[r.pointId] ?? 0) + 1;
+      }
+    }
+
+    final Set<String> criticalIds = counts.entries
+        .where((MapEntry<String, int> e) => e.value >= minReports)
+        .map((MapEntry<String, int> e) => e.key)
+        .toSet();
+
+    return points
+        .where((CollectionPoint p) => criticalIds.contains(p.id))
+        .toList();
   }
 }
 
@@ -246,12 +285,38 @@ void main() {
       expect(find.text("Pontos de Coleta"), findsOneWidget);
       expect(find.text("Sugestões de Usuários"), findsOneWidget);
       expect(find.text("Campanhas de Coleta"), findsOneWidget);
+      expect(find.text("Avaliações e Reportes Cidadãos"), findsOneWidget);
 
       // Clicar no botão de bloquear
       await tester.tap(find.byIcon(Icons.lock_outline));
       await tester.pumpAndSettle();
 
       expect(await authService.isAuthorized(), isFalse);
+    });
+
+    testWidgets("navigates to AdminReviewsScreen from dashboard module card", (
+      WidgetTester tester,
+    ) async {
+      useTallSurface(tester);
+
+      await authService.authenticate("chaveSecreta");
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminDashboardScreen(
+            authService: authService,
+            databaseRepository: databaseRepo,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("Avaliações e Reportes Cidadãos"), findsOneWidget);
+
+      await tester.tap(find.text("Avaliações e Reportes Cidadãos"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("AVALIAÇÕES E REPORTES"), findsOneWidget);
     });
   });
 
@@ -304,6 +369,59 @@ void main() {
       expect(find.text("Ecoponto Norte"), findsOneWidget);
       expect(databaseRepo.points.length, 2);
     });
+
+    testWidgets("AdminPointFormScreen supports glass waste and displays review stats when editing", (
+      WidgetTester tester,
+    ) async {
+      useTallSurface(tester);
+
+      final CollectionPoint point = testPoint("pt-edit", name: "Farmácia Esperança");
+      databaseRepo.points.add(point);
+      databaseRepo.reviews.addAll([
+        PointReview(
+          id: "rev-1",
+          pointId: "pt-edit",
+          rating: 4,
+          tags: const [PointReviewTags.accessibleCollector],
+          createdAt: DateTime.utc(2026, 11, 21),
+        ),
+        PointReview(
+          id: "rev-2",
+          pointId: "pt-edit",
+          rating: 5,
+          tags: const [PointReviewTags.accessibleCollector, PointReviewTags.veryGood],
+          createdAt: DateTime.utc(2026, 11, 22),
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminPointFormScreen(
+            databaseRepository: databaseRepo,
+            existingPoint: point,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("EDITAR PONTO"), findsOneWidget);
+      expect(find.text("AVALIAÇÃO DA POPULAÇÃO"), findsOneWidget);
+      expect(find.textContaining("4.5 / 5.0"), findsOneWidget);
+      expect(find.textContaining("2 avaliações"), findsOneWidget);
+      expect(find.textContaining("Coletor acessível (2)"), findsOneWidget);
+
+      // Verifica presença e seleção do resíduo Vidro
+      final Finder glassChip = find.widgetWithText(FilterChip, "Vidro");
+      expect(glassChip, findsOneWidget);
+      await tester.tap(glassChip);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Salvar Alterações"));
+      await tester.pumpAndSettle();
+
+      final CollectionPoint updated = databaseRepo.points.firstWhere((p) => p.id == "pt-edit");
+      expect(updated.acceptedWasteTypes.contains(WasteType.glass), isTrue);
+    });
   });
 
   group("AdminSuggestionsScreen", () {
@@ -334,6 +452,152 @@ void main() {
       expect(find.text("Posto do Bairro"), findsOneWidget);
       expect(find.text("Pendente"), findsOneWidget);
       expect(find.text("Criar Ponto"), findsOneWidget);
+    });
+
+    testWidgets("toggles territorial view, groups demands by neighborhood, and converts suggestion", (
+      WidgetTester tester,
+    ) async {
+      useTallSurface(tester);
+
+      databaseRepo.suggestions.addAll([
+        PointSuggestion(
+          id: "sug-1",
+          name: "Coleta Praça Centro",
+          address: "Rua das Laranjeiras, 100 - Centro",
+          acceptedWasteTypes: const {WasteType.glass, WasteType.batteries},
+          hours: "08h às 18h",
+          latitude: -10.91,
+          longitude: -37.05,
+          status: SuggestionStatus.pending,
+          createdAt: DateTime.utc(2026, 11, 20),
+        ),
+        PointSuggestion(
+          id: "sug-2",
+          name: "Posto Jardins",
+          address: "Av. Ministro Geraldo Barreto - Jardins",
+          acceptedWasteTypes: const {WasteType.glass},
+          hours: "08h às 17h",
+          latitude: -10.93,
+          longitude: -37.06,
+          status: SuggestionStatus.pending,
+          createdAt: DateTime.utc(2026, 11, 21),
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminSuggestionsScreen(databaseRepository: databaseRepo),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("SUGESTÕES DE USUÁRIOS"), findsOneWidget);
+
+      // Alternar para visão territorial
+      await tester.tap(find.byIcon(Icons.location_city_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text("DEMANDA TERRITORIAL"), findsOneWidget);
+      expect(find.text("SUMÁRIO TERRITORIAL DE DEMANDA"), findsOneWidget);
+      expect(find.text("Centro"), findsOneWidget);
+      expect(find.text("Jardins"), findsOneWidget);
+      expect(find.textContaining("Vidro"), findsWidgets);
+
+      // Tocar no bairro Centro para expandir e aprovar
+      await tester.tap(find.text("Centro"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Aprovar e Criar"), findsOneWidget);
+      await tester.tap(find.text("Aprovar e Criar"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("NOVO PONTO DE COLETA"), findsOneWidget);
+      expect(
+        find.widgetWithText(TextFormField, "Nome do Ponto *"),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group("AdminReviewsScreen", () {
+    testWidgets("lists reviews, displays critical banner and deletes review", (
+      WidgetTester tester,
+    ) async {
+      useTallSurface(tester);
+
+      databaseRepo.points.add(testPoint("pt-1", name: "Ecoponto Central"));
+      databaseRepo.reviews.addAll([
+        PointReview(
+          id: "rev-1",
+          pointId: "pt-1",
+          rating: 1,
+          tags: const [PointReviewTags.fullCollector],
+          createdAt: DateTime.utc(2026, 11, 22),
+          comment: "Coletor transbordando resíduos",
+        ),
+        PointReview(
+          id: "rev-2",
+          pointId: "pt-1",
+          rating: 2,
+          tags: const [PointReviewTags.fullCollector],
+          createdAt: DateTime.utc(2026, 11, 23),
+          comment: "Ainda continua cheio hoje",
+        ),
+        PointReview(
+          id: "rev-3",
+          pointId: "pt-1",
+          rating: 5,
+          tags: const [PointReviewTags.accessibleCollector],
+          createdAt: DateTime.utc(2026, 11, 23),
+          comment: "Muito prático",
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminReviewsScreen(databaseRepository: databaseRepo),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("AVALIAÇÕES E REPORTES"), findsOneWidget);
+      expect(find.textContaining("múltiplos reportes críticos"), findsOneWidget);
+      expect(find.text("Ecoponto Central"), findsWidgets);
+      expect(find.text("\"Coletor transbordando resíduos\""), findsOneWidget);
+
+      // Filtro por tag
+      await tester.tap(find.text("Coletor cheio").first);
+      await tester.pumpAndSettle();
+
+      expect(find.text("\"Coletor transbordando resíduos\""), findsOneWidget);
+      expect(find.text("\"Muito prático\""), findsNothing);
+
+      // Limpa filtro de tag
+      await tester.tap(find.text("Todas as tags"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("\"Muito prático\""), findsOneWidget);
+
+      // Filtro por nota (ex.: 5 ★)
+      await tester.tap(find.text("5 ★"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("\"Muito prático\""), findsOneWidget);
+      expect(find.text("\"Coletor transbordando resíduos\""), findsNothing);
+
+      // Limpa filtro de nota
+      await tester.tap(find.text("Todas as notas"));
+      await tester.pumpAndSettle();
+
+      // Deletar a primeira avaliação
+      await tester.tap(find.byIcon(Icons.delete_outline_rounded).first);
+      await tester.pumpAndSettle();
+
+      expect(find.text("Moderar Avaliação"), findsOneWidget);
+      await tester.tap(find.text("Remover"));
+      await tester.pumpAndSettle();
+
+      expect(databaseRepo.reviews.length, 2);
     });
   });
 

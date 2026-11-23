@@ -2,11 +2,13 @@ import "package:cloud_firestore/cloud_firestore.dart";
 
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
+import "../models/point_review.dart";
 import "../models/point_suggestion.dart";
 import "campaigns_repository.dart";
 import "collect_points_fetcher_firestore.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
+import "point_reviews_repository.dart";
 import "point_suggestions_repository.dart";
 
 
@@ -33,6 +35,14 @@ abstract interface class AdminDatabaseRepository {
     SuggestionStatus status,
   );
   Future<void> deleteSuggestion(String suggestionId);
+
+  // Avaliações e Reportes Cidadãos
+  Future<List<PointReview>> fetchReviews({String? pointId});
+  Future<void> deleteReview(String reviewId);
+  Future<List<CollectionPoint>> fetchPointsWithCriticalReports({
+    String criticalTag = PointReviewTags.fullCollector,
+    int minReports = 2,
+  });
 }
 
 
@@ -254,5 +264,67 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   @override
   Future<void> deleteSuggestion(String suggestionId) async {
     await _db.collection(kPointSuggestionsCollection).doc(suggestionId).delete();
+  }
+
+
+  // Avaliações e Reportes Cidadãos ---------------------------------------- //
+
+
+  @override
+  Future<List<PointReview>> fetchReviews({String? pointId}) async {
+    Query<Map<String, dynamic>> query = _db.collection(kPointReviewsCollection);
+    if (pointId != null && pointId.isNotEmpty) {
+      query = query.where("pointId", isEqualTo: pointId);
+    }
+
+    final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+    final List<PointReview> reviews = snapshot.docs.map((
+      QueryDocumentSnapshot<Map<String, dynamic>> doc,
+    ) {
+      final Map<String, dynamic> normalized = normalizeFirestoreData(
+        doc.data(),
+        documentId: doc.id,
+      );
+      return PointReview.fromJson(normalized);
+    }).toList();
+
+    reviews.sort(
+      (PointReview a, PointReview b) => b.createdAt.compareTo(a.createdAt),
+    );
+    return reviews;
+  }
+
+  @override
+  Future<void> deleteReview(String reviewId) async {
+    await _db.collection(kPointReviewsCollection).doc(reviewId).delete();
+  }
+
+  @override
+  Future<List<CollectionPoint>> fetchPointsWithCriticalReports({
+    String criticalTag = PointReviewTags.fullCollector,
+    int minReports = 2,
+  }) async {
+    final List<PointReview> allReviews = await fetchReviews();
+    final Map<String, int> countsByPoint = <String, int>{};
+
+    for (final PointReview r in allReviews) {
+      if (r.tags.contains(criticalTag)) {
+        countsByPoint[r.pointId] = (countsByPoint[r.pointId] ?? 0) + 1;
+      }
+    }
+
+    final Set<String> criticalPointIds = countsByPoint.entries
+        .where((MapEntry<String, int> e) => e.value >= minReports)
+        .map((MapEntry<String, int> e) => e.key)
+        .toSet();
+
+    if (criticalPointIds.isEmpty) {
+      return <CollectionPoint>[];
+    }
+
+    final List<CollectionPoint> allPoints = await fetchPoints();
+    return allPoints
+        .where((CollectionPoint p) => criticalPointIds.contains(p.id))
+        .toList();
   }
 }

@@ -10,6 +10,7 @@ import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "admin_campaigns_screen.dart";
 import "admin_points_screen.dart";
+import "admin_reviews_screen.dart";
 import "admin_suggestions_screen.dart";
 
 
@@ -132,6 +133,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => AdminSuggestionsScreen(
+          databaseRepository: _repository,
+          dataSync: widget.dataSync,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToReviews() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => AdminReviewsScreen(
           databaseRepository: _repository,
           dataSync: widget.dataSync,
         ),
@@ -312,6 +324,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     iconColor: AppColors.sharps,
                     iconBackground: AppColors.surfaceSection,
                     onTap: _navigateToCampaigns,
+                  ),
+                  const SizedBox(height: 10),
+
+                  _AdminModuleCard(
+                    title: "Avaliações e Reportes Cidadãos",
+                    subtitle: "Moderar notas, comentários e verificar ecopontos críticos",
+                    icon: Icons.rate_review_outlined,
+                    iconColor: AppColors.ratingStar,
+                    iconBackground: AppColors.warningBackground,
+                    onTap: _navigateToReviews,
                   ),
                   const SizedBox(height: 24),
 
