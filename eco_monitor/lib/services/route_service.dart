@@ -9,6 +9,7 @@ import "../data/route_cache_store.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
+import "offline_routing_service.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -79,21 +80,34 @@ class RouteService {
     this.launcher,
     this.httpClient,
     this.cacheStore,
+    this.offlineRoutingService,
   });
 
   final UriLauncher? launcher;
   final http.Client? httpClient;
   final RouteCacheStore? cacheStore;
+  final OfflineRoutingService? offlineRoutingService;
 
   static RouteCacheStore? _defaultStore;
+  static OfflineRoutingService? _defaultOfflineService;
 
   /// Retorna o [RouteCacheStore] efetivo associado a este serviço.
   RouteCacheStore get effectiveCacheStore =>
       cacheStore ?? (_defaultStore ??= RouteCacheStore());
 
+  /// Retorna o [OfflineRoutingService] efetivo associado a este serviço.
+  OfflineRoutingService get effectiveOfflineService =>
+      offlineRoutingService ??
+      (_defaultOfflineService ??= OfflineRoutingService.instance);
+
   @visibleForTesting
   static set defaultStore(RouteCacheStore? store) {
     _defaultStore = store;
+  }
+
+  @visibleForTesting
+  static set defaultOfflineService(OfflineRoutingService? service) {
+    _defaultOfflineService = service;
   }
 
 
@@ -177,10 +191,16 @@ class RouteService {
         : 0;
 
     final List<List<double>> coords = isOffline
-        ? <List<double>>[
-            <double>[userPosition.longitude, userPosition.latitude],
-            <double>[point.longitude, point.latitude],
-          ]
+        ? ((previousSummary != null &&
+                previousSummary.routeCoordinates.length > 2)
+            ? <List<double>>[
+                <double>[userPosition.longitude, userPosition.latitude],
+                ...previousSummary.routeCoordinates.skip(1),
+              ]
+            : <List<double>>[
+                <double>[userPosition.longitude, userPosition.latitude],
+                <double>[point.longitude, point.latitude],
+              ])
         : (previousSummary?.routeCoordinates ?? const <List<double>>[]);
 
     return RouteSummary(
@@ -262,7 +282,12 @@ class RouteService {
 
     final String? token = accessToken;
     if (!isOnline || token == null || token.isEmpty) {
-      return buildRouteSummary(origin, destination, travelMode: travelMode);
+      return _resolveOfflineRoute(
+        origin: origin,
+        destination: destination,
+        travelMode: travelMode,
+        cache: cache,
+      );
     }
 
     final http.Client effectiveClient = client ?? httpClient ?? http.Client();
@@ -284,7 +309,12 @@ class RouteService {
           .timeout(kRouteApiTimeout);
 
       if (response.statusCode != 200) {
-        return buildRouteSummary(origin, destination, travelMode: travelMode);
+        return await _resolveOfflineRoute(
+          origin: origin,
+          destination: destination,
+          travelMode: travelMode,
+          cache: cache,
+        );
       }
 
       final Map<String, dynamic> json =
@@ -292,7 +322,12 @@ class RouteService {
       final List<dynamic>? routes = json["routes"] as List<dynamic>?;
 
       if (routes == null || routes.isEmpty) {
-        return buildRouteSummary(origin, destination, travelMode: travelMode);
+        return await _resolveOfflineRoute(
+          origin: origin,
+          destination: destination,
+          travelMode: travelMode,
+          cache: cache,
+        );
       }
 
       final Map<String, dynamic> route = routes.first as Map<String, dynamic>;
@@ -358,12 +393,54 @@ class RouteService {
         routeCoordinates: coordinates,
       );
     } catch (_) {
-      return buildRouteSummary(origin, destination, travelMode: travelMode);
+      return _resolveOfflineRoute(
+        origin: origin,
+        destination: destination,
+        travelMode: travelMode,
+        cache: cache,
+      );
     } finally {
       if (shouldCloseClient) {
         effectiveClient.close();
       }
     }
+  }
+
+  /// Resolve a rota viária detalhada com o motor nativo offline (Abordagem B),
+  /// recorrendo à estimativa vetorial direta como fallback gracioso.
+  Future<RouteSummary> _resolveOfflineRoute({
+    required UserLocation origin,
+    required CollectionPoint destination,
+    required TravelMode travelMode,
+    required RouteCacheStore cache,
+  }) async {
+    try {
+      final RouteSummary? offlineSummary =
+          await effectiveOfflineService.findRoute(
+        origin: origin,
+        destination: destination,
+        travelMode: travelMode,
+      );
+
+      if (offlineSummary != null) {
+        await cache.putRoute(
+          originLat: origin.latitude,
+          originLon: origin.longitude,
+          destLat: destination.latitude,
+          destLon: destination.longitude,
+          travelMode: travelMode,
+          distanceMeters: offlineSummary.distanceMeters,
+          estimatedMinutes: offlineSummary.estimatedMinutes,
+          routeCoordinates: offlineSummary.routeCoordinates,
+        );
+        return offlineSummary;
+      }
+    } catch (_) {
+      // Se fora dos limites viários ou se ocorrer erro interno no grafo,
+      // recorre com segurança à estimativa vetorial direta.
+    }
+
+    return buildRouteSummary(origin, destination, travelMode: travelMode);
   }
 
   /// Constrói o URI do aplicativo nativo de mapas.

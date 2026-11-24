@@ -156,7 +156,7 @@ void main() {
       expect(summary.routeCoordinates.length, 3);
     });
 
-    test("falls back to offline estimation when API responds with error", () async {
+    test("falls back to native offline routing (Abordagem B) when API responds with error", () async {
       final MockClient client = MockClient((http.Request request) async {
         return http.Response("Internal Server Error", 500);
       });
@@ -171,12 +171,12 @@ void main() {
       );
 
       expect(summary.isOfflineFallback, isTrue);
-      expect(summary.distanceMeters, closeTo(723, 3));
+      expect(summary.distanceMeters, closeTo(836, 10));
       expect(summary.estimatedMinutes, 9);
-      expect(summary.routeCoordinates.length, 2);
+      expect(summary.routeCoordinates.length, greaterThan(2));
     });
 
-    test("falls back immediately when device is offline", () async {
+    test("falls back immediately to native offline routing when device is offline", () async {
       final RouteSummary summary = await service.fetchRoute(
         origin: user,
         destination: buildPoint(latitude: -10.945),
@@ -186,7 +186,32 @@ void main() {
       );
 
       expect(summary.isOfflineFallback, isTrue);
-      expect(summary.distanceMeters, closeTo(723, 3));
+      expect(summary.distanceMeters, closeTo(836, 10));
+      expect(summary.routeCoordinates.length, greaterThan(2));
+    });
+
+    test("falls back to direct vector estimation when point is out of coverage bounds", () async {
+      final CollectionPoint outOfBoundsPoint = CollectionPoint(
+        id: "out-of-bounds",
+        name: "Ponto Fora de Aracaju",
+        type: PointType.pharmacy,
+        latitude: 51.5074,
+        longitude: -0.1278,
+        address: "Londres",
+        acceptedWasteTypes: const <WasteType>{WasteType.medicines},
+        hours: "8h às 18h",
+        status: PointStatus.active,
+      );
+
+      final RouteSummary summary = await service.fetchRoute(
+        origin: user,
+        destination: outOfBoundsPoint,
+        travelMode: TravelMode.walking,
+        isOnline: false,
+      );
+
+      expect(summary.isOfflineFallback, isTrue);
+      expect(summary.routeCoordinates.length, 2);
     });
   });
 

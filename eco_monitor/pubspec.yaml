@@ -40,5 +40,6 @@ flutter:
     - assets/logo.png
     - assets/data/collect_points.json
     - assets/data/campaigns.json
+    - assets/data/aracaju_road_network.json
     # Token público do Mapbox (gitignored; opcional, fallback do --dart-define)
     - assets/config/mapbox_token.txt

@@ -627,7 +627,12 @@ mixin _HomeScreenActions on State<HomeScreen> {
     });
 
     if (_routeSummary?.isOfflineFallback ?? true) {
-      unawaited(_drawRouteLine(point));
+      unawaited(
+        _drawRouteLine(
+          point,
+          coordinates: _routeSummary?.routeCoordinates,
+        ),
+      );
     }
   }
 
