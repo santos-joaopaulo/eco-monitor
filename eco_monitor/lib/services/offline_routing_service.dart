@@ -9,7 +9,9 @@ import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
 import "../utils/polyline_codec.dart";
+import "offline_package_manager.dart";
 import "route_service.dart";
+import "tiled_road_graph.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -376,6 +378,8 @@ class OfflineRoadGraph {
 class OfflineRoutingService {
   OfflineRoutingService({
     OfflineRoadGraph? roadGraph,
+    this.tiledRoadGraph,
+    this.packageManager,
     AssetBundle? assetBundle,
     this.assetPath = kDefaultRoadNetworkAssetPath,
   })  : _bundle = assetBundle {
@@ -383,6 +387,8 @@ class OfflineRoutingService {
   }
 
   OfflineRoadGraph? _roadGraph;
+  TiledRoadGraph? tiledRoadGraph;
+  final IOfflinePackageManager? packageManager;
   final AssetBundle? _bundle;
   final String assetPath;
 
@@ -397,6 +403,17 @@ class OfflineRoutingService {
   @visibleForTesting
   static set instance(OfflineRoutingService? custom) {
     _defaultInstance = custom;
+  }
+
+  /// Verifica se a coordenada possui cobertura em Aracaju ou em pacotes estaduais instalados.
+  Future<bool> hasCoverage(double lat, double lon) async {
+    final OfflineRoadGraph graph = await ensureLoaded();
+    if (graph.isWithinCoverage(lat, lon)) {
+      return true;
+    }
+    final IOfflinePackageManager mgr =
+        packageManager ?? OfflinePackageManager.instance;
+    return mgr.hasCoverage(lat, lon);
   }
 
   /// Garante que o grafo viário de Aracaju esteja carregado em memória.
@@ -434,12 +451,42 @@ class OfflineRoutingService {
   }) async {
     final OfflineRoadGraph graph = await ensureLoaded();
 
-    // 1. Validação de cobertura geográfica na Região Metropolitana de Aracaju
-    if (!graph.isWithinCoverage(origin.latitude, origin.longitude) ||
-        !graph.isWithinCoverage(destination.latitude, destination.longitude)) {
-      throw const OfflineRoutingOutOfBoundsException(
-        "As coordenadas informadas estão fora da cobertura viária de Aracaju.",
-      );
+    final bool originInAracaju =
+        graph.isWithinCoverage(origin.latitude, origin.longitude);
+    final bool destInAracaju =
+        graph.isWithinCoverage(destination.latitude, destination.longitude);
+
+    // 1. Validação de cobertura geográfica na Região Metropolitana de Aracaju e pacotes instalados
+    if (!originInAracaju || !destInAracaju) {
+      final TiledRoadGraph? tiled = tiledRoadGraph;
+      if (tiled != null) {
+        final RouteSummary? tiledSummary = await tiled.findRoute(
+          origin: origin,
+          destination: destination,
+          travelMode: travelMode,
+        );
+        if (tiledSummary != null) {
+          return tiledSummary;
+        }
+      }
+
+      bool originCovered = originInAracaju;
+      bool destCovered = destInAracaju;
+
+      try {
+        final IOfflinePackageManager mgr =
+            packageManager ?? OfflinePackageManager.instance;
+        originCovered = originInAracaju ||
+            await mgr.hasCoverage(origin.latitude, origin.longitude);
+        destCovered = destInAracaju ||
+            await mgr.hasCoverage(destination.latitude, destination.longitude);
+      } catch (_) {}
+
+      if (!originCovered || !destCovered) {
+        throw const OfflineRoutingOutOfBoundsException(
+          "As coordenadas informadas estão fora da cobertura viária de Aracaju e dos pacotes instalados.",
+        );
+      }
     }
 
     // 2. Mapeamento dos pontos nos nós viários mais próximos

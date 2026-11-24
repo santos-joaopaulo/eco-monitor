@@ -595,6 +595,72 @@ mixin _HomeScreenActions on State<HomeScreen> {
 
     await _drawRouteLine(point, coordinates: summary.routeCoordinates);
     _startRouteTracking(point);
+
+    if (!isOnline && userLocation != null) {
+      await _checkAndWarnOutOfCoverage(userLocation, point);
+    }
+  }
+
+  Future<void> _checkAndWarnOutOfCoverage(
+    UserLocation origin,
+    CollectionPoint destination,
+  ) async {
+    final OfflinePackageManager manager = OfflinePackageManager.instance;
+    final bool originCovered =
+        await manager.hasCoverage(origin.latitude, origin.longitude);
+    final bool destCovered =
+        await manager.hasCoverage(destination.latitude, destination.longitude);
+
+    if (!originCovered || !destCovered) {
+      final OfflinePackage? targetPackage = manager.findPackageForCoordinates(
+            destination.latitude,
+            destination.longitude,
+          ) ??
+          manager.findPackageForCoordinates(
+            origin.latitude,
+            origin.longitude,
+          );
+      final String stateName = targetPackage?.name ?? "seu estado";
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "Navegação aproximada: pacote de $stateName não instalado.",
+            ),
+            action: SnackBarAction(
+              label: "Baixar",
+              textColor: Colors.white,
+              onPressed: () {
+                OfflinePackagesNotifier? notifier;
+                try {
+                  notifier = Provider.of<OfflinePackagesNotifier>(
+                    context,
+                    listen: false,
+                  );
+                } catch (_) {}
+
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>
+                        OfflineMapsScreen(notifier: notifier),
+                  ),
+                ).then((_) {
+                  if (mounted && _isRouteActive && _selectedPoint != null) {
+                    unawaited(_refreshActiveRouteOnline(_selectedPoint!));
+                  }
+                });
+              },
+            ),
+          ),
+        );
+    }
   }
 
   void _startRouteTracking(CollectionPoint point) {
@@ -666,6 +732,10 @@ mixin _HomeScreenActions on State<HomeScreen> {
       });
 
       await _drawRouteLine(point, coordinates: summary.routeCoordinates);
+
+      if (!isOnline) {
+        await _checkAndWarnOutOfCoverage(userLocation, point);
+      }
     }
   }
 

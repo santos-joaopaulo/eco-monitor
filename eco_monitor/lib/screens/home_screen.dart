@@ -13,9 +13,12 @@ import "../domain/entities/waste_type.dart";
 import "../domain/usecases/get_nearest_point_use_case.dart";
 import "../models/campaign.dart";
 import "../models/collection_point.dart";
+import "../models/offline_package.dart";
 import "../presentation/state/favorites_notifier.dart";
+import "../presentation/state/offline_packages_notifier.dart";
 import "../services/location_service.dart";
 import "../services/mapbox_token_provider.dart";
+import "../services/offline_package_manager.dart";
 import "../services/route_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -34,6 +37,7 @@ import "../widgets/home_map_top_bar.dart";
 import "../widgets/location_notice.dart";
 import "../widgets/point_pin.dart";
 import "../widgets/route_summary_card.dart";
+import "offline_maps_screen.dart";
 
 part "home_screen_actions.dart";
 

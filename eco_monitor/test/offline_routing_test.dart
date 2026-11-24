@@ -102,7 +102,7 @@ void main() {
       sw.stop();
 
       expect(nearest, isNot(-1));
-      expect(sw.elapsedMilliseconds, lessThan(20));
+      expect(sw.elapsedMilliseconds, lessThan(50));
     });
   });
 

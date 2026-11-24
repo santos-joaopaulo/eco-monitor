@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:provider/single_child_widget.dart";
@@ -18,11 +20,13 @@ import "../../domain/usecases/get_nearest_point_use_case.dart";
 import "../../domain/usecases/submit_suggestion_use_case.dart";
 import "../../services/campaign_reminder_service.dart";
 import "../../services/location_service.dart";
+import "../../services/offline_package_manager.dart";
 import "../../services/residue_search_service.dart";
 import "campaign_reminders_notifier.dart";
 import "campaigns_notifier.dart";
 import "favorites_notifier.dart";
 import "location_notifier.dart";
+import "offline_packages_notifier.dart";
 import "points_notifier.dart";
 import "sync_notifier.dart";
 
@@ -40,6 +44,7 @@ List<SingleChildWidget> buildAppProviders({
   IFavoritesRepository? favoritesRepository,
   IPointReviewsRepository? pointReviewsRepository,
   CampaignReminderService? reminderService,
+  IOfflinePackageManager? offlinePackageManager,
 }) {
   final IFavoritesRepository favRepo =
       favoritesRepository ?? FavoritesRepository();
@@ -47,6 +52,8 @@ List<SingleChildWidget> buildAppProviders({
       (dataSync.reviewsRepository ?? PointReviewsRepository());
   final CampaignReminderService campaignReminderService =
       reminderService ?? CampaignReminderService();
+  final IOfflinePackageManager packageManager =
+      offlinePackageManager ?? OfflinePackageManager.instance;
 
   return <SingleChildWidget>[
     // Data & Repositórios (Contratos de Domínio)
@@ -66,6 +73,7 @@ List<SingleChildWidget> buildAppProviders({
     Provider<CampaignReminderService>.value(value: campaignReminderService),
     Provider<LocationService>.value(value: locationService),
     Provider<ResidueSearchService>.value(value: searchService),
+    Provider<IOfflinePackageManager>.value(value: packageManager),
 
     // Casos de Uso (Camada de Domínio)
     Provider<FilterPointsUseCase>(
@@ -110,6 +118,15 @@ List<SingleChildWidget> buildAppProviders({
         dataSync: dataSync,
         useCase: context.read<GetCampaignsUseCase>(),
       ),
+    ),
+    ChangeNotifierProvider<OfflinePackagesNotifier>(
+      create: (BuildContext context) {
+        final OfflinePackagesNotifier notifier = OfflinePackagesNotifier(
+          packageManager: context.read<IOfflinePackageManager>(),
+        );
+        unawaited(notifier.loadPackages());
+        return notifier;
+      },
     ),
     ChangeNotifierProvider<SyncNotifier>(
       create: (_) => SyncNotifier(dataSync),

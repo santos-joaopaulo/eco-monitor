@@ -1,9 +1,13 @@
 import "package:material_ui/material_ui.dart";
 import "package:flutter/services.dart";
+import "package:provider/provider.dart";
 
 import "../data/app_data_sync.dart";
+import "../presentation/state/location_notifier.dart";
+import "../presentation/state/offline_packages_notifier.dart";
 import "../screens/admin/admin_dashboard_screen.dart";
 import "../screens/admin/admin_key_screen.dart";
+import "../screens/offline_maps_screen.dart";
 import "../services/admin_auth_service.dart";
 import "../theme/app_colors.dart";
 import "admin_secret_gesture_detector.dart";
@@ -14,6 +18,7 @@ import "admin_secret_gesture_detector.dart";
 ///
 /// Sem [onBack], exibe o logo (ícone de reciclagem branco) à esquerda com suporte
 /// ao gesto secreto de administrador; com [onBack], exibe a seta de retorno.
+/// Inclui atalho direto de 1 toque para o gerenciador de mapas offline (T14.4).
 class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EcoAppBar({
     super.key,
@@ -25,6 +30,8 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.enableAdminTrigger = true,
     this.adminHoldDuration = const Duration(seconds: 3),
     this.actions,
+    this.showOfflineMapsAction,
+    this.onOfflineMapsPressed,
   });
 
   final String title;
@@ -35,6 +42,8 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool enableAdminTrigger;
   final Duration adminHoldDuration;
   final List<Widget>? actions;
+  final bool? showOfflineMapsAction;
+  final VoidCallback? onOfflineMapsPressed;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -64,6 +73,62 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       );
     }
+  }
+
+  List<Widget>? _buildEffectiveActions(BuildContext context) {
+    final bool shouldShowOffline = showOfflineMapsAction ?? (onBack == null);
+    final Widget offlineButton = IconButton(
+      icon: const Icon(Icons.download_for_offline_rounded),
+      iconSize: 24,
+      tooltip: "Mapas offline",
+      onPressed: onOfflineMapsPressed ??
+          () {
+            OfflinePackagesNotifier? notifier;
+            try {
+              notifier = Provider.of<OfflinePackagesNotifier>(
+                context,
+                listen: false,
+              );
+            } catch (_) {}
+
+            try {
+              final LocationNotifier locationNotifier =
+                  Provider.of<LocationNotifier>(context, listen: false);
+              if (locationNotifier.userLocation != null && notifier != null) {
+                notifier.updateUserLocation(locationNotifier.userLocation);
+              }
+            } catch (_) {}
+
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext routeContext) =>
+                    OfflineMapsScreen(notifier: notifier),
+              ),
+            );
+          },
+    );
+
+    if (actions == null) {
+      return shouldShowOffline ? <Widget>[offlineButton] : null;
+    }
+
+    if (showOfflineMapsAction == true) {
+      return <Widget>[offlineButton, ...actions!];
+    }
+
+    if (shouldShowOffline) {
+      final bool alreadyPresent = actions!.any(
+        (Widget w) =>
+            w is IconButton &&
+            w.icon is Icon &&
+            (w.icon as Icon).icon == Icons.download_for_offline_rounded,
+      );
+      if (!alreadyPresent) {
+        return <Widget>[offlineButton, ...actions!];
+      }
+    }
+
+    return actions;
   }
 
   @override
@@ -109,7 +174,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
         letterSpacing: 0.6,
       ),
 
-      actions: actions,
+      actions: _buildEffectiveActions(context),
     );
   }
 }
