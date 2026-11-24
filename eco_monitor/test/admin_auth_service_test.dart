@@ -90,4 +90,38 @@ void main() {
     await service.revokeAuthorization();
     expect(await service.isAuthorized(), isFalse);
   });
+
+  test("authorization expires automatically after TTL (2 hours) of inactivity", () async {
+    final AdminAuthService service = createService();
+
+    await service.authenticate("secret123");
+    expect(await service.isAuthorized(), isTrue);
+
+    // Avança 1 hora e 59 minutos: ainda autorizado
+    fakeNow = fakeNow.add(const Duration(minutes: 119));
+    expect(await service.isAuthorized(), isTrue);
+
+    // Avança mais 2 minutos (ultrapassando 2 horas): expira
+    fakeNow = fakeNow.add(const Duration(minutes: 2));
+    expect(await service.isAuthorized(), isFalse);
+  });
+
+  test("touchSession renews session expiration window", () async {
+    final AdminAuthService service = createService();
+
+    await service.authenticate("secret123");
+    expect(await service.isAuthorized(), isTrue);
+
+    // Avança 1 hora e 30 minutos e renova a sessão
+    fakeNow = fakeNow.add(const Duration(minutes: 90));
+    await service.touchSession();
+
+    // Avança mais 1 hora e 30 minutos (total 3h desde autenticação inicial, mas 1h30 desde touch): deve estar ativo
+    fakeNow = fakeNow.add(const Duration(minutes: 90));
+    expect(await service.isAuthorized(), isTrue);
+
+    // Avança mais 40 minutos (total 2h10 desde o touch): expira
+    fakeNow = fakeNow.add(const Duration(minutes: 40));
+    expect(await service.isAuthorized(), isFalse);
+  });
 }

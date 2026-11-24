@@ -9,12 +9,16 @@ import "../data/local_store.dart";
 
 
 const String _kAuthorizedTokenKey = "admin_auth_token";
+const String _kSessionAuthTimestampKey = "admin_session_auth_ms";
 const String _kFailedAttemptsKey = "admin_failed_attempts";
 const String _kLockoutUntilKey = "admin_lockout_until";
 const String _kSalt = "eco_monitor_admin_salt_2026";
 
 /// Chave padrão de desenvolvimento caso nenhuma seja injetada via compilação.
 const String kDefaultAdminKey = "eco@admin2026";
+
+/// Duração de expiração automática da sessão administrativa (2 horas).
+const int kAdminSessionDurationSeconds = 7200;
 
 /// Limite de tentativas consecutivas incorretas antes do bloqueio temporário.
 const int kMaxFailedAttempts = 5;
@@ -88,15 +92,42 @@ class AdminAuthService {
 // Methods ------------------------------------------------------------------ //
 
 
-  /// Indica se o dispositivo já foi autorizado anteriormente.
+  /// Indica se o dispositivo já foi autorizado anteriormente e a sessão ainda é válida (TTL).
   Future<bool> isAuthorized() async {
     final String? token = await _store.getString(_kAuthorizedTokenKey);
     if (token == null || token.isEmpty) {
       return false;
     }
 
+    final int? authTimestampMs = await _store.getInt(_kSessionAuthTimestampKey);
+    if (authTimestampMs == null) {
+      await revokeAuthorization();
+      return false;
+    }
+
+    final int nowMs = _clock().millisecondsSinceEpoch;
+    final int elapsedSeconds = (nowMs - authTimestampMs) ~/ 1000;
+    if (elapsedSeconds > kAdminSessionDurationSeconds) {
+      // Sessão expirou por inatividade
+      await revokeAuthorization();
+      return false;
+    }
+
     final String expectedHash = _hashKey(_configuredKey);
-    return token == expectedHash;
+    return _constantTimeEquals(token, expectedHash);
+  }
+
+  /// Renova o tempo de vida da sessão administrativa durante ações ativas.
+  Future<void> touchSession() async {
+    final String? token = await _store.getString(_kAuthorizedTokenKey);
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    await _store.setInt(
+      _kSessionAuthTimestampKey,
+      _clock().millisecondsSinceEpoch,
+    );
   }
 
   /// Retorna quantos segundos de bloqueio ainda restam, ou 0 se não bloqueado.
@@ -128,11 +159,15 @@ class AdminAuthService {
     final String enteredHash = _hashKey(enteredKey);
     final String expectedHash = _hashKey(_configuredKey);
 
-    if (enteredHash == expectedHash) {
-      // Sucesso: reseta contadores e persiste o token de autorização
+    if (_constantTimeEquals(enteredHash, expectedHash)) {
+      // Sucesso: reseta contadores e persiste o token de autorização e timestamp de sessão
       await _store.remove(_kFailedAttemptsKey);
       await _store.remove(_kLockoutUntilKey);
       await _store.setString(_kAuthorizedTokenKey, expectedHash);
+      await _store.setInt(
+        _kSessionAuthTimestampKey,
+        _clock().millisecondsSinceEpoch,
+      );
 
       return AdminAuthResult.success();
     }
@@ -156,11 +191,26 @@ class AdminAuthService {
   /// Revoga a autorização do dispositivo, exigindo a chave no próximo acesso.
   Future<void> revokeAuthorization() async {
     await _store.remove(_kAuthorizedTokenKey);
+    await _store.remove(_kSessionAuthTimestampKey);
   }
 
 
 // Helpers ------------------------------------------------------------------ //
 
+
+  /// Comparação de strings em tempo constante para mitigar timing attacks.
+  bool _constantTimeEquals(String a, String b) {
+    if (a.length != b.length) {
+      return false;
+    }
+
+    int result = 0;
+    for (int i = 0; i < a.length; i++) {
+      result |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+
+    return result == 0;
+  }
 
   String _hashKey(String rawKey) {
     final List<int> bytes = utf8.encode("$_kSalt:$rawKey");

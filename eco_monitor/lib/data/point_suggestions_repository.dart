@@ -19,6 +19,12 @@ const String kPointSuggestionsCollection = "pointSuggestions";
 /// Versão do envelope da fila de sugestões offline.
 const int kPointSuggestionsQueueVersion = 1;
 
+/// Cota máxima de sugestões pendentes na fila offline para evitar esgotamento de storage local (DoS).
+const int kMaxQueuedSuggestions = 50;
+
+/// Intervalo mínimo padrão entre submissões para mitigação de flood abusivo.
+const int kMinSubmissionIntervalMs = 3000;
+
 const String _pendingQueueKey = "pending_point_suggestions_json";
 
 
@@ -68,15 +74,21 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
     this.isOnlineChecker,
     LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
+    this.minSubmissionInterval = Duration.zero,
+    DateTime Function()? clock,
   }) : _store = localStore ??
            SharedPreferencesLocalStore(
              preferencesFactory: preferencesFactory,
-           );
+           ),
+       _clock = clock ?? DateTime.now;
 
   final PointSuggestionSender? sender;
   final Future<bool> Function()? isOnlineChecker;
+  final Duration minSubmissionInterval;
+  final DateTime Function() _clock;
   final LocalStore _store;
 
+  DateTime? _lastSubmissionTime;
   Future<void> _lock = Future<void>.value();
 
   bool get hasRemoteSender => sender != null;
@@ -93,6 +105,16 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
   @override
   Future<SuggestionSubmitResult> submit(PointSuggestion suggestion) {
     return _synchronized(() async {
+      if (minSubmissionInterval > Duration.zero) {
+        final DateTime now = _clock();
+        if (_lastSubmissionTime != null &&
+            now.difference(_lastSubmissionTime!) < minSubmissionInterval) {
+          // Bloqueia envio repetitivo em rajada abaixo do intervalo mínimo
+          return SuggestionSubmitResult.queuedOffline;
+        }
+        _lastSubmissionTime = now;
+      }
+
       final PointSuggestionSender? remoteSender = sender;
       if (remoteSender != null) {
         bool isOnline = true;
@@ -192,7 +214,14 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
   Future<void> _enqueueUnsafe(PointSuggestion suggestion) async {
     final List<PointSuggestion> queue = List<PointSuggestion>.of(
       await _readQueueUnsafe(),
-    )..add(suggestion);
+    );
+
+    // Se atingir a cota máxima de segurança, descarta para prevenir saturação do armazenamento
+    if (queue.length >= kMaxQueuedSuggestions) {
+      return;
+    }
+
+    queue.add(suggestion);
     await _writeQueueUnsafe(queue);
   }
 

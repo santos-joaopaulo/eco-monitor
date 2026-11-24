@@ -16,6 +16,12 @@ import "local_store.dart";
 /// Coleção do Firestore onde as avaliações anônimas são registradas (RNF06).
 const String kPointReviewsCollection = "point_reviews";
 
+/// Cota máxima de avaliações pendentes na fila offline para mitigar DoS local.
+const int kMaxQueuedReviews = 100;
+
+/// Intervalo mínimo padrão entre submissões de avaliações.
+const int kMinReviewSubmissionIntervalMs = 3000;
+
 const String _pendingReviewsQueueKey = "pending_point_reviews_queue_v1";
 const String _localPointReviewsStoreKey = "local_point_reviews_store_v1";
 
@@ -59,15 +65,21 @@ class PointReviewsRepository implements IPointReviewsRepository {
     this.isOnlineChecker,
     LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
+    this.minSubmissionInterval = Duration.zero,
+    DateTime Function()? clock,
   }) : _store = localStore ??
            SharedPreferencesLocalStore(
              preferencesFactory: preferencesFactory,
-           );
+           ),
+       _clock = clock ?? DateTime.now;
 
   final PointReviewSender? sender;
   final Future<bool> Function()? isOnlineChecker;
+  final Duration minSubmissionInterval;
+  final DateTime Function() _clock;
   final LocalStore _store;
 
+  DateTime? _lastSubmissionTime;
   Future<void> _lock = Future<void>.value();
   Map<String, List<PointReview>>? _cachedReviewsByPoint;
 
@@ -80,6 +92,16 @@ class PointReviewsRepository implements IPointReviewsRepository {
   @override
   Future<PointReviewSubmitResult> submitReview(PointReview review) {
     return _synchronized(() async {
+      if (minSubmissionInterval > Duration.zero) {
+        final DateTime now = _clock();
+        if (_lastSubmissionTime != null &&
+            now.difference(_lastSubmissionTime!) < minSubmissionInterval) {
+          // Bloqueia envio de avaliações em rajada abusiva
+          return PointReviewSubmitResult.queuedOffline;
+        }
+        _lastSubmissionTime = now;
+      }
+
       await _recordLocalReviewUnsafe(review);
 
       final PointReviewSender? remoteSender = sender;
@@ -286,6 +308,10 @@ class PointReviewsRepository implements IPointReviewsRepository {
 
   Future<void> _enqueuePendingUnsafe(PointReview review) async {
     final List<PointReview> queue = await _readQueueUnsafe();
+    if (queue.length >= kMaxQueuedReviews) {
+      return;
+    }
+
     queue.removeWhere((PointReview item) => item.id == review.id);
     queue.add(review);
     await _writeQueueUnsafe(queue);

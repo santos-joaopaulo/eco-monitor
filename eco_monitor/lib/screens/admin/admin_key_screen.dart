@@ -226,6 +226,8 @@ class _AdminKeyScreenState extends State<AdminKeyScreen> {
                         focusNode: _focusNode,
                         enabled: !isLockedOut && !_isLoading,
                         obscureText: _obscureText,
+                        autocorrect: false,
+                        enableSuggestions: false,
                         autofocus: true,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (_) => _submitKey(),

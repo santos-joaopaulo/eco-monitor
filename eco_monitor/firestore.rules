@@ -2,35 +2,54 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Pontos de coleta oficiais: leitura pública e gestão administrativa (RNF11).
+    // Pontos de coleta oficiais: leitura pública irrestrita; escrita bloqueada para clientes públicos (RNF11).
     match /collectPoints/{pointId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
-    // Campanhas de coleta: leitura pública e gestão administrativa (RF08, RF09).
+    // Campanhas de coleta oficiais: leitura pública; escrita bloqueada para clientes (RF08, RF09).
     match /campaigns/{campaignId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
-    // Guias de descarte: leitura pública e gestão permitida (RNF09).
+    // Guias de descarte: catálogo oficial de leitura pública; escrita bloqueada para clientes (RNF09).
     match /disposalGuides/{guideId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
-    // Metadados de sincronização (timestamps do servidor): leitura e atualização permitidas.
+    // Metadados de sincronização (deltas e versões do banco): leitura pública, escrita bloqueada.
     match /metadata/{collectionId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
     // Sugestões de novos pontos enviadas pelos usuários:
-    // Criação aberta e anônima, leitura e moderação pelo painel administrativo (RF10, RF11).
+    // Criação permitida apenas com esquema válido e status 'pending'. Modificação e exclusão proibidas (RF10, RF11, RNF06).
     match /pointSuggestions/{suggestionId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 100 &&
+                       request.resource.data.address is string &&
+                       request.resource.data.address.size() > 0 &&
+                       request.resource.data.address.size() <= 200 &&
+                       request.resource.data.status == 'pending';
+      allow update, delete: if false;
     }
 
-    // Avaliações anônimas de qualidade e estado dos ecopontos (RNF06, RNF14).
+    // Avaliações anônimas de qualidade e estado dos ecopontos:
+    // Criação pública permitida com validação de nota (1 a 5). Modificação e exclusão proibidas (RNF06, RNF14).
     match /point_reviews/{reviewId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.pointId is string &&
+                       request.resource.data.pointId.size() > 0 &&
+                       request.resource.data.rating is int &&
+                       request.resource.data.rating >= 1 &&
+                       request.resource.data.rating <= 5;
+      allow update, delete: if false;
     }
   }
 }

@@ -425,6 +425,18 @@ class OfflinePackageManager implements IOfflinePackageManager {
           ),
         );
 
+        // Validação defensiva de integridade de tamanho de bytes
+        if (!_verifyPackageIntegrity(totalBytes, package.sizeBytes)) {
+          _cleanupCorruptedPackage(package.id);
+          _downloadProgressMap.remove(package.id);
+          _activeDownloads.remove(package.id);
+          controller.addError(
+            StateError("Falha de integridade: pacote corrompido ou truncado."),
+          );
+          await controller.close();
+          return;
+        }
+
         final Set<String> installed = await _loadInstalledIds();
         installed.add(package.id);
         await _saveInstalledIds(installed);
@@ -459,6 +471,16 @@ class OfflinePackageManager implements IOfflinePackageManager {
         timer.cancel();
         _downloadProgressMap.remove(package.id);
         _activeDownloads.remove(package.id);
+
+        // Validação defensiva de integridade de tamanho de bytes pós-transferência
+        if (!_verifyPackageIntegrity(received, package.sizeBytes)) {
+          _cleanupCorruptedPackage(package.id);
+          controller.addError(
+            StateError("Falha de integridade: pacote corrompido ou truncado."),
+          );
+          await controller.close();
+          return;
+        }
 
         final Set<String> installed = await _loadInstalledIds();
         installed.add(package.id);
@@ -553,5 +575,22 @@ class OfflinePackageManager implements IOfflinePackageManager {
       }
     }
     return total;
+  }
+
+  /// Valida a integridade dos bytes transferidos comparando com o tamanho esperado no catálogo.
+  bool _verifyPackageIntegrity(int receivedBytes, int expectedBytes) {
+    return expectedBytes > 0 && receivedBytes == expectedBytes;
+  }
+
+  /// Remove arquivos parciais residuais em caso de erro ou integridade comprometida.
+  void _cleanupCorruptedPackage(String packageId) {
+    if (_storagePath != null) {
+      try {
+        final File file = File("$_storagePath/$packageId.json");
+        if (file.existsSync()) {
+          file.deleteSync();
+        }
+      } catch (_) {}
+    }
   }
 }

@@ -1,3 +1,4 @@
+import "../../utils/input_sanitizer.dart";
 import "waste_type.dart";
 
 
@@ -18,15 +19,18 @@ enum SuggestionSubmitResult { sent, queuedOffline }
 class PointSuggestion {
   PointSuggestion({
     required this.id,
-    required this.name,
-    required this.address,
+    required String name,
+    required String address,
     required Set<WasteType> acceptedWasteTypes,
-    required this.hours,
+    required String hours,
     required this.latitude,
     required this.longitude,
     required this.status,
     required this.createdAt,
-  }) : acceptedWasteTypes = Set<WasteType>.unmodifiable(acceptedWasteTypes);
+  }) : name = InputSanitizer.sanitizeText(name, maxLength: 100),
+       address = InputSanitizer.sanitizeText(address, maxLength: 200),
+       hours = InputSanitizer.sanitizeText(hours, maxLength: 100),
+       acceptedWasteTypes = Set<WasteType>.unmodifiable(acceptedWasteTypes);
 
   final String id;
   final String name;

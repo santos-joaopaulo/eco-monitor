@@ -1,3 +1,6 @@
+import "../../utils/input_sanitizer.dart";
+
+
 // Enums -------------------------------------------------------------------- //
 
 
@@ -35,8 +38,9 @@ class PointReview {
     required this.rating,
     required List<String> tags,
     required this.createdAt,
-    this.comment = "",
-  }) : tags = List<String>.unmodifiable(tags);
+    String comment = "",
+  }) : comment = InputSanitizer.sanitizeText(comment, maxLength: 300),
+       tags = List<String>.unmodifiable(tags);
 
   final String id;
   final String pointId;
