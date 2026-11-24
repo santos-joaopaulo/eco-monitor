@@ -18,6 +18,8 @@ import "../services/location_service.dart";
 import "../services/mapbox_token_provider.dart";
 import "../services/route_service.dart";
 import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
+import "../utils/formatters.dart";
 import "../utils/geo.dart";
 import "../utils/point_filters.dart";
 import "../utils/spatial_index.dart";
@@ -25,6 +27,7 @@ import "../widgets/collect_point_sheet.dart";
 import "../widgets/collect_points_layer.dart";
 import "../widgets/collect_points_list_view.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
+import "../widgets/focused_campaign_sheet.dart";
 import "../widgets/home_map_controls.dart";
 import "../widgets/home_map_top_bar.dart";
 import "../widgets/location_notice.dart";
@@ -50,6 +53,8 @@ class HomeScreen extends StatefulWidget {
     this.onActiveSheetChanged,
     this.routeService,
     this.routeCacheStore,
+    this.isSearchActive,
+    this.onSearchActiveChanged,
   });
 
   /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
@@ -72,7 +77,7 @@ class HomeScreen extends StatefulWidget {
   /// Indica se a aba do mapa está visível no momento.
   final bool isActive;
 
-  /// Notifica quando um Bottom Sheet (detalhes do ponto ou rota) está ativo,
+  /// Notifica quando um Bottom Sheet (detalhes do ponto, campanha ou rota) está ativo,
   /// permitindo que a barra de navegação seja sobreposta por completo.
   final ValueChanged<bool>? onActiveSheetChanged;
 
@@ -81,6 +86,12 @@ class HomeScreen extends StatefulWidget {
 
   /// Armazenamento em cache LRU de rotas viárias offline (T11.3).
   final RouteCacheStore? routeCacheStore;
+
+  /// Controla externamente se a busca textual rápida está aberta (expandida).
+  final bool? isSearchActive;
+
+  /// Notifica externamente quando o estado de busca é alterado.
+  final ValueChanged<bool>? onSearchActiveChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -93,14 +104,34 @@ class _HomeScreenState extends State<HomeScreen>
   // Init ------------------------------------------------------------------ //
 
 
+  bool _isSearching = false;
+
+  void _setSearching(bool active) {
+    if (_isSearching != active && mounted) {
+      setState(() {
+        _isSearching = active;
+      });
+      widget.onSearchActiveChanged?.call(active);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.dataSync?.addListener(_onSyncUpdated);
     _selectedWasteTypes = _selectionFor(widget.wasteFilter);
+    _isSearching = widget.isSearchActive ?? false;
     _loadInitialPoints();
     unawaited(_checkLocationAvailability());
+
+    if (widget.focusedCampaign != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.focusedCampaign != null) {
+          widget.onActiveSheetChanged?.call(true);
+        }
+      });
+    }
   }
 
   @override
@@ -120,22 +151,41 @@ class _HomeScreenState extends State<HomeScreen>
       _applyWasteSelection(_selectionFor(widget.wasteFilter));
     }
 
+    if (widget.isSearchActive != null &&
+        widget.isSearchActive != oldWidget.isSearchActive &&
+        widget.isSearchActive != _isSearching) {
+      setState(() {
+        _isSearching = widget.isSearchActive!;
+      });
+    }
+
     final Campaign? nextCampaign = widget.focusedCampaign;
     if (nextCampaign != null && nextCampaign != oldWidget.focusedCampaign) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.focusedCampaign != null) {
+          widget.onActiveSheetChanged?.call(true);
+        }
+      });
       unawaited(_flyToCampaign(nextCampaign));
+    } else if (oldWidget.focusedCampaign != null &&
+        nextCampaign == null &&
+        _selectedPoint == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            widget.focusedCampaign == null &&
+            _selectedPoint == null) {
+          widget.onActiveSheetChanged?.call(false);
+        }
+      });
     }
   }
-
-  bool _isSearching = false;
 
   void _handlePopInvoked(bool didPop, dynamic result) {
     if (didPop) {
       return;
     }
     if (_isSearching) {
-      setState(() {
-        _isSearching = false;
-      });
+      _setSearching(false);
       FocusScope.of(context).unfocus();
     }
   }
@@ -253,8 +303,14 @@ class _HomeScreenState extends State<HomeScreen>
     final CollectionPoint? selectedPoint = _selectedPoint;
     final double navInset = CustomBottomNavBar.reservedBottomInset(context);
     final bool isListMode = _isEffectiveListView;
-    final bool hideAuxiliaryButtons = _isSearching ||
-        (MediaQuery.viewInsetsOf(context).bottom > 0);
+    final bool hideAuxiliaryButtons =
+        _isSearching || (MediaQuery.viewInsetsOf(context).bottom > 0);
+
+    final bool isNeutralState =
+        selectedPoint == null &&
+        focusedCampaign == null &&
+        !_isListView &&
+        !hideAuxiliaryButtons;
 
     Widget topBar({required bool isListMode}) {
       return HomeMapTopBar(
@@ -262,35 +318,16 @@ class _HomeScreenState extends State<HomeScreen>
         onFilterChanged: _handleFilterChanged,
         isFavoritesOnly: _isFavoritesOnly,
         onFavoritesToggle: _handleFavoritesToggle,
-        focusedCampaign: focusedCampaign,
-        onClearCampaign: widget.onClearCampaign,
         showMapboxTokenWarning: _accessToken.isEmpty,
         isLoadingPoints: _isLoadingPoints,
         isEmptyResult: visiblePoints.isEmpty && selectedPoint == null,
         emptyMessage: _isFavoritesOnly
             ? "Nenhum ponto favorito encontrado."
             : (_selectedWasteTypes.isEmpty
-                ? "Nenhum ponto de coleta disponível."
-                : "Nenhum ponto aceita esse resíduo por perto."),
+                  ? "Nenhum ponto de coleta disponível."
+                  : "Nenhum ponto aceita esse resíduo por perto."),
         locationNotice: locationNotice,
         isListMode: isListMode,
-        onQuickNearestPoint: () => unawaited(_handleQuickNearestPoint()),
-        nearestDistanceMeters: _nearestPointDistance,
-        onResidueSearched: (WasteType type) {
-          setState(() {
-            _isSearching = false;
-          });
-          unawaited(_handleResidueSearched(type));
-        },
-        showQuickAction: selectedPoint == null && !isListMode,
-        isSearchActive: _isSearching,
-        onSearchActiveChanged: (bool active) {
-          if (_isSearching != active && mounted) {
-            setState(() {
-              _isSearching = active;
-            });
-          }
-        },
         selectedRadius: _selectedRadius,
         onRadiusChanged: _handleRadiusChanged,
         isRadiusEmpty: _isRadiusEmpty,
@@ -304,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       child: Stack(
         children: [
-          // O mapa permanece montado mesmo no modo de lista: a lista é um
+          // O mapa permanece montado mesmo no modo de lista: a lista é uma
           // sobreposição opaca por cima. Remover e recriar a view nativa do mapa
           // (Offstage) deixa a tela em branco sem reiniciar o app.
           if (_accessToken.isNotEmpty)
@@ -322,20 +359,6 @@ class _HomeScreenState extends State<HomeScreen>
                   center: Point(coordinates: Position(0, 20)),
                   zoom: 1.5,
                 ),
-              ),
-            ),
-
-          if (_isSearching)
-            Positioned.fill(
-              key: const ValueKey("home-search-backdrop"),
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  setState(() {
-                    _isSearching = false;
-                  });
-                  FocusScope.of(context).unfocus();
-                },
               ),
             ),
 
@@ -372,13 +395,28 @@ class _HomeScreenState extends State<HomeScreen>
               child: topBar(isListMode: false),
             ),
 
-          if (selectedPoint == null && !_isListView && !hideAuxiliaryButtons)
-            HomeLocateButton(
+          // Botões flutuantes inferiores no estado neutro (modo mapa)
+          if (isNeutralState) ...[
+            HomeSearchButton(
               bottom: navInset + 20,
-              onPressed: _handleLocationAction,
+              onPressed: () => _setSearching(true),
             ),
 
-          if (selectedPoint == null && _accessToken.isNotEmpty && !hideAuxiliaryButtons)
+            HomeLocateButton(
+              bottom: navInset + 20,
+              distanceMeters: _nearestPointDistance,
+              tooltip: _nearestPointDistance != null
+                  ? "Ponto mais próximo (${formatDistance(_nearestPointDistance!)}) · Traçar rota"
+                  : "Centralizar na minha localização",
+              onPressed: () => unawaited(_handleQuickNearestPoint()),
+            ),
+          ],
+
+          // Botão flutuante para alternar entre Mapa e Lista (visível tanto no mapa quanto na lista)
+          if (selectedPoint == null &&
+              focusedCampaign == null &&
+              !hideAuxiliaryButtons &&
+              _accessToken.isNotEmpty)
             HomeViewToggleButton(
               bottom: navInset + 20,
               isListMode: isListMode,
@@ -389,36 +427,106 @@ class _HomeScreenState extends State<HomeScreen>
               },
             ),
 
-        if (selectedPoint != null)
-          _isRouteActive
-              ? Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
+          // Campanha focada exibida no padrão bottom sheet (RF09)
+          if (focusedCampaign != null && selectedPoint == null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
 
-                  child: RouteSummaryCard(
-                    point: selectedPoint,
-                    summary: _routeSummary,
-                    activeTravelMode: _activeTravelMode,
-                    onTravelModeChanged: _handleTravelModeChanged,
-                    onOpenExternal: _handleOpenExternalNavigation,
-                    onClose: () => unawaited(_dismissSelection()),
+              child: FocusedCampaignSheet(
+                campaign: focusedCampaign,
+                onClearCampaign: () {
+                  widget.onActiveSheetChanged?.call(false);
+                  widget.onClearCampaign?.call();
+                },
+                onStartRoute: () =>
+                    unawaited(_handleStartRouteToCampaign(focusedCampaign)),
+              ),
+            ),
+
+          // Detalhes do ponto selecionado ou resumo da rota
+          if (selectedPoint != null)
+            _isRouteActive
+                ? Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+
+                    child: RouteSummaryCard(
+                      point: selectedPoint,
+                      summary: _routeSummary,
+                      activeTravelMode: _activeTravelMode,
+                      onTravelModeChanged: _handleTravelModeChanged,
+                      onOpenExternal: _handleOpenExternalNavigation,
+                      onClose: () => unawaited(_dismissSelection()),
+                    ),
+                  )
+                : Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+
+                    child: CollectPointSheet(
+                      point: selectedPoint,
+                      distanceMeters: _distanceToSelectedPoint,
+                      activeFilter: _selectedWasteTypes,
+                      isDataStale: widget.dataSync?.isStale ?? false,
+                      onCancel: () => unawaited(_dismissSelection()),
+                      onStartRoute: () => unawaited(_handleStartRoute()),
+                    ),
                   ),
-                )
-              : Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
 
-                  child: CollectPointSheet(
-                    point: selectedPoint,
-                    distanceMeters: _distanceToSelectedPoint,
-                    activeFilter: _selectedWasteTypes,
-                    isDataStale: widget.dataSync?.isStale ?? false,
-                    onCancel: () => unawaited(_dismissSelection()),
-                    onStartRoute: () => unawaited(_handleStartRoute()),
+          // Camada de busca expansível sobre o mapa (T8.2)
+          if (_isSearching) ...[
+            Positioned.fill(
+              key: const ValueKey("home-search-backdrop"),
+
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  _setSearching(false);
+                  FocusScope.of(context).unfocus();
+                },
+
+                child: Container(color: Colors.black.withAlpha(90)),
+              ),
+            ),
+
+            Positioned(
+              key: const ValueKey("home-search-overlay"),
+              top: 0,
+              left: 0,
+              right: 0,
+
+              child: SafeArea(
+                bottom: false,
+
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    kEcoContentHorizontalPadding,
+                    10,
+                    kEcoContentHorizontalPadding,
+                    0,
+                  ),
+
+                  child: HomeSearchBar(
+                    autofocus: true,
+                    onClose: () => _setSearching(false),
+                    onSelectWasteType: (WasteType type) {
+                      _setSearching(false);
+                      unawaited(_handleResidueSearched(type));
+                    },
+                    onActiveChanged: (bool active) {
+                      if (!active && _isSearching) {
+                        _setSearching(false);
+                      }
+                    },
                   ),
                 ),
+              ),
+            ),
+          ],
         ],
       ),
     );

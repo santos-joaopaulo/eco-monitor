@@ -8,9 +8,7 @@ import "../services/admin_auth_service.dart";
 import "../theme/app_colors.dart";
 import "admin_secret_gesture_detector.dart";
 
-
 // Classes ----------------------------------------------------------------- //
-
 
 /// AppBar padrão do EcoMonitor: fundo verde-água, título branco centralizado.
 ///
@@ -26,6 +24,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.dataSync,
     this.enableAdminTrigger = true,
     this.adminHoldDuration = const Duration(seconds: 3),
+    this.actions,
   });
 
   final String title;
@@ -35,13 +34,12 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final AppDataSync? dataSync;
   final bool enableAdminTrigger;
   final Duration adminHoldDuration;
+  final List<Widget>? actions;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
-
   // Methods --------------------------------------------------------------- //
-
 
   Future<void> _handleDefaultAdminTrigger(BuildContext context) async {
     final AdminAuthService service = authService ?? AdminAuthService();
@@ -54,19 +52,15 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (authorized) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => AdminDashboardScreen(
-            authService: service,
-            dataSync: dataSync,
-          ),
+          builder: (BuildContext context) =>
+              AdminDashboardScreen(authService: service, dataSync: dataSync),
         ),
       );
     } else {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => AdminKeyScreen(
-            authService: service,
-            dataSync: dataSync,
-          ),
+          builder: (BuildContext context) =>
+              AdminKeyScreen(authService: service, dataSync: dataSync),
         ),
       );
     }
@@ -85,18 +79,18 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
 
       leading: onBack == null
           ? (enableAdminTrigger
-              ? AdminSecretGestureDetector(
-                  holdDuration: adminHoldDuration,
-                  onTrigger: () {
-                    if (onAdminTrigger != null) {
-                      onAdminTrigger!();
-                    } else {
-                      _handleDefaultAdminTrigger(context);
-                    }
-                  },
-                  child: const _Logo(),
-                )
-              : const _Logo())
+                ? AdminSecretGestureDetector(
+                    holdDuration: adminHoldDuration,
+                    onTrigger: () {
+                      if (onAdminTrigger != null) {
+                        onAdminTrigger!();
+                      } else {
+                        _handleDefaultAdminTrigger(context);
+                      }
+                    },
+                    child: const _Logo(),
+                  )
+                : const _Logo())
           : IconButton(
               icon: const Icon(Icons.arrow_back),
               iconSize: 28,
@@ -114,6 +108,8 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
         fontWeight: FontWeight.w700,
         letterSpacing: 0.6,
       ),
+
+      actions: actions,
     );
   }
 }

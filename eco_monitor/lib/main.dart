@@ -23,9 +23,7 @@ import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
 import "widgets/offline_banner.dart";
 
-
 // Inicialização ------------------------------------------------------------ //
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,9 +49,7 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-
 // Classes ----------------------------------------------------------------- //
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, this.dataSync, this.locationService});
@@ -119,6 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Controla a visibilidade da barra de navegação inferior quando um Bottom Sheet está ativo na Home.
   bool _isBottomSheetActive = false;
 
+  /// Controla a exibição da busca rápida na Home via ação da EcoAppBar.
+  bool _isSearchActive = false;
+
   @override
   void initState() {
     super.initState();
@@ -152,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _selectTab(int index) {
     setState(() {
       _selectedIndex = index;
+      _isSearchActive = false;
     });
   }
 
@@ -160,6 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _wasteFilter = type;
       _focusedCampaign = null;
+      _isSearchActive = false;
       _selectedIndex = _homeTab;
     });
   }
@@ -175,6 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _focusedCampaign = campaign;
       _wasteFilter = null;
+      _isSearchActive = false;
       _selectedIndex = _homeTab;
     });
   }
@@ -187,19 +189,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Envolve uma aba com a [EcoAppBar] padrão. A aba de Guia não passa por
   /// aqui: o GuideNavigator renderiza sua própria AppBar em cada tela.
-  Widget _withAppBar(Widget body, {String? title, Widget? banner}) {
+  Widget _withAppBar(
+    Widget body, {
+    String? title,
+    Widget? banner,
+    List<Widget>? actions,
+  }) {
     return Scaffold(
       extendBody: true,
       appBar: EcoAppBar(
         title: title ?? widget.title,
         dataSync: _dataSync,
+        actions: actions,
       ),
-      body: Column(
-        children: [
-          ?banner,
-          Expanded(child: body),
-        ],
-      ),
+      body: banner != null
+          ? Column(
+              children: [
+                banner,
+                Expanded(child: body),
+              ],
+            )
+          : body,
     );
   }
 
@@ -228,6 +238,65 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             );
 
+            final List<Widget> homeAppBarActions = [
+              if (!sync.isOnline)
+                IconButton(
+                  icon: const Icon(
+                    Icons.wifi_off_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  tooltip: "Modo offline (dados salvos localmente)",
+                  onPressed: () {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        const SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          content: Text(
+                            "Modo offline: exibindo ecopontos salvos na memória do aparelho.",
+                          ),
+                        ),
+                      );
+                  },
+                )
+              else if (sync.isStale)
+                IconButton(
+                  icon: const Icon(
+                    Icons.update_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  tooltip: "Dados desatualizados · Toque para atualizar",
+                  onPressed: () => unawaited(sync.refreshAll()),
+                )
+              else if (sync.pendingSuggestionsCount > 0)
+                IconButton(
+                  icon: const Icon(
+                    Icons.cloud_upload_outlined,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  tooltip:
+                      "${sync.pendingSuggestionsCount} pendente(s) para sincronização",
+                  onPressed: () => unawaited(sync.refreshAll()),
+                ),
+
+              IconButton(
+                icon: Icon(
+                  _isSearchActive ? Icons.close_rounded : Icons.search_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                tooltip: _isSearchActive ? "Fechar busca" : "Buscar resíduo",
+                onPressed: () {
+                  setState(() {
+                    _isSearchActive = !_isSearchActive;
+                  });
+                },
+              ),
+            ];
+
             return IndexedStack(
               index: _selectedIndex,
               children: [
@@ -239,8 +308,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     onClearCampaign: _clearFocusedCampaign,
                     repository: _dataSync.collectPointsRepository,
                     dataSync: _dataSync,
-                    locationService: widget.locationService ?? const LocationService(),
+                    locationService:
+                        widget.locationService ?? const LocationService(),
                     isActive: _selectedIndex == _homeTab,
+                    isSearchActive: _isSearchActive,
+                    onSearchActiveChanged: (bool active) {
+                      if (_isSearchActive != active && mounted) {
+                        setState(() {
+                          _isSearchActive = active;
+                        });
+                      }
+                    },
                     onActiveSheetChanged: (bool active) {
                       if (_isBottomSheetActive != active && mounted) {
                         setState(() {
@@ -249,7 +327,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                     },
                   ),
-                  banner: offlineBanner,
+                  actions: homeAppBarActions,
                 ),
                 GuideNavigator(
                   repository: _dataSync.guideRepository,

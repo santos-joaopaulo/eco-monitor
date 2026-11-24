@@ -44,6 +44,8 @@ Não use um token secreto (`sk...`) no aplicativo nem publique o token em arquiv
 * Atividades desenvolvidas: Realização da pesquisa sobre descarte de medicamentos e resíduos, análise das necessidades dos usuários, levantamento de fontes confiáveis (ANVISA, SINIR, SciELO) e elaboração das 3 principais descobertas da pesquisa; definição detalhada dos requisitos não funcionais relacionados à usabilidade, acessibilidade, LGPD, funcionamento offline, compatibilidade e segurança em `docs/requisitos.md`.
 * Responsabilidade: Integração inicial do mapa interativo Mapbox no Flutter.
 * Atividades desenvolvidas: Configuração inicial da dependência `mapbox_maps_flutter` na tela inicial (`HomeScreen`), estabelecendo a renderização base do mapa e suporte ao token de acesso Mapbox.
+* Responsabilidade: Aprimoramento do Painel Administrativo, gestão de avaliações e relatórios cívicos territoriais.
+* Atividades desenvolvidas: Implementação do módulo de moderação de avaliações e reportes cidadãos (`AdminReviewsScreen`) com banner de ecopontos críticos e filtros por nota e tags; desenvolvimento da visão de demanda territorial agregada por bairros em `AdminSuggestionsScreen` com sumário cívico municipal e aprovação direta de sugestões; auditoria e governança no formulário de pontos de coleta (`AdminPointFormScreen`) com suporte completo ao resíduo Vidro e exibição de nota média e total de avaliações durante a edição; e ampliação da suíte de testes automatizados do painel administrativo.
 
 ## João Paulo Caetano dos Santos
 * Responsabilidade: Documentação geral, análise de referências e desenvolvimento dos protótipos de baixa e alta fidelidade.

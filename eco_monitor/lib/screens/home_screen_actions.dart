@@ -1,22 +1,18 @@
 part of "home_screen.dart";
 
-
 // Constants --------------------------------------------------------------- //
-
 
 const double _userZoom = 14;
 
-
 // Actions ----------------------------------------------------------------- //
-
 
 /// Ciclo de mapa, localização, sincronização e rota do [HomeScreen].
 ///
 /// Mantido como mixin privado para separar a lógica do mapa da composição
 /// visual, sem expor esses detalhes fora da biblioteca da tela.
 mixin _HomeScreenActions on State<HomeScreen> {
-  late final RouteService _routeService = widget.routeService ??
-      RouteService(cacheStore: widget.routeCacheStore);
+  late final RouteService _routeService =
+      widget.routeService ?? RouteService(cacheStore: widget.routeCacheStore);
 
   MapboxMap? _mapboxMap;
   CollectPointsLayer? _pointsLayer;
@@ -38,7 +34,8 @@ mixin _HomeScreenActions on State<HomeScreen> {
   bool _isListView = false;
   bool _isFavoritesOnly = false;
   ProximityRadius _selectedRadius = ProximityRadius.fiveKm;
-  final CollectionPointSpatialIndex _spatialIndex = CollectionPointSpatialIndex();
+  final CollectionPointSpatialIndex _spatialIndex =
+      CollectionPointSpatialIndex();
 
   /// Token do Mapbox resolvido na inicialização (main.dart).
   String get _accessToken => MapboxTokenProvider.token;
@@ -49,7 +46,10 @@ mixin _HomeScreenActions on State<HomeScreen> {
     Set<String> favIds = const <String>{};
     if (mounted) {
       try {
-        favIds = Provider.of<FavoritesNotifier>(context, listen: false).favoriteIds;
+        favIds = Provider.of<FavoritesNotifier>(
+          context,
+          listen: false,
+        ).favoriteIds;
       } catch (_) {
         favIds = const <String>{};
       }
@@ -88,7 +88,10 @@ mixin _HomeScreenActions on State<HomeScreen> {
     Set<String> favIds = const <String>{};
     if (mounted) {
       try {
-        favIds = Provider.of<FavoritesNotifier>(context, listen: false).favoriteIds;
+        favIds = Provider.of<FavoritesNotifier>(
+          context,
+          listen: false,
+        ).favoriteIds;
       } catch (_) {
         favIds = const <String>{};
       }
@@ -383,11 +386,11 @@ mixin _HomeScreenActions on State<HomeScreen> {
 
   Future<void> _fetchLocationForDistance() async {
     try {
-      final LocationPermissionState permission =
-          await widget.locationService.currentPermission();
+      final LocationPermissionState permission = await widget.locationService
+          .currentPermission();
       if (permission == LocationPermissionState.granted) {
-        final UserLocation? loc =
-            await widget.locationService.currentPosition();
+        final UserLocation? loc = await widget.locationService
+            .currentPosition();
         if (loc != null && mounted) {
           setState(() {
             _userLocation = loc;
@@ -636,6 +639,31 @@ mixin _HomeScreenActions on State<HomeScreen> {
     }
   }
 
+
+  // Methods --------------------------------------------------------------- //
+
+
+  /// Inicia navegação e traçado de rota diretamente para o local da campanha.
+  Future<void> _handleStartRouteToCampaign(Campaign campaign) async {
+    final CollectionPoint campaignPoint = CollectionPoint(
+      id: "campaign_${campaign.id}",
+      name: campaign.title,
+      type: PointType.ecoPoint,
+      latitude: campaign.latitude,
+      longitude: campaign.longitude,
+      address: campaign.address.isNotEmpty
+          ? campaign.address
+          : campaign.locationName,
+      acceptedWasteTypes: campaign.wasteTypes,
+      hours: "",
+      status: PointStatus.active,
+    );
+
+    widget.onClearCampaign?.call();
+    await _handlePointSelected(campaignPoint);
+    await _handleStartRoute();
+  }
+
   void _applyWasteSelection(Set<WasteType> selection) {
     final CollectionPoint? point = _selectedPoint;
     final bool hideSelection = point != null && !point.acceptsAny(selection);
@@ -671,7 +699,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
   /// Conduz o fluxo rápido "Ponto mais próximo" em 1 toque (T8.1).
   Future<void> _handleQuickNearestPoint() async {
     if (_userLocation == null) {
-      await _locateUser();
+      await _handleLocationAction();
     }
 
     final UserLocation? userLocation = _userLocation;
@@ -723,12 +751,13 @@ mixin _HomeScreenActions on State<HomeScreen> {
 
     final UserLocation? userLocation = _userLocation;
     if (userLocation != null) {
-      final NearestPointResult? nearest = const GetNearestPointUseCase().execute(
-        userLatitude: userLocation.latitude,
-        userLongitude: userLocation.longitude,
-        points: _points,
-        selectedWasteTypes: <WasteType>{type},
-      );
+      final NearestPointResult? nearest = const GetNearestPointUseCase()
+          .execute(
+            userLatitude: userLocation.latitude,
+            userLongitude: userLocation.longitude,
+            points: _points,
+            selectedWasteTypes: <WasteType>{type},
+          );
 
       if (nearest != null) {
         await _handlePointSelected(nearest.point);
@@ -740,10 +769,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(message),
-        ),
+        SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
       );
   }
 }

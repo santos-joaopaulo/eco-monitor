@@ -7,7 +7,9 @@ import "../../models/point_suggestion.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../utils/formatters.dart";
+import "../../widgets/suggestions_report_sheet.dart";
 import "../../widgets/waste_style.dart";
+import "admin_environmental_report_screen.dart";
 import "admin_point_form_screen.dart";
 
 
@@ -198,6 +200,26 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
     }
   }
 
+  void _openReportSheet() {
+    SuggestionsReportSheet.show(
+      context,
+      suggestions: _allSuggestions,
+      databaseRepository: widget.databaseRepository,
+    );
+  }
+
+  void _openPdfReport({String? neighborhood}) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => AdminEnvironmentalReportScreen(
+          databaseRepository: widget.databaseRepository,
+          initialSuggestions: _allSuggestions,
+          initialNeighborhood: neighborhood,
+        ),
+      ),
+    );
+  }
+
   List<PointSuggestion> get _filteredSuggestions {
     return _allSuggestions.where((PointSuggestion item) {
       return switch (_selectedFilterIndex) {
@@ -325,6 +347,16 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf_rounded),
+            tooltip: "Exportar Relatório Ambiental (PDF)",
+            onPressed: () => _openPdfReport(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.assessment_rounded),
+            tooltip: "Diagnóstico Territorial & Carência",
+            onPressed: _openReportSheet,
+          ),
           IconButton(
             icon: Icon(
               _showTerritorialView
@@ -502,6 +534,51 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+
+          // Ações de Relatório Ambiental e Diagnóstico Territorial
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => _openPdfReport(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                  label: const Text(
+                    "Exportar PDF Geral",
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _openReportSheet,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryAccessible,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(Icons.assessment_outlined, size: 18),
+                  label: const Text(
+                    "Diagnóstico Bairros",
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
 
           const Text(
@@ -532,6 +609,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
                 child: _NeighborhoodDemandCard(
                   demand: item,
                   onConvertSuggestion: _convertToPoint,
+                  onGeneratePdf: () => _openPdfReport(neighborhood: item.neighborhood),
                 ),
               );
             }),
@@ -641,10 +719,12 @@ class _NeighborhoodDemandCard extends StatelessWidget {
   const _NeighborhoodDemandCard({
     required this.demand,
     required this.onConvertSuggestion,
+    this.onGeneratePdf,
   });
 
   final NeighborhoodDemand demand;
   final ValueChanged<PointSuggestion> onConvertSuggestion;
+  final VoidCallback? onGeneratePdf;
 
   @override
   Widget build(BuildContext context) {
@@ -827,6 +907,28 @@ class _NeighborhoodDemandCard extends StatelessWidget {
               }).toList(),
             ),
           ),
+          if (onGeneratePdf != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: onGeneratePdf,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                  ),
+                  icon: const Icon(Icons.picture_as_pdf_rounded, size: 15),
+                  label: const Text(
+                    "Gerar PDF deste Bairro",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

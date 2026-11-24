@@ -9,6 +9,7 @@ import "../../services/admin_auth_service.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "admin_campaigns_screen.dart";
+import "admin_environmental_report_screen.dart";
 import "admin_points_screen.dart";
 import "admin_reviews_screen.dart";
 import "admin_suggestions_screen.dart";
@@ -157,6 +158,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         builder: (BuildContext context) => AdminCampaignsScreen(
           databaseRepository: _repository,
           dataSync: widget.dataSync,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToEnvironmentalReport() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => AdminEnvironmentalReportScreen(
+          databaseRepository: _repository,
         ),
       ),
     );
@@ -334,6 +345,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     iconColor: AppColors.ratingStar,
                     iconBackground: AppColors.warningBackground,
                     onTap: _navigateToReviews,
+                  ),
+                  const SizedBox(height: 10),
+
+                  _AdminModuleCard(
+                    title: "Relatório Ambiental (PDF)",
+                    subtitle: "Exportar indicadores de impacto ecológico e gestão cívica",
+                    icon: Icons.picture_as_pdf_outlined,
+                    iconColor: AppColors.primaryAccessible,
+                    iconBackground: AppColors.primaryTint,
+                    onTap: _navigateToEnvironmentalReport,
                   ),
                   const SizedBox(height: 24),
 

@@ -17,16 +17,13 @@ import "package:eco_monitor/theme/app_colors.dart";
 import "package:eco_monitor/widgets/home_map_top_bar.dart";
 import "package:eco_monitor/widgets/waste_style.dart";
 
-
 // Tests -------------------------------------------------------------------- //
-
 
 void useTallSurface(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1800);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 }
-
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,45 +43,55 @@ void main() {
       expect(WasteType.medicines.color, const Color(0xFFE65100));
     });
 
-    test("DisposalGuideRepositoryLocal possui guia educativo completo para Vidro", () {
-      const DisposalGuideRepositoryLocal repo = DisposalGuideRepositoryLocal();
-      final List<Residue> residues = repo.listResidues();
+    test(
+      "DisposalGuideRepositoryLocal possui guia educativo completo para Vidro",
+      () {
+        const DisposalGuideRepositoryLocal repo =
+            DisposalGuideRepositoryLocal();
+        final List<Residue> residues = repo.listResidues();
 
-      final Residue? glassResidue = residues
-          .where((Residue r) => r.type == WasteType.glass)
-          .firstOrNull;
-      expect(glassResidue, isNotNull);
-      expect(glassResidue!.title, contains("Vidro"));
-      expect(glassResidue.totalSteps, 4);
+        final Residue? glassResidue = residues
+            .where((Residue r) => r.type == WasteType.glass)
+            .firstOrNull;
+        expect(glassResidue, isNotNull);
+        expect(glassResidue!.title, contains("Vidro"));
+        expect(glassResidue.totalSteps, 4);
 
-      final DisposalGuide? guide = repo.stepsGuideFor(WasteType.glass);
-      expect(guide, isNotNull);
-      expect(guide!.steps.length, 4);
-      expect(guide.warning, contains("frasco quebrado"));
-      expect(guide.steps[0].title, contains("Esvazie e higienize"));
-      expect(guide.steps[1].title, contains("tampas"));
-      expect(guide.steps[2].title, contains("quebra"));
-      expect(guide.steps[3].title, contains("ecoponto"));
-    });
+        final DisposalGuide? guide = repo.stepsGuideFor(WasteType.glass);
+        expect(guide, isNotNull);
+        expect(guide!.steps.length, 4);
+        expect(guide.warning, contains("frasco quebrado"));
+        expect(guide.steps[0].title, contains("Esvazie e higienize"));
+        expect(guide.steps[1].title, contains("tampas"));
+        expect(guide.steps[2].title, contains("quebra"));
+        expect(guide.steps[3].title, contains("ecoponto"));
+      },
+    );
 
-    test("collect_points.json contém pontos aptos a receber vidro em Aracaju", () async {
-      final String jsonStr = await rootBundle.loadString(
-        "assets/data/collect_points.json",
-      );
-      final Map<String, dynamic> data =
-          jsonDecode(jsonStr) as Map<String, dynamic>;
-      final List<dynamic> points = data["points"] as List<dynamic>;
+    test(
+      "collect_points.json contém pontos aptos a receber vidro em Aracaju",
+      () async {
+        final String jsonStr = await rootBundle.loadString(
+          "assets/data/collect_points.json",
+        );
+        final Map<String, dynamic> data =
+            jsonDecode(jsonStr) as Map<String, dynamic>;
+        final List<dynamic> points = data["points"] as List<dynamic>;
 
-      final Iterable<dynamic> glassPointsInAracaju = points.where((dynamic p) {
-        final List<dynamic> wastes =
-            (p as Map<String, dynamic>)["acceptedWasteTypes"] as List<dynamic>;
-        final String address = p["address"] as String;
-        return wastes.contains("glass") && address.contains("Aracaju");
-      });
+        final Iterable<dynamic> glassPointsInAracaju = points.where((
+          dynamic p,
+        ) {
+          final List<dynamic> wastes =
+              (p as Map<String, dynamic>)["acceptedWasteTypes"]
+                  as List<dynamic>;
+          final String address = p["address"] as String;
+          return wastes.contains("glass") && address.contains("Aracaju");
+        });
 
-      expect(glassPointsInAracaju, isNotEmpty);
-      expect(glassPointsInAracaju.length, greaterThanOrEqualTo(2));
-    });
+        expect(glassPointsInAracaju, isNotEmpty);
+        expect(glassPointsInAracaju.length, greaterThanOrEqualTo(2));
+      },
+    );
   });
 
   group("T8.1 — Ação Rápida Ponto Mais Próximo", () {
@@ -137,41 +144,32 @@ void main() {
       expect(result.distanceMeters, lessThan(500));
     });
 
-    testWidgets("banner de ponto mais próximo exibe distância proativa e aciona callback", (
-      WidgetTester tester,
-    ) async {
-      useTallSurface(tester);
-      bool tapped = false;
+    testWidgets(
+      "banner de ponto mais próximo exibe distância proativa e aciona callback",
+      (WidgetTester tester) async {
+        useTallSurface(tester);
+        bool tapped = false;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: HomeMapTopBar(
-              selectedWasteTypes: const <WasteType>{},
-              onFilterChanged: (_) {},
-              focusedCampaign: null,
-              onClearCampaign: null,
-              showMapboxTokenWarning: false,
-              isLoadingPoints: false,
-              isEmptyResult: false,
-              emptyMessage: "",
-              locationNotice: null,
-              isListMode: false,
-              nearestDistanceMeters: 450,
-              onQuickNearestPoint: () {
-                tapped = true;
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: NearestPointQuickBanner(
+                distanceMeters: 450,
+                onPressed: () {
+                  tapped = true;
+                },
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text("Mais próximo a 450 m"), findsOneWidget);
-      expect(find.text("Traçar rota direta em 1 toque"), findsOneWidget);
+        expect(find.text("Mais próximo a 450 m"), findsOneWidget);
+        expect(find.text("Traçar rota direta em 1 toque"), findsOneWidget);
 
-      await tester.tap(find.text("Mais próximo a 450 m"));
-      expect(tapped, isTrue);
-    });
+        await tester.tap(find.text("Mais próximo a 450 m"));
+        expect(tapped, isTrue);
+      },
+    );
 
     testWidgets("banner sem distância exibe Ponto mais próximo como padrão", (
       WidgetTester tester,
@@ -180,19 +178,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: HomeMapTopBar(
-              selectedWasteTypes: const <WasteType>{},
-              onFilterChanged: (_) {},
-              focusedCampaign: null,
-              onClearCampaign: null,
-              showMapboxTokenWarning: false,
-              isLoadingPoints: false,
-              isEmptyResult: false,
-              emptyMessage: "",
-              locationNotice: null,
-              isListMode: false,
-              nearestDistanceMeters: null,
-              onQuickNearestPoint: () {},
+            body: NearestPointQuickBanner(
+              distanceMeters: null,
+              onPressed: () {},
             ),
           ),
         ),
@@ -259,44 +247,42 @@ void main() {
       expect(openedResidue!.type, WasteType.medicines);
     });
 
-    testWidgets("busca textual instantânea filtra categoria por termo popular", (
-      WidgetTester tester,
-    ) async {
-      useTallSurface(tester);
-      final store = InMemoryLocalStore();
-      final analytics = WasteSearchAnalyticsRepository(localStore: store);
-      final repo = const DisposalGuideRepositoryLocal();
-      Residue? openedResidue;
+    testWidgets(
+      "busca textual instantânea filtra categoria por termo popular",
+      (WidgetTester tester) async {
+        useTallSurface(tester);
+        final store = InMemoryLocalStore();
+        final analytics = WasteSearchAnalyticsRepository(localStore: store);
+        final repo = const DisposalGuideRepositoryLocal();
+        Residue? openedResidue;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: DisposalGuideScreen(
-            repository: repo,
-            onStartGuide: (Residue r) {
-              openedResidue = r;
-            },
-            analyticsRepository: analytics,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DisposalGuideScreen(
+              repository: repo,
+              onStartGuide: (Residue r) {
+                openedResidue = r;
+              },
+              analyticsRepository: analytics,
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Digita "paracetamol" no campo de busca do guia
-      await tester.enterText(
-        find.byType(TextField),
-        "paracetamol",
-      );
-      await tester.pumpAndSettle();
+        // Digita "paracetamol" no campo de busca do guia
+        await tester.enterText(find.byType(TextField), "paracetamol");
+        await tester.pumpAndSettle();
 
-      expect(find.text('Termo: "paracetamol"'), findsOneWidget);
-      expect(find.text("Remédios vencidos"), findsOneWidget);
+        expect(find.text('Termo: "paracetamol"'), findsOneWidget);
+        expect(find.text("Remédios vencidos"), findsOneWidget);
 
-      await tester.tap(find.text("Iniciar guia"));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text("Iniciar guia"));
+        await tester.pumpAndSettle();
 
-      expect(openedResidue, isNotNull);
-      expect(openedResidue!.type, WasteType.medicines);
-    });
+        expect(openedResidue, isNotNull);
+        expect(openedResidue!.type, WasteType.medicines);
+      },
+    );
 
     testWidgets("busca sem resultados exibe aviso amigável", (
       WidgetTester tester,
@@ -306,18 +292,12 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: DisposalGuideScreen(
-            repository: repo,
-            onStartGuide: (_) {},
-          ),
+          home: DisposalGuideScreen(repository: repo, onStartGuide: (_) {}),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byType(TextField),
-        "termo_inexistente",
-      );
+      await tester.enterText(find.byType(TextField), "termo_inexistente");
       await tester.pumpAndSettle();
 
       expect(
@@ -328,44 +308,44 @@ void main() {
   });
 
   group("T8.2 — Busca Textual na Barra Superior do Mapa", () {
-    testWidgets("busca na Home sugere categorias e invoca callback ao selecionar", (
-      WidgetTester tester,
-    ) async {
-      useTallSurface(tester);
-      WasteType? selectedType;
+    testWidgets(
+      "busca na Home sugere categorias e invoca callback ao selecionar",
+      (WidgetTester tester) async {
+        useTallSurface(tester);
+        WasteType? selectedType;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: HomeMapTopBar(
-              selectedWasteTypes: const <WasteType>{},
-              onFilterChanged: (_) {},
-              focusedCampaign: null,
-              onClearCampaign: null,
-              showMapboxTokenWarning: false,
-              isLoadingPoints: false,
-              isEmptyResult: false,
-              emptyMessage: "",
-              locationNotice: null,
-              isListMode: false,
-              onResidueSearched: (WasteType type) {
-                selectedType = type;
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: HomeMapTopBar(
+                selectedWasteTypes: const <WasteType>{},
+                onFilterChanged: (_) {},
+                showMapboxTokenWarning: false,
+                isLoadingPoints: false,
+                isEmptyResult: false,
+                emptyMessage: "",
+                locationNotice: null,
+                isListMode: false,
+                isSearchActive: true,
+                onResidueSearched: (WasteType type) {
+                  selectedType = type;
+                },
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Digita "pilha" na barra de busca do mapa
-      await tester.enterText(find.byType(TextField), "pilha");
-      await tester.pumpAndSettle();
+        // Digita "pilha" na barra de busca do mapa
+        await tester.enterText(find.byType(TextField), "pilha");
+        await tester.pumpAndSettle();
 
-      expect(find.byType(ActionChip), findsWidgets);
+        expect(find.byType(ActionChip), findsWidgets);
 
-      await tester.tap(find.byType(ActionChip).first);
-      await tester.pumpAndSettle();
+        await tester.tap(find.byType(ActionChip).first);
+        await tester.pumpAndSettle();
 
-      expect(selectedType, WasteType.batteries);
-    });
+        expect(selectedType, WasteType.batteries);
+      },
+    );
   });
 }

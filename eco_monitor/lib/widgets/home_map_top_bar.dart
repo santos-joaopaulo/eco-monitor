@@ -15,14 +15,15 @@ import "waste_style.dart";
 // Home map top bar -------------------------------------------------------- //
 
 
-/// Barra superior flutuante do mapa: busca rápida, atalho do ponto mais próximo, filtros e status.
+/// Barra superior flutuante do mapa: filtros por categorias de resíduos e raio de busca.
+///
+/// O seletor de categorias e o seletor de raio formam uma área compacta de ~80px de altura
+/// combinada, desobstruindo a visualização da malha viária e dos ecopontos no mapa.
 class HomeMapTopBar extends StatelessWidget {
   const HomeMapTopBar({
     super.key,
     required this.selectedWasteTypes,
     required this.onFilterChanged,
-    required this.focusedCampaign,
-    required this.onClearCampaign,
     required this.showMapboxTokenWarning,
     required this.isLoadingPoints,
     required this.isEmptyResult,
@@ -31,23 +32,24 @@ class HomeMapTopBar extends StatelessWidget {
     required this.isListMode,
     this.isFavoritesOnly = false,
     this.onFavoritesToggle,
-    this.onQuickNearestPoint,
-    this.nearestDistanceMeters,
-    this.onResidueSearched,
-    this.searchService = const ResidueSearchService(),
-    this.showQuickAction = true,
-    this.isSearchActive = false,
-    this.onSearchActiveChanged,
     this.selectedRadius = ProximityRadius.fiveKm,
     this.onRadiusChanged,
     this.isRadiusEmpty = false,
     this.onExpandRadius,
+    this.isSearchActive = false,
+    this.onSearchActiveChanged,
+    this.onResidueSearched,
+    this.searchService = const ResidueSearchService(),
+    this.onSearchClose,
+    this.focusedCampaign,
+    this.onClearCampaign,
+    this.onQuickNearestPoint,
+    this.nearestDistanceMeters,
+    this.showQuickAction = true,
   });
 
   final Set<WasteType> selectedWasteTypes;
   final ValueChanged<Set<WasteType>> onFilterChanged;
-  final Campaign? focusedCampaign;
-  final VoidCallback? onClearCampaign;
   final bool showMapboxTokenWarning;
   final bool isLoadingPoints;
   final bool isEmptyResult;
@@ -69,39 +71,36 @@ class HomeMapTopBar extends StatelessWidget {
   /// Ação rápida de 1 toque para expandir a busca quando o raio estiver vazio (T11.1).
   final VoidCallback? onExpandRadius;
 
-  /// Ação rápida para localizar e iniciar rota ao ponto mais próximo em 1 toque (T8.1).
-  final VoidCallback? onQuickNearestPoint;
-
-  /// Distância estimada em metros até o ecoponto mais próximo.
-  final double? nearestDistanceMeters;
-
-  /// Chamado quando o usuário busca e seleciona um resíduo pela barra de busca textual (T8.2).
-  final ValueChanged<WasteType>? onResidueSearched;
-
-  /// Serviço de catálogo e sinônimos de resíduos.
-  final ResidueSearchService searchService;
-
-  /// Controla a visibilidade do atalho de ponto mais próximo (oculto quando há ponto selecionado).
-  final bool showQuickAction;
-
   /// Indica se a busca textual está em foco ou ativa na tela.
   final bool isSearchActive;
 
   /// Notifica quando o estado de foco/atividade da busca textual se altera.
   final ValueChanged<bool>? onSearchActiveChanged;
 
+  /// Callback de encerramento da busca.
+  final VoidCallback? onSearchClose;
+
+  /// Chamado quando o usuário busca e seleciona um resíduo pela busca rápida.
+  final ValueChanged<WasteType>? onResidueSearched;
+
+  /// Serviço de catálogo e sinônimos de resíduos.
+  final ResidueSearchService searchService;
+
+  final Campaign? focusedCampaign;
+  final VoidCallback? onClearCampaign;
+  final VoidCallback? onQuickNearestPoint;
+  final double? nearestDistanceMeters;
+  final bool showQuickAction;
+
   @override
   Widget build(BuildContext context) {
-    final bool hideButtons = isSearchActive ||
-        (MediaQuery.viewInsetsOf(context).bottom > 0);
-
     return SafeArea(
       bottom: false,
 
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           kEcoContentHorizontalPadding,
-          10,
+          6,
           kEcoContentHorizontalPadding,
           0,
         ),
@@ -109,25 +108,15 @@ class HomeMapTopBar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Barra de busca textual rápida de resíduos (T8.2)
-            _HomeSearchBar(
-              searchService: searchService,
-              onSelectWasteType: onResidueSearched,
-              onActiveChanged: onSearchActiveChanged,
-            ),
-
-            if (!hideButtons) ...[
-              const SizedBox(height: 8),
-
-              // Atalho de ação rápida proeminente: Ponto Mais Próximo (T8.1)
-              if (showQuickAction && onQuickNearestPoint != null) ...[
-                _NearestPointQuickBanner(
-                  distanceMeters: nearestDistanceMeters,
-                  onPressed: onQuickNearestPoint!,
-                ),
-                const SizedBox(height: 8),
-              ],
-
+            if (isSearchActive) ...[
+              HomeSearchBar(
+                searchService: searchService,
+                autofocus: true,
+                onSelectWasteType: onResidueSearched,
+                onActiveChanged: onSearchActiveChanged,
+                onClose: onSearchClose,
+              ),
+            ] else ...[
               // Barra de filtros por chips
               FilterBar(
                 selectedTypes: selectedWasteTypes,
@@ -136,35 +125,25 @@ class HomeMapTopBar extends StatelessWidget {
                 onFavoritesToggle: onFavoritesToggle,
               ),
 
-              // Controle de raio de proximidade configurável (T11.1)
-              if (onRadiusChanged != null) ...[
-                const SizedBox(height: 8),
-                RadiusFilterBar(
-                  selectedRadius: selectedRadius,
-                  onChanged: onRadiusChanged!,
-                ),
-              ],
+              // Controle de raio de proximidade configurável com espaçamento compacto (~80px altura combinada)
+              const SizedBox(height: 6),
+              RadiusFilterBar(
+                selectedRadius: selectedRadius,
+                onChanged: onRadiusChanged ?? (_) {},
+              ),
             ],
 
             // Aviso amigável quando nenhum ecoponto é localizado no raio selecionado (T11.1)
             if (isRadiusEmpty && onExpandRadius != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               EmptyRadiusNoticePill(
                 radius: selectedRadius,
                 onExpand: onExpandRadius!,
               ),
             ],
 
-            if (focusedCampaign != null) ...[
-              const SizedBox(height: 8),
-              _FocusedCampaignChip(
-                campaign: focusedCampaign!,
-                onClear: onClearCampaign,
-              ),
-            ],
-
             if (showMapboxTokenWarning) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               const _MapStatusPill(
                 message: "Configure o token do Mapbox",
                 icon: Icons.info_outline,
@@ -172,14 +151,14 @@ class HomeMapTopBar extends StatelessWidget {
             ],
 
             if (isLoadingPoints) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               const _MapStatusPill(
                 message: "Carregando pontos...",
                 isLoading: true,
               ),
-            ] else if (!isListMode && isEmptyResult) ...[
-              const SizedBox(height: 8),
-
+            ] else if (!isListMode && isEmptyResult && !isRadiusEmpty) ...[
+              // Suprime _MapStatusPill redundante se isRadiusEmpty já estiver ativo
+              const SizedBox(height: 6),
               _MapStatusPill(
                 message: emptyMessage,
                 icon: Icons.location_off_outlined,
@@ -187,7 +166,7 @@ class HomeMapTopBar extends StatelessWidget {
             ],
 
             if (locationNotice != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
@@ -208,23 +187,28 @@ class HomeMapTopBar extends StatelessWidget {
 // Classes ----------------------------------------------------------------- //
 
 
-/// Campo de busca textual acessível no topo da Home para consulta rápida de resíduos.
-class _HomeSearchBar extends StatefulWidget {
-  const _HomeSearchBar({
-    required this.searchService,
+/// Campo de busca textual expansível sob demanda para consulta rápida de resíduos no mapa.
+class HomeSearchBar extends StatefulWidget {
+  const HomeSearchBar({
+    super.key,
+    this.searchService = const ResidueSearchService(),
     this.onSelectWasteType,
     this.onActiveChanged,
+    this.onClose,
+    this.autofocus = true,
   });
 
   final ResidueSearchService searchService;
   final ValueChanged<WasteType>? onSelectWasteType;
   final ValueChanged<bool>? onActiveChanged;
+  final VoidCallback? onClose;
+  final bool autofocus;
 
   @override
-  State<_HomeSearchBar> createState() => _HomeSearchBarState();
+  State<HomeSearchBar> createState() => _HomeSearchBarState();
 }
 
-class _HomeSearchBarState extends State<_HomeSearchBar> {
+class _HomeSearchBarState extends State<HomeSearchBar> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   List<WasteTypeSearchResult> _results = const <WasteTypeSearchResult>[];
@@ -234,6 +218,13 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _focusNode.requestFocus();
+        }
+      });
+    }
   }
 
   void _onFocusChanged() {
@@ -274,6 +265,8 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
       _isOpen = false;
     });
     FocusScope.of(context).unfocus();
+    widget.onClose?.call();
+    widget.onActiveChanged?.call(false);
   }
 
   void _clearSearch() {
@@ -284,6 +277,13 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
       _isOpen = false;
     });
     FocusScope.of(context).unfocus();
+  }
+
+  void _handleClose() {
+    _focusNode.unfocus();
+    FocusScope.of(context).unfocus();
+    widget.onClose?.call();
+    widget.onActiveChanged?.call(false);
   }
 
   @override
@@ -305,15 +305,17 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
           Semantics(
             textField: true,
             label: "Buscar resíduo no mapa",
+
             child: Material(
-              elevation: 3,
-              shadowColor: Colors.black.withAlpha(35),
+              elevation: 4,
+              shadowColor: Colors.black.withAlpha(45),
               borderRadius: BorderRadius.circular(16),
               color: AppColors.surface,
 
               child: TextField(
                 controller: _controller,
                 focusNode: _focusNode,
+                autofocus: widget.autofocus,
                 onChanged: _onQueryChanged,
                 textInputAction: TextInputAction.search,
                 onSubmitted: (String value) {
@@ -329,10 +331,14 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
                     fontSize: 13,
                     color: AppColors.textSecondary,
                   ),
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    size: 20,
-                    color: AppColors.primary,
+                  prefixIcon: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      size: 20,
+                      color: AppColors.primary,
+                    ),
+                    tooltip: "Fechar busca",
+                    onPressed: _handleClose,
                   ),
                   suffixIcon: _controller.text.isNotEmpty
                       ? IconButton(
@@ -412,9 +418,14 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
   }
 }
 
+
+// Classes ----------------------------------------------------------------- //
+
+
 /// Botão de ação rápida proeminente que conduz diretamente ao ponto mais próximo (T8.1).
-class _NearestPointQuickBanner extends StatelessWidget {
-  const _NearestPointQuickBanner({
+class NearestPointQuickBanner extends StatelessWidget {
+  const NearestPointQuickBanner({
+    super.key,
     required this.distanceMeters,
     required this.onPressed,
   });
@@ -453,7 +464,7 @@ class _NearestPointQuickBanner extends StatelessWidget {
                   Container(
                     width: 32,
                     height: 32,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.primaryTint,
                       shape: BoxShape.circle,
                     ),
@@ -530,80 +541,9 @@ class _NearestPointQuickBanner extends StatelessWidget {
   }
 }
 
-class _FocusedCampaignChip extends StatelessWidget {
-  const _FocusedCampaignChip({required this.campaign, this.onClear});
 
-  final Campaign campaign;
-  final VoidCallback? onClear;
+// Classes ----------------------------------------------------------------- //
 
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
-
-      child: Material(
-        color: AppColors.surface,
-        elevation: 4,
-        shadowColor: Colors.black.withAlpha(45),
-        borderRadius: BorderRadius.circular(18),
-
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
-
-          child: Row(
-            children: [
-              const Icon(
-                Icons.event_available_rounded,
-                size: 22,
-                color: AppColors.primaryAccessible,
-              ),
-              const SizedBox(width: 10),
-
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      campaign.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      campaign.locationName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              if (onClear != null)
-                IconButton(
-                  onPressed: onClear,
-                  icon: const Icon(
-                    Icons.close,
-                    size: 20,
-                    color: AppColors.textSecondary,
-                  ),
-                  tooltip: "Fechar campanha",
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _MapStatusPill extends StatelessWidget {
   const _MapStatusPill({

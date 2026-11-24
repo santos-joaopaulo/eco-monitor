@@ -41,10 +41,8 @@ class _TestLocationService extends LocationService {
       LocationPermissionState.granted;
 
   @override
-  Future<UserLocation?> currentPosition() async => const UserLocation(
-        latitude: -10.93,
-        longitude: -37.08,
-      );
+  Future<UserLocation?> currentPosition() async =>
+      const UserLocation(latitude: -10.93, longitude: -37.08);
 
   @override
   Stream<UserLocation> positionStream({int distanceFilter = 5}) {
@@ -71,25 +69,22 @@ void main() {
         );
         await tester.pumpAndSettle();
 
+        // Aciona o botão de busca na tela para expandir a barra de pesquisa
+        final Finder searchButton = find.byTooltip("Buscar resíduo");
+        expect(searchButton, findsOneWidget);
+        await tester.tap(searchButton);
+        await tester.pumpAndSettle();
+
         final Finder searchField = find.byType(TextField);
         expect(searchField, findsOneWidget);
 
         final TextField textFieldBefore = tester.widget<TextField>(searchField);
         final FocusNode focusNode = textFieldBefore.focusNode!;
-        expect(focusNode.hasFocus, isFalse);
-
-        // Primeiro toque na barra de pesquisa
-        await tester.tap(searchField);
-        await tester.pump();
-
-        final TextField textFieldAfter = tester.widget<TextField>(searchField);
-        // O foco se mantém ativo no primeiro toque
-        expect(textFieldAfter.focusNode?.hasFocus, isTrue);
-        expect(identical(textFieldBefore.focusNode, textFieldAfter.focusNode), isTrue);
+        expect(focusNode.hasFocus, isTrue);
 
         // Simulando passagem do tempo (teclado aberto)
         await tester.pump(const Duration(milliseconds: 500));
-        expect(textFieldAfter.focusNode?.hasFocus, isTrue);
+        expect(focusNode.hasFocus, isTrue);
       },
     );
 
