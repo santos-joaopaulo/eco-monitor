@@ -100,6 +100,77 @@ abstract final class PointPin {
 
     return data!.buffer.asUint8List();
   }
+
+  static final Map<int, Uint8List> _clusterCache = <int, Uint8List>{};
+
+  /// Renderiza uma bolha circular estilizada com a contagem de pontos acumulados para clusters do Mapbox (T11.2).
+  static Future<Uint8List> renderCluster({required int count}) async {
+    final Uint8List? cached = _clusterCache[count];
+    if (cached != null) {
+      return cached;
+    }
+
+    const int size = 80;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+
+    const double center = size / 2.0;
+    const double radius = 32.0;
+    const Offset centerOffset = Offset(center, center);
+
+    // Sombra suave
+    final Path circlePath = Path()
+      ..addOval(Rect.fromCircle(center: centerOffset, radius: radius));
+    canvas.drawShadow(circlePath, Colors.black.withAlpha(90), 6.0, true);
+
+    // Fundo circular AppColors.primaryAccessible (WCAG AA alto contraste)
+    final Paint fillPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill
+      ..color = AppColors.primaryAccessible;
+    canvas.drawCircle(centerOffset, radius, fillPaint);
+
+    // Borda branca contrastante
+    final Paint borderPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.5
+      ..color = Colors.white;
+    canvas.drawCircle(centerOffset, radius, borderPaint);
+
+    // Texto com a contagem acumulada
+    final String label = count > 99 ? "99+" : count.toString();
+    final TextPainter painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          fontSize: label.length > 2 ? 18.0 : 22.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    painter.paint(
+      canvas,
+      centerOffset - Offset(painter.width / 2.0, painter.height / 2.0),
+    );
+    painter.dispose();
+
+    final ui.Picture picture = recorder.endRecording();
+    final ui.Image image = await picture.toImage(size, size);
+    final ByteData? data = await image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+
+    image.dispose();
+    picture.dispose();
+
+    final Uint8List bytes = data!.buffer.asUint8List();
+    _clusterCache[count] = bytes;
+    return bytes;
+  }
 }
 
 

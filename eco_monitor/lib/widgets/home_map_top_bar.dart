@@ -6,7 +6,9 @@ import "../services/residue_search_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
+import "../utils/spatial_index.dart";
 import "filter_bar.dart";
+import "radius_filter_bar.dart";
 import "waste_style.dart";
 
 
@@ -36,6 +38,10 @@ class HomeMapTopBar extends StatelessWidget {
     this.showQuickAction = true,
     this.isSearchActive = false,
     this.onSearchActiveChanged,
+    this.selectedRadius = ProximityRadius.fiveKm,
+    this.onRadiusChanged,
+    this.isRadiusEmpty = false,
+    this.onExpandRadius,
   });
 
   final Set<WasteType> selectedWasteTypes;
@@ -50,6 +56,18 @@ class HomeMapTopBar extends StatelessWidget {
   final bool isListMode;
   final bool isFavoritesOnly;
   final VoidCallback? onFavoritesToggle;
+
+  /// Raio de proximidade atualmente ativo (T11.1).
+  final ProximityRadius selectedRadius;
+
+  /// Callback de alteração de raio de proximidade configurável (T11.1).
+  final ValueChanged<ProximityRadius>? onRadiusChanged;
+
+  /// Indica que nenhum ponto atende ao raio ativo, exibindo botão de expansão (T11.1).
+  final bool isRadiusEmpty;
+
+  /// Ação rápida de 1 toque para expandir a busca quando o raio estiver vazio (T11.1).
+  final VoidCallback? onExpandRadius;
 
   /// Ação rápida para localizar e iniciar rota ao ponto mais próximo em 1 toque (T8.1).
   final VoidCallback? onQuickNearestPoint;
@@ -116,6 +134,24 @@ class HomeMapTopBar extends StatelessWidget {
                 onChanged: onFilterChanged,
                 isFavoritesOnly: isFavoritesOnly,
                 onFavoritesToggle: onFavoritesToggle,
+              ),
+
+              // Controle de raio de proximidade configurável (T11.1)
+              if (onRadiusChanged != null) ...[
+                const SizedBox(height: 8),
+                RadiusFilterBar(
+                  selectedRadius: selectedRadius,
+                  onChanged: onRadiusChanged!,
+                ),
+              ],
+            ],
+
+            // Aviso amigável quando nenhum ecoponto é localizado no raio selecionado (T11.1)
+            if (isRadiusEmpty && onExpandRadius != null) ...[
+              const SizedBox(height: 8),
+              EmptyRadiusNoticePill(
+                radius: selectedRadius,
+                onExpand: onExpandRadius!,
               ),
             ],
 

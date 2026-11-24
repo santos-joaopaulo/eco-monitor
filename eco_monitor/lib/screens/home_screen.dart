@@ -7,6 +7,7 @@ import "package:provider/provider.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
+import "../data/route_cache_store.dart";
 import "../data/waste_search_analytics_repository.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/usecases/get_nearest_point_use_case.dart";
@@ -19,6 +20,7 @@ import "../services/route_service.dart";
 import "../theme/app_colors.dart";
 import "../utils/geo.dart";
 import "../utils/point_filters.dart";
+import "../utils/spatial_index.dart";
 import "../widgets/collect_point_sheet.dart";
 import "../widgets/collect_points_layer.dart";
 import "../widgets/collect_points_list_view.dart";
@@ -46,6 +48,8 @@ class HomeScreen extends StatefulWidget {
     this.locationService = const LocationService(),
     this.isActive = true,
     this.onActiveSheetChanged,
+    this.routeService,
+    this.routeCacheStore,
   });
 
   /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
@@ -71,6 +75,12 @@ class HomeScreen extends StatefulWidget {
   /// Notifica quando um Bottom Sheet (detalhes do ponto ou rota) está ativo,
   /// permitindo que a barra de navegação seja sobreposta por completo.
   final ValueChanged<bool>? onActiveSheetChanged;
+
+  /// Serviço de rotas viárias e navegação (RF04, RF05, T11.3).
+  final RouteService? routeService;
+
+  /// Armazenamento em cache LRU de rotas viárias offline (T11.3).
+  final RouteCacheStore? routeCacheStore;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -281,6 +291,10 @@ class _HomeScreenState extends State<HomeScreen>
             });
           }
         },
+        selectedRadius: _selectedRadius,
+        onRadiusChanged: _handleRadiusChanged,
+        isRadiusEmpty: _isRadiusEmpty,
+        onExpandRadius: _handleExpandRadius,
       );
     }
 
@@ -300,6 +314,9 @@ class _HomeScreenState extends State<HomeScreen>
                 key: const ValueKey("aracaju-map"),
                 onMapCreated: _onMapCreated,
                 onStyleLoadedListener: _onStyleLoaded,
+                onCameraChangeListener: (CameraChangedEventData event) {
+                  _pointsLayer?.updateCameraZoom(event.cameraState.zoom);
+                },
 
                 viewport: CameraViewportState(
                   center: Point(coordinates: Position(0, 20)),

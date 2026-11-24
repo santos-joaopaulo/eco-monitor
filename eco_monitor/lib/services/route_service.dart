@@ -5,6 +5,7 @@ import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
 import "package:url_launcher/url_launcher.dart";
 
+import "../data/route_cache_store.dart";
 import "../models/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
@@ -33,6 +34,7 @@ class RouteSummary {
     this.cardinalDirection = "Norte",
     this.isArrived = false,
     this.isOfflineFallback = true,
+    this.isFromCache = false,
     this.routeCoordinates = const <List<double>>[],
   });
 
@@ -57,6 +59,9 @@ class RouteSummary {
   /// Indica se a rota está operando em modo offline/vetor direto.
   final bool isOfflineFallback;
 
+  /// Indica se a rota foi recuperada do cache LRU local (T11.3).
+  final bool isFromCache;
+
   /// Coordenadas [longitude, latitude] que compõem a polilinha no mapa.
   final List<List<double>> routeCoordinates;
 }
@@ -70,10 +75,26 @@ typedef UriLauncher = Future<bool> Function(Uri uri);
 /// Constrói estimativas de rota (online via Mapbox Directions e fallback offline)
 /// e provê navegação no próprio aplicativo ou atalho externo (RF04, RF05).
 class RouteService {
-  const RouteService({this.launcher, this.httpClient});
+  const RouteService({
+    this.launcher,
+    this.httpClient,
+    this.cacheStore,
+  });
 
   final UriLauncher? launcher;
   final http.Client? httpClient;
+  final RouteCacheStore? cacheStore;
+
+  static RouteCacheStore? _defaultStore;
+
+  /// Retorna o [RouteCacheStore] efetivo associado a este serviço.
+  RouteCacheStore get effectiveCacheStore =>
+      cacheStore ?? (_defaultStore ??= RouteCacheStore());
+
+  @visibleForTesting
+  static set defaultStore(RouteCacheStore? store) {
+    _defaultStore = store;
+  }
 
 
   // Methods --------------------------------------------------------------- //
@@ -170,6 +191,7 @@ class RouteService {
       cardinalDirection: cardinalDirectionFromDegrees(bearing),
       isArrived: arrived,
       isOfflineFallback: isOffline,
+      isFromCache: previousSummary?.isFromCache ?? false,
       routeCoordinates: coords,
     );
   }
@@ -183,6 +205,61 @@ class RouteService {
     String? accessToken,
     http.Client? client,
   }) async {
+    // 1. Consulta prévia ao cache inteligente LRU (T11.3)
+    final RouteCacheStore cache = effectiveCacheStore;
+    final CachedRoute? cached = await cache.getRoute(
+      originLat: origin.latitude,
+      originLon: origin.longitude,
+      destLat: destination.latitude,
+      destLon: destination.longitude,
+      travelMode: travelMode,
+    );
+
+    if (cached != null) {
+      final double rawDirectDistance = distanceInMeters(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude,
+      );
+      final double bearing = bearingInDegrees(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude,
+      );
+      final bool arrived = rawDirectDistance <= kArrivalThresholdMeters;
+
+      List<List<double>> effectiveCoords = cached.routeCoordinates;
+      if (effectiveCoords.isNotEmpty) {
+        final double distToFirst = distanceInMeters(
+          origin.latitude,
+          origin.longitude,
+          effectiveCoords.first[1],
+          effectiveCoords.first[0],
+        );
+        // Conecta a posição atual do usuário ao traçado viário se houver leve oscilação de GPS
+        if (distToFirst > 5 && distToFirst <= 120) {
+          effectiveCoords = <List<double>>[
+            <double>[origin.longitude, origin.latitude],
+            ...effectiveCoords,
+          ];
+        }
+      }
+
+      return RouteSummary(
+        distanceMeters: arrived ? 0 : cached.distanceMeters,
+        estimatedMinutes: arrived ? 0 : cached.estimatedMinutes,
+        travelMode: cached.travelMode,
+        bearingDegrees: bearing,
+        cardinalDirection: cardinalDirectionFromDegrees(bearing),
+        isArrived: arrived,
+        isOfflineFallback: false,
+        isFromCache: true,
+        routeCoordinates: effectiveCoords,
+      );
+    }
+
     final String? token = accessToken;
     if (!isOnline || token == null || token.isEmpty) {
       return buildRouteSummary(origin, destination, travelMode: travelMode);
@@ -241,6 +318,18 @@ class RouteService {
               <double>[origin.longitude, origin.latitude],
               <double>[destination.longitude, destination.latitude],
             ];
+
+      // Salva no cache inteligente LRU para reutilizações subsequentes
+      await cache.putRoute(
+        originLat: origin.latitude,
+        originLon: origin.longitude,
+        destLat: destination.latitude,
+        destLon: destination.longitude,
+        travelMode: travelMode,
+        distanceMeters: distance,
+        estimatedMinutes: minutes,
+        routeCoordinates: coordinates,
+      );
 
       final double rawDirectDistance = distanceInMeters(
         origin.latitude,

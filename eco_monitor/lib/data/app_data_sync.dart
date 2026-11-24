@@ -29,17 +29,22 @@ class AppDataSync extends ChangeNotifier {
     required this.guideRepository,
     required this.connectivityService,
     this.reviewsRepository,
+    this.syncInterval,
   });
 
   /// Constrói a instância de produção de [AppDataSync] conectada ao Cloud Firestore
   /// quando o Firebase estiver inicializado, ou apenas offline caso contrário.
-  factory AppDataSync.createDefault({bool? firebaseEnabled}) {
+  factory AppDataSync.createDefault({
+    bool? firebaseEnabled,
+    Duration? syncInterval,
+  }) {
     final bool useRemote = firebaseEnabled ?? isFirebaseReady;
     final ConnectivityService connectivity = ConnectivityService();
 
     return AppDataSync(
       collectPointsRepository: CollectPointsRepository(
         fetcher: useRemote ? createFirestoreFetcher() : null,
+        deltaFetcher: useRemote ? createFirestoreDeltaFetcher() : null,
       ),
       campaignsRepository: CampaignsRepository(
         fetcher: useRemote ? createFirestoreCampaignsFetcher() : null,
@@ -56,6 +61,7 @@ class AppDataSync extends ChangeNotifier {
         isOnlineChecker: () => connectivity.checkNow(),
       ),
       connectivityService: connectivity,
+      syncInterval: syncInterval ?? const Duration(hours: 6),
     );
   }
 
@@ -65,8 +71,10 @@ class AppDataSync extends ChangeNotifier {
   final DisposalGuideRepositorySynced guideRepository;
   final ConnectivityService connectivityService;
   final PointReviewsRepository? reviewsRepository;
+  final Duration? syncInterval;
 
   StreamSubscription<bool>? _connectivitySubscription;
+  Timer? _periodicSyncTimer;
   bool _initialized = false;
   bool _disposed = false;
 
@@ -108,6 +116,37 @@ class AppDataSync extends ChangeNotifier {
 
     if (_isOnline) {
       await refreshAll();
+    }
+
+    // Configura checagem periódica silenciosa de deltas em segundo plano (T11.4)
+    final Duration? interval = syncInterval;
+    if (interval != null) {
+      _periodicSyncTimer = Timer.periodic(
+        interval,
+        (_) => unawaited(checkDeltaSilently()),
+      );
+    }
+  }
+
+  /// Executa checagem periódica silenciosa de deltas em segundo plano sem bloquear a interface (T11.4).
+  Future<void> checkDeltaSilently() async {
+    if (_disposed || _isSyncing) {
+      return;
+    }
+
+    final bool online = await connectivityService.checkNow();
+    if (!online) {
+      return;
+    }
+
+    try {
+      final List<CollectionPoint> refreshedPoints =
+          await collectPointsRepository.refresh();
+      _points = List<CollectionPoint>.unmodifiable(refreshedPoints);
+      _isStale = collectPointsRepository.isStale;
+      _notifySafely();
+    } catch (_) {
+      // Ignora falhas em background para não degradar a experiência do usuário
     }
   }
 
@@ -211,6 +250,8 @@ class AppDataSync extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _periodicSyncTimer?.cancel();
+    _periodicSyncTimer = null;
     _connectivitySubscription?.cancel();
     connectivityService.dispose();
     super.dispose();

@@ -18,12 +18,14 @@ class LocationNotice extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.isLoading = false,
+    this.icon = Icons.location_off_outlined,
   });
 
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
   final bool isLoading;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +58,8 @@ class LocationNotice extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(
-                        Icons.location_off_outlined,
+                      Icon(
+                        icon,
                         size: 20,
                         color: AppColors.textSecondary,
                       ),
@@ -117,8 +119,8 @@ class LocationNotice extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               else
-                const Icon(
-                  Icons.location_off_outlined,
+                Icon(
+                  icon,
                   size: 20,
                   color: AppColors.textSecondary,
                 ),

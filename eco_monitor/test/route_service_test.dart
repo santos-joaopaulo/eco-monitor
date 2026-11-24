@@ -5,6 +5,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart" as http;
 import "package:http/testing.dart";
 
+import "package:eco_monitor/data/local_store.dart";
+import "package:eco_monitor/data/route_cache_store.dart";
 import "package:eco_monitor/domain/entities/waste_type.dart";
 import "package:eco_monitor/models/collection_point.dart";
 import "package:eco_monitor/services/location_service.dart";
@@ -40,6 +42,14 @@ const UserLocation user = UserLocation(latitude: -10.95, longitude: -37.067);
 
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    RouteService.defaultStore = RouteCacheStore(
+      localStore: InMemoryLocalStore(),
+    );
+  });
+
   const RouteService service = RouteService();
 
   group("buildRouteSummary", () {

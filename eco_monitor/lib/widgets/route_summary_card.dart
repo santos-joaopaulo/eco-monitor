@@ -216,7 +216,7 @@ class RouteSummaryCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (isArrived || (route != null && route.isOfflineFallback)) ...[
+                  if (isArrived || (route != null && (route.isOfflineFallback || route.isFromCache))) ...[
                     const SizedBox(height: 14),
 
                     Container(
@@ -226,7 +226,7 @@ class RouteSummaryCard extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: isArrived
+                        color: isArrived || (route?.isFromCache ?? false)
                             ? AppColors.primaryTint
                             : AppColors.surfaceSection,
                         borderRadius: BorderRadius.circular(12),
@@ -240,6 +240,12 @@ class RouteSummaryCard extends StatelessWidget {
                               Icons.check_circle_rounded,
                               size: 20,
                               color: AppColors.primary,
+                            )
+                          else if (route?.isFromCache ?? false)
+                            const Icon(
+                              Icons.offline_pin_rounded,
+                              size: 20,
+                              color: AppColors.primaryAccessible,
                             )
                           else
                             Transform.rotate(
@@ -260,11 +266,13 @@ class RouteSummaryCard extends StatelessWidget {
                                 Text(
                                   isArrived
                                       ? "Você chegou ao ponto de coleta!"
-                                      : "Siga rumo ao ${route?.cardinalDirection ?? ""}.",
+                                      : ((route?.isFromCache ?? false)
+                                          ? "Rota viária recuperada do cache local"
+                                          : "Siga rumo ao ${route?.cardinalDirection ?? ""}."),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: isArrived
+                                    color: isArrived || (route?.isFromCache ?? false)
                                         ? AppColors.primaryAccessible
                                         : AppColors.textPrimary,
                                   ),
@@ -274,10 +282,12 @@ class RouteSummaryCard extends StatelessWidget {
                                 Text(
                                   isArrived
                                       ? "Realize seu descarte consciente nos coletores disponíveis."
-                                      : "Modo offline: traçado direto por vetor e estimativa local.",
+                                      : ((route?.isFromCache ?? false)
+                                          ? "Navegação disponível sem internet com base no trajeto salvo."
+                                          : "Modo offline: traçado direto por vetor e estimativa local."),
                                   style: TextStyle(
                                     fontSize: 11.5,
-                                    color: isArrived
+                                    color: isArrived || (route?.isFromCache ?? false)
                                         ? AppColors.primaryAccessible
                                         : AppColors.textSecondary,
                                   ),

@@ -16,6 +16,7 @@ import "package:eco_monitor/utils/geo.dart";
 import "package:eco_monitor/widgets/collect_point_sheet.dart";
 import "package:eco_monitor/widgets/custom_bottom_nav_bar.dart";
 import "package:eco_monitor/widgets/home_map_controls.dart";
+import "package:eco_monitor/widgets/location_notice.dart";
 import "package:eco_monitor/widgets/offline_banner.dart";
 import "package:eco_monitor/widgets/route_summary_card.dart";
 
@@ -101,8 +102,8 @@ void main() {
     MapboxTokenProvider.token = "";
   });
 
-  group("T6.1 — Redesenho do aviso OfflineBanner em estilo pílula e linha única", () {
-    testWidgets("renders pill shape, max width constraint, and textSecondary color", (
+  group("T6.1 — Padronização do aviso OfflineBanner com padrão LocationNotice", () {
+    testWidgets("renders LocationNotice standard, max width constraint, and textPrimary color", (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -118,6 +119,7 @@ void main() {
       );
 
       expect(find.text("Sem conexão · Dados salvos (+1)"), findsOneWidget);
+      expect(find.byType(LocationNotice), findsOneWidget);
 
       final Finder constrainedBoxFinder = find.byWidgetPredicate((Widget w) {
         return w is ConstrainedBox &&
@@ -127,8 +129,8 @@ void main() {
 
       final Finder textFinder = find.text("Sem conexão · Dados salvos (+1)");
       final Text textWidget = tester.widget<Text>(textFinder);
-      expect(textWidget.style?.color, AppColors.textSecondary);
-      expect(textWidget.maxLines, 1);
+      expect(textWidget.style?.color, AppColors.textPrimary);
+      expect(textWidget.maxLines, 3);
       expect(textWidget.overflow, TextOverflow.ellipsis);
     });
   });

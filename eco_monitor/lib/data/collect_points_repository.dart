@@ -42,10 +42,14 @@ class CollectPointsRemoteSnapshot {
   const CollectPointsRemoteSnapshot({
     required this.points,
     required this.updatedAt,
+    this.isDelta = false,
+    this.deletedIds = const <String>[],
   });
 
   final List<CollectionPoint> points;
   final DateTime updatedAt;
+  final bool isDelta;
+  final List<String> deletedIds;
 }
 
 /// Função usada por [CollectPointsRepository.refresh] para buscar dados mais recentes.
@@ -53,6 +57,11 @@ class CollectPointsRemoteSnapshot {
 /// Quando nula, o repositório sempre recorre ao cache local ou ao arquivo
 /// empacotado em vez de simular uma atualização.
 typedef CollectPointsFetcher = Future<CollectPointsRemoteSnapshot> Function();
+
+/// Função que suporta sincronização incremental a partir de um timestamp de referência (T11.4).
+typedef CollectPointsDeltaFetcher = Future<CollectPointsRemoteSnapshot> Function(
+  DateTime? since,
+);
 
 
 // Classes ----------------------------------------------------------------- //
@@ -66,6 +75,7 @@ class CollectPointsRepository implements ICollectPointsRepository {
   CollectPointsRepository({
     AssetBundle? assetBundle,
     this.fetcher,
+    this.deltaFetcher,
     LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
     DateTime Function()? clock,
@@ -78,8 +88,11 @@ class CollectPointsRepository implements ICollectPointsRepository {
 
   final AssetBundle _assetBundle;
 
-  /// Fonte remota opcional; nula quando em modo exclusivamente offline.
+  /// Fonte remota opcional para carga completa; nula quando em modo exclusivamente offline.
   final CollectPointsFetcher? fetcher;
+
+  /// Fonte remota com suporte a consultas delta incrementais (T11.4).
+  final CollectPointsDeltaFetcher? deltaFetcher;
 
   final LocalStore _store;
   final DateTime Function() _clock;
@@ -95,7 +108,7 @@ class CollectPointsRepository implements ICollectPointsRepository {
   DataSourceOrigin? get sourceOrigin => _sourceOrigin;
 
   @override
-  bool get hasRemoteSource => fetcher != null;
+  bool get hasRemoteSource => fetcher != null || deltaFetcher != null;
 
   @override
   bool get isStale {
@@ -199,31 +212,84 @@ class CollectPointsRepository implements ICollectPointsRepository {
 
   /// Tenta atualizar o cache local e retorna o conjunto de dados mais recente conhecido.
   ///
-  /// Sem um [CollectPointsFetcher], retorna [loadOffline] sem alterações, garantindo
-  /// que o timestamp da última atualização nunca seja forjado.
+  /// Suporta sincronização incremental inteligente (merge de deltas e remoção lógica)
+  /// quando um [deltaFetcher] estiver configurado (T11.4).
   @override
   Future<List<CollectionPoint>> refresh() async {
+    return _refreshInternal(forceFull: false);
+  }
+
+  /// Força a atualização completa descartando dados delta (T11.4).
+  Future<List<CollectionPoint>> refreshFull() async {
+    return _refreshInternal(forceFull: true);
+  }
+
+  Future<List<CollectionPoint>> _refreshInternal({bool forceFull = false}) async {
+    final CollectPointsDeltaFetcher? deltaFetcher = this.deltaFetcher;
     final CollectPointsFetcher? fetcher = this.fetcher;
-    if (fetcher == null) {
-      return loadOffline();
+
+    if (deltaFetcher == null && fetcher == null) {
+      return await loadOffline();
     }
 
     try {
-      final CollectPointsRemoteSnapshot remote = await fetcher();
+      final CollectPointsRemoteSnapshot remote;
+      if (deltaFetcher != null && !forceFull && _lastUpdated != null) {
+        remote = await deltaFetcher(_lastUpdated);
+      } else if (fetcher != null) {
+        remote = await fetcher();
+      } else if (deltaFetcher != null) {
+        remote = await deltaFetcher(null);
+      } else {
+        return await loadOffline();
+      }
+
+      final DateTime updatedAt = remote.updatedAt.toUtc();
+
+      if (remote.isDelta) {
+        // Merge inteligente incremental (T11.4)
+        final List<CollectionPoint> current = await loadOffline();
+        final Map<String, CollectionPoint> map = <String, CollectionPoint>{
+          for (final CollectionPoint p in current) p.id: p,
+        };
+
+        // Remove pontos por tombstones recebidos
+        for (final String deletedId in remote.deletedIds) {
+          map.remove(deletedId);
+        }
+
+        // Atualiza ou remove pontos recebidos no delta
+        for (final CollectionPoint point in remote.points) {
+          if (!point.isActive) {
+            map.remove(point.id);
+          } else {
+            map[point.id] = point;
+          }
+        }
+
+        final List<CollectionPoint> merged = _sorted(map.values.toList());
+        await _writeCache(merged, updatedAt);
+        _lastUpdated = updatedAt;
+        _sourceOrigin = DataSourceOrigin.remoteServer;
+        return merged;
+      }
+
+      // Sincronização completa
       if (remote.points.isEmpty) {
         return await loadOffline();
       }
 
-      final List<CollectionPoint> points = _sorted(remote.points);
-      final DateTime updatedAt = remote.updatedAt.toUtc();
+      final List<CollectionPoint> activePoints = _sorted(
+        remote.points.where((CollectionPoint p) => p.isActive).toList(),
+      );
 
-      await _writeCache(points, updatedAt);
+      await _writeCache(activePoints, updatedAt);
       _lastUpdated = updatedAt;
       _sourceOrigin = DataSourceOrigin.remoteServer;
 
-      return points;
+      return activePoints;
     } catch (_) {
-      return loadOffline();
+      return await loadOffline();
     }
   }
 

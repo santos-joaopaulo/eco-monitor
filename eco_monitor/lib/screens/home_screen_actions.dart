@@ -15,7 +15,8 @@ const double _userZoom = 14;
 /// Mantido como mixin privado para separar a lógica do mapa da composição
 /// visual, sem expor esses detalhes fora da biblioteca da tela.
 mixin _HomeScreenActions on State<HomeScreen> {
-  final RouteService _routeService = const RouteService();
+  late final RouteService _routeService = widget.routeService ??
+      RouteService(cacheStore: widget.routeCacheStore);
 
   MapboxMap? _mapboxMap;
   CollectPointsLayer? _pointsLayer;
@@ -36,6 +37,8 @@ mixin _HomeScreenActions on State<HomeScreen> {
   bool _locationFailed = false;
   bool _isListView = false;
   bool _isFavoritesOnly = false;
+  ProximityRadius _selectedRadius = ProximityRadius.fiveKm;
+  final CollectionPointSpatialIndex _spatialIndex = CollectionPointSpatialIndex();
 
   /// Token do Mapbox resolvido na inicialização (main.dart).
   String get _accessToken => MapboxTokenProvider.token;
@@ -51,12 +54,67 @@ mixin _HomeScreenActions on State<HomeScreen> {
         favIds = const <String>{};
       }
     }
-    return filterCollectionPoints(
+    final List<CollectionPoint> base = filterCollectionPoints(
       _points,
       _selectedWasteTypes,
       onlyFavorites: _isFavoritesOnly,
       favoriteIds: favIds,
     );
+
+    final UserLocation? location = _userLocation;
+    final double? radiusMeters = _selectedRadius.meters;
+
+    // Se não há coordenadas de GPS ou o raio é irrestrito, retorna o conjunto base
+    if (location == null || radiusMeters == null) {
+      return base;
+    }
+
+    // Consulta espacial otimizada em O(log n) via SpatialIndex (T11.1)
+    _spatialIndex.load(base);
+    return _spatialIndex.queryRadius(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      radiusMeters: radiusMeters,
+    );
+  }
+
+  bool get _isRadiusEmpty {
+    final UserLocation? location = _userLocation;
+    final double? radiusMeters = _selectedRadius.meters;
+    if (location == null || radiusMeters == null) {
+      return false;
+    }
+
+    Set<String> favIds = const <String>{};
+    if (mounted) {
+      try {
+        favIds = Provider.of<FavoritesNotifier>(context, listen: false).favoriteIds;
+      } catch (_) {
+        favIds = const <String>{};
+      }
+    }
+    final List<CollectionPoint> base = filterCollectionPoints(
+      _points,
+      _selectedWasteTypes,
+      onlyFavorites: _isFavoritesOnly,
+      favoriteIds: favIds,
+    );
+
+    return base.isNotEmpty && _filteredPoints.isEmpty;
+  }
+
+  void _handleRadiusChanged(ProximityRadius nextRadius) {
+    setState(() {
+      _selectedRadius = nextRadius;
+    });
+    _syncPointsLayer();
+  }
+
+  void _handleExpandRadius() {
+    setState(() {
+      _selectedRadius = _selectedRadius.expandNext;
+    });
+    _syncPointsLayer();
   }
 
   void _handleFavoritesToggle() {
