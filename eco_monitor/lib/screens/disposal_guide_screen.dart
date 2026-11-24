@@ -45,6 +45,7 @@ class DisposalGuideScreen extends StatefulWidget {
 class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   late final TextEditingController _searchController;
   late final IWasteSearchAnalyticsRepository _analytics;
+  Timer? _searchDebounceTimer;
 
   List<WasteSearchStat> _stats = const <WasteSearchStat>[];
   String _searchQuery = "";
@@ -65,6 +66,7 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
 
   @override
   void dispose() {
+    _searchDebounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -89,12 +91,25 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   }
 
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.trim();
+    _searchDebounceTimer?.cancel();
+    final String trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _searchQuery = "";
+      });
+      return;
+    }
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = trimmed;
+        });
+      }
     });
   }
 
   void _clearSearch() {
+    _searchDebounceTimer?.cancel();
     _searchController.clear();
     setState(() {
       _searchQuery = "";

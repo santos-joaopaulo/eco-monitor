@@ -34,82 +34,84 @@ class CampaignCard extends StatelessWidget {
       campaign.endDate,
     );
 
-    return EcoCard(
-      padding: EdgeInsets.zero,
+    return RepaintBoundary(
+      child: EcoCard(
+        padding: EdgeInsets.zero,
 
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
 
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              CampaignStatusBadge(status: campaign.status),
-              const SizedBox(height: 12),
+              children: [
+                CampaignStatusBadge(status: campaign.status),
+                const SizedBox(height: 12),
 
-              _CampaignBanner(campaign: campaign),
-              const SizedBox(height: 14),
+                _CampaignBanner(campaign: campaign),
+                const SizedBox(height: 14),
 
-              Text(
-                campaign.title,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                Text(
+                  campaign.title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              Wrap(
-                spacing: 16,
-                runSpacing: 6,
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 6,
 
-                children: [
-                  _MetaItem(
-                    icon: Icons.location_on_outlined,
-                    label: campaign.locationName,
-                  ),
-                  _MetaItem(
-                    icon: Icons.calendar_today_outlined,
-                    label: dateRange,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
+                  children: [
+                    _MetaItem(
+                      icon: Icons.location_on_outlined,
+                      label: campaign.locationName,
+                    ),
+                    _MetaItem(
+                      icon: Icons.calendar_today_outlined,
+                      label: dateRange,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _CampaignReminderButton(campaign: campaign),
-                  ),
-                  const SizedBox(width: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _CampaignReminderButton(campaign: campaign),
+                    ),
+                    const SizedBox(width: 10),
 
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: onViewLocation,
-                      icon: const Icon(Icons.location_on_outlined, size: 20),
-                      label: const Text("Ver local"),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(0, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onViewLocation,
+                        icon: const Icon(Icons.location_on_outlined, size: 20),
+                        label: const Text("Ver local"),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -17,6 +17,8 @@ class _ClusterGroup {
   _ClusterGroup._({
     required this.centerLat,
     required this.centerLon,
+    required this.sumLat,
+    required this.sumLon,
     required this.points,
   });
 
@@ -24,21 +26,25 @@ class _ClusterGroup {
     return _ClusterGroup._(
       centerLat: point.latitude,
       centerLon: point.longitude,
+      sumLat: point.latitude,
+      sumLon: point.longitude,
       points: <CollectionPoint>[point],
     );
   }
 
   double centerLat;
   double centerLon;
+  double sumLat;
+  double sumLon;
   final List<CollectionPoint> points;
 
   void add(CollectionPoint point) {
     points.add(point);
-    // Atualiza a coordenada média do centro do cluster
-    final double totalLat = points.fold(0.0, (sum, p) => sum + p.latitude);
-    final double totalLon = points.fold(0.0, (sum, p) => sum + p.longitude);
-    centerLat = totalLat / points.length;
-    centerLon = totalLon / points.length;
+    // Atualiza a coordenada média do centro do cluster em O(1) usando acumuladores
+    sumLat += point.latitude;
+    sumLon += point.longitude;
+    centerLat = sumLat / points.length;
+    centerLon = sumLon / points.length;
   }
 }
 

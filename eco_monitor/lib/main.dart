@@ -4,6 +4,7 @@ import "package:firebase_core/firebase_core.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 import "package:material_ui/material_ui.dart";
 import "package:provider/provider.dart";
+import "package:provider/single_child_widget.dart";
 
 import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
@@ -107,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   // camada de apresentação.
   late final AppDataSync _dataSync;
   late final bool _ownsDataSync;
+  late List<SingleChildWidget> _providers;
 
   int _selectedIndex = _homeTab;
 
@@ -122,6 +124,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   /// Controla a exibição da busca rápida na Home via ação da EcoAppBar.
   bool _isSearchActive = false;
 
+  void _initProviders() {
+    _providers = buildAppProviders(
+      dataSync: _dataSync,
+      locationService: widget.locationService ?? const LocationService(),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -129,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     _ownsDataSync = widget.dataSync == null;
     _dataSync = widget.dataSync ?? AppDataSync.createDefault();
+    _initProviders();
     unawaited(_dataSync.initialize());
   }
 
@@ -142,12 +152,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void didUpdateWidget(covariant MyHomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.dataSync != widget.dataSync) {
+    if (oldWidget.dataSync != widget.dataSync ||
+        oldWidget.locationService != widget.locationService) {
       if (_ownsDataSync) {
         _dataSync.dispose();
       }
       _ownsDataSync = widget.dataSync == null;
       _dataSync = widget.dataSync ?? AppDataSync.createDefault();
+      _initProviders();
       unawaited(_dataSync.initialize());
     }
   }
@@ -229,10 +241,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: buildAppProviders(
-        dataSync: _dataSync,
-        locationService: widget.locationService ?? const LocationService(),
-      ),
+      providers: _providers,
       child: Scaffold(
         extendBody: true,
 

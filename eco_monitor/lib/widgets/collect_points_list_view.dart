@@ -42,44 +42,29 @@ class CollectPointsListView extends StatelessWidget {
 // Methods ------------------------------------------------------------------ //
 
 
-  List<CollectionPoint> _sortedPoints() {
+  List<_PointWithDistance> _resolvePointsWithDistances() {
     final UserLocation? location = userLocation;
     if (location == null) {
-      return points;
+      return points
+          .map((CollectionPoint p) => _PointWithDistance(point: p, distance: null))
+          .toList(growable: false);
     }
 
-    final List<CollectionPoint> sorted = List<CollectionPoint>.of(points);
-    sorted.sort((CollectionPoint a, CollectionPoint b) {
-      final double distA = distanceInMeters(
+    final List<_PointWithDistance> items = points.map((CollectionPoint p) {
+      final double dist = distanceInMeters(
         location.latitude,
         location.longitude,
-        a.latitude,
-        a.longitude,
+        p.latitude,
+        p.longitude,
       );
-      final double distB = distanceInMeters(
-        location.latitude,
-        location.longitude,
-        b.latitude,
-        b.longitude,
-      );
-      return distA.compareTo(distB);
+      return _PointWithDistance(point: p, distance: dist);
+    }).toList();
+
+    items.sort((_PointWithDistance a, _PointWithDistance b) {
+      return a.distance!.compareTo(b.distance!);
     });
 
-    return sorted;
-  }
-
-  double? _distanceFor(CollectionPoint point) {
-    final UserLocation? location = userLocation;
-    if (location == null) {
-      return null;
-    }
-
-    return distanceInMeters(
-      location.latitude,
-      location.longitude,
-      point.latitude,
-      point.longitude,
-    );
+    return items;
   }
 
 
@@ -88,11 +73,11 @@ class CollectPointsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<CollectionPoint> sorted = _sortedPoints();
+    final List<_PointWithDistance> resolvedItems = _resolvePointsWithDistances();
     final double bottomPadding =
         CustomBottomNavBar.reservedBottomInset(context) + 80;
 
-    if (sorted.isEmpty) {
+    if (resolvedItems.isEmpty) {
       return Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
@@ -146,18 +131,19 @@ class CollectPointsListView extends StatelessWidget {
             kEcoContentHorizontalPadding,
             bottomPadding,
           ),
-          itemCount: sorted.length,
+          itemCount: resolvedItems.length,
           separatorBuilder: (BuildContext context, int index) {
             return const SizedBox(height: 12);
           },
           itemBuilder: (BuildContext context, int index) {
-            final CollectionPoint point = sorted[index];
-            final double? distance = _distanceFor(point);
+            final _PointWithDistance item = resolvedItems[index];
 
-            return _CollectPointCard(
-              point: point,
-              distanceMeters: distance,
-              onTap: () => onPointSelected(point),
+            return RepaintBoundary(
+              child: _CollectPointCard(
+                point: item.point,
+                distanceMeters: item.distance,
+                onTap: () => onPointSelected(item.point),
+              ),
             );
           },
         ),
@@ -169,6 +155,16 @@ class CollectPointsListView extends StatelessWidget {
 
 // Classes ------------------------------------------------------------------ //
 
+
+class _PointWithDistance {
+  const _PointWithDistance({
+    required this.point,
+    required this.distance,
+  });
+
+  final CollectionPoint point;
+  final double? distance;
+}
 
 class _CollectPointCard extends StatelessWidget {
   const _CollectPointCard({

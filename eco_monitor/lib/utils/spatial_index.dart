@@ -1,6 +1,6 @@
 import "dart:math" as math;
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "geo.dart";
 
 
