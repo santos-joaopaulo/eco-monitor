@@ -17,6 +17,9 @@ mixin _HomeScreenActions on State<HomeScreen> {
   MapboxMap? _mapboxMap;
   CollectPointsLayer? _pointsLayer;
   PolylineAnnotationManager? _routeManager;
+  PointAnnotationManager? _campaignAnnotationManager;
+  Cancelable? _campaignTapSubscription;
+  PointAnnotation? _campaignAnnotation;
 
   List<CollectionPoint> _points = const <CollectionPoint>[];
   Set<WasteType> _selectedWasteTypes = const <WasteType>{};
@@ -138,10 +141,84 @@ mixin _HomeScreenActions on State<HomeScreen> {
         center: Point(
           coordinates: Position(campaign.longitude, campaign.latitude),
         ),
-        zoom: 15.0,
+        zoom: 15.5,
       ),
       MapAnimationOptions(duration: 800),
     );
+
+    await _plotCampaignPin(campaign);
+  }
+
+  Future<void> _plotCampaignPin(Campaign campaign) async {
+    final MapboxMap? map = _mapboxMap;
+    if (map == null || kIsWeb) {
+      return;
+    }
+
+    try {
+      if (_campaignAnnotationManager == null) {
+        final PointAnnotationManager manager =
+            await map.annotations.createPointAnnotationManager();
+        await manager.setIconAllowOverlap(true);
+        await manager.setIconIgnorePlacement(true);
+        _campaignTapSubscription = manager.tapEvents(
+          onTap: (PointAnnotation annotation) {
+            _handleCampaignPinTapped(campaign);
+          },
+        );
+        _campaignAnnotationManager = manager;
+      }
+
+      final PointAnnotationManager? manager = _campaignAnnotationManager;
+      if (manager == null) {
+        return;
+      }
+
+      if (_campaignAnnotation != null) {
+        try {
+          await manager.delete(_campaignAnnotation!);
+        } catch (_) {}
+        _campaignAnnotation = null;
+      }
+
+      final Uint8List pinBytes = await PointPin.renderCampaign();
+      _campaignAnnotation = await manager.create(
+        PointAnnotationOptions(
+          geometry: Point(
+            coordinates: Position(campaign.longitude, campaign.latitude),
+          ),
+          image: pinBytes,
+          iconAnchor: IconAnchor.CENTER,
+          iconSize: 1.0,
+          symbolSortKey: 300,
+        ),
+      );
+    } catch (_) {
+      // Silencia falhas no mapa mantendo a interface reativa.
+    }
+  }
+
+  void _handleCampaignPinTapped(Campaign campaign) {
+    unawaited(
+      showCampaignDetailsSheet(
+        context: context,
+        campaign: campaign,
+        onViewLocation: () {
+          // O mapa já se encontra focado na localização desta campanha.
+        },
+      ),
+    );
+  }
+
+  Future<void> _clearCampaignMarker() async {
+    final PointAnnotation? annotation = _campaignAnnotation;
+    final PointAnnotationManager? manager = _campaignAnnotationManager;
+    if (annotation != null && manager != null) {
+      try {
+        await manager.delete(annotation);
+      } catch (_) {}
+      _campaignAnnotation = null;
+    }
   }
 
   void _onSyncUpdated() {
@@ -677,6 +754,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
 
   /// Inicia navegação e traçado de rota diretamente para o local da campanha.
   Future<void> _handleStartRouteToCampaign(Campaign campaign) async {
+    await _clearCampaignMarker();
     final CollectionPoint campaignPoint = CollectionPoint(
       id: "campaign_${campaign.id}",
       name: campaign.title,

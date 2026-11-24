@@ -19,13 +19,23 @@ Future<void> showCampaignDetailsSheet({
   required BuildContext context,
   required Campaign campaign,
   required VoidCallback onViewLocation,
+  CampaignRemindersNotifier? remindersNotifier,
 }) {
+  final CampaignRemindersNotifier? resolvedNotifier = remindersNotifier ??
+      () {
+        try {
+          return Provider.of<CampaignRemindersNotifier>(context, listen: false);
+        } catch (_) {
+          return null;
+        }
+      }();
+
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (BuildContext sheetContext) {
-      return CampaignDetailsSheet(
+      final Widget content = CampaignDetailsSheet(
         campaign: campaign,
         onClose: () => Navigator.of(sheetContext).pop(),
         onViewLocation: () {
@@ -33,6 +43,14 @@ Future<void> showCampaignDetailsSheet({
           onViewLocation();
         },
       );
+
+      if (resolvedNotifier != null) {
+        return ChangeNotifierProvider<CampaignRemindersNotifier>.value(
+          value: resolvedNotifier,
+          child: content,
+        );
+      }
+      return content;
     },
   );
 }
@@ -136,7 +154,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         for (final WasteType type in sortedWasteTypes)
-                          _WasteChip(type: type),
+                          WasteTypeBadge(type: type),
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -358,39 +376,6 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-class _WasteChip extends StatelessWidget {
-  const _WasteChip({required this.type});
-
-  final WasteType type;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.iconTint,
-        borderRadius: BorderRadius.circular(20),
-      ),
-
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(type.icon, size: 18, color: type.color),
-          const SizedBox(width: 6),
-          Text(
-            type.label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 
 // Campaign Reminders ------------------------------------------------------ //
 
@@ -410,65 +395,88 @@ class _CampaignDetailsReminderButton extends StatelessWidget {
     }
 
     final bool isReminderActive =
-        notifier?.isReminderActive(campaign.id) ?? false;
+        notifier?.isReminderSet(campaign.id) ?? false;
 
     if (isReminderActive) {
-      return SizedBox(
-        width: double.infinity,
-        child: FilledButton.icon(
-          onPressed: () async {
-            final ScaffoldMessengerState? messenger =
-                ScaffoldMessenger.maybeOf(context);
-            if (notifier != null) {
-              await notifier.toggleReminder(campaign);
-            }
-            messenger
-              ?..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text("Lembrete cancelado."),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-          },
-          icon: const Icon(Icons.notifications_active_rounded, size: 20),
-          label: const Text("Lembrete ativado"),
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primaryAccessible,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryTint,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.timelineLine,
+                width: 1.0,
+              ),
             ),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+
+            child: const Row(
+              children: [
+                Icon(
+                  Icons.notifications_active,
+                  size: 18,
+                  color: AppColors.primaryAccessible,
+                ),
+                SizedBox(width: 10),
+
+                Expanded(
+                  child: Text(
+                    "Lembrete programado para a data do evento.",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryAccessible,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
+          const SizedBox(height: 10),
+
+          SizedBox(
+            width: double.infinity,
+
+            child: FilledButton.icon(
+              onPressed: () async {
+                if (notifier != null) {
+                  await notifier.toggleReminder(campaign);
+                }
+              },
+              icon: const Icon(Icons.notifications_active, size: 20),
+              label: const Text("Lembrete ativado"),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
       );
     }
 
     return SizedBox(
       width: double.infinity,
+
       child: OutlinedButton.icon(
         onPressed: () async {
-          final ScaffoldMessengerState? messenger =
-              ScaffoldMessenger.maybeOf(context);
           if (notifier != null) {
             await notifier.toggleReminder(campaign);
           }
-          messenger
-            ?..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text("Lembrete ativado para esta campanha!"),
-                backgroundColor: AppColors.primaryAccessible,
-                duration: Duration(seconds: 2),
-              ),
-            );
         },
-        icon: const Icon(Icons.notifications_none_outlined, size: 20),
+        icon: const Icon(Icons.notifications_none, size: 20),
         label: const Text("Definir lembrete"),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,

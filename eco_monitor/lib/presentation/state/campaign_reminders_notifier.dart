@@ -24,6 +24,9 @@ class CampaignRemindersNotifier extends ChangeNotifier {
   bool isReminderActive(String campaignId) =>
       _activeCampaignIds.contains(campaignId);
 
+  /// Retorna se o lembrete para [campaignId] está configurado (alias para [isReminderActive]).
+  bool isReminderSet(String campaignId) => isReminderActive(campaignId);
+
 
   // Methods --------------------------------------------------------------- //
 

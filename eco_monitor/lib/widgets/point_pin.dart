@@ -171,6 +171,83 @@ abstract final class PointPin {
     _clusterCache[count] = bytes;
     return bytes;
   }
+
+  static final Map<bool, Uint8List> _campaignCache = <bool, Uint8List>{};
+
+  /// Renderiza o marcador circular exclusivo para eventos e campanhas no mapa (44x44 dp).
+  static Future<Uint8List> renderCampaign({bool selected = false}) async {
+    final Uint8List? cached = _campaignCache[selected];
+    if (cached != null) {
+      return cached;
+    }
+
+    const int size = 44;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+
+    const double center = size / 2.0;
+    const double radius = 18.0;
+    const Offset centerOffset = Offset(center, center);
+
+    // Sombra suave circular projetada
+    final Path circlePath = Path()
+      ..addOval(Rect.fromCircle(center: centerOffset, radius: radius));
+    canvas.drawShadow(
+      circlePath,
+      Colors.black.withAlpha(selected ? 110 : 80),
+      selected ? 4.0 : 3.0,
+      true,
+    );
+
+    // Fundo circular com cor primária AppColors.primary
+    final Paint fillPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill
+      ..color = AppColors.primary;
+    canvas.drawCircle(centerOffset, radius, fillPaint);
+
+    // Anel e borda externa branca de 3 dp
+    final Paint borderPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.white;
+    canvas.drawCircle(centerOffset, radius, borderPaint);
+
+    // Ícone temático Icons.event_available em branco no centro
+    const IconData icon = Icons.event_available_rounded;
+    final TextPainter painter = TextPainter(
+      text: TextSpan(
+        text: String.fromCharCode(icon.codePoint),
+        style: TextStyle(
+          fontSize: 20.0,
+          fontFamily: icon.fontFamily,
+          package: icon.fontPackage,
+          color: Colors.white,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    painter.paint(
+      canvas,
+      centerOffset - Offset(painter.width / 2.0, painter.height / 2.0),
+    );
+    painter.dispose();
+
+    final ui.Picture picture = recorder.endRecording();
+    final ui.Image image = await picture.toImage(size, size);
+    final ByteData? data = await image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+
+    image.dispose();
+    picture.dispose();
+
+    final Uint8List bytes = data!.buffer.asUint8List();
+    _campaignCache[selected] = bytes;
+    return bytes;
+  }
 }
 
 

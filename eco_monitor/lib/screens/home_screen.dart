@@ -23,6 +23,7 @@ import "../utils/formatters.dart";
 import "../utils/geo.dart";
 import "../utils/point_filters.dart";
 import "../utils/spatial_index.dart";
+import "../widgets/campaign_details_sheet.dart";
 import "../widgets/collect_point_sheet.dart";
 import "../widgets/collect_points_layer.dart";
 import "../widgets/collect_points_list_view.dart";
@@ -31,6 +32,7 @@ import "../widgets/focused_campaign_sheet.dart";
 import "../widgets/home_map_controls.dart";
 import "../widgets/home_map_top_bar.dart";
 import "../widgets/location_notice.dart";
+import "../widgets/point_pin.dart";
 import "../widgets/route_summary_card.dart";
 
 part "home_screen_actions.dart";
@@ -170,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen>
     } else if (oldWidget.focusedCampaign != null &&
         nextCampaign == null &&
         _selectedPoint == null) {
+      unawaited(_clearCampaignMarker());
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted &&
             widget.focusedCampaign == null &&
@@ -208,6 +211,12 @@ class _HomeScreenState extends State<HomeScreen>
     final PolylineAnnotationManager? routeManager = _routeManager;
     if (routeManager != null) {
       unawaited(routeManager.deleteAll().catchError((Object _) {}));
+    }
+
+    _campaignTapSubscription?.cancel();
+    final PointAnnotationManager? campaignManager = _campaignAnnotationManager;
+    if (campaignManager != null) {
+      unawaited(campaignManager.deleteAll().catchError((Object _) {}));
     }
 
     super.dispose();
@@ -437,7 +446,17 @@ class _HomeScreenState extends State<HomeScreen>
 
               child: FocusedCampaignSheet(
                 campaign: focusedCampaign,
+                locationService: widget.locationService,
+                distanceMeters: _userLocation != null
+                    ? distanceInMeters(
+                        _userLocation!.latitude,
+                        _userLocation!.longitude,
+                        focusedCampaign.latitude,
+                        focusedCampaign.longitude,
+                      )
+                    : null,
                 onClearCampaign: () {
+                  unawaited(_clearCampaignMarker());
                   widget.onActiveSheetChanged?.call(false);
                   widget.onClearCampaign?.call();
                 },

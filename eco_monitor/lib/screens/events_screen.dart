@@ -1,10 +1,12 @@
 import "dart:async";
 
 import "package:material_ui/material_ui.dart";
+import "package:provider/provider.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/campaigns_repository.dart";
 import "../models/campaign.dart";
+import "../presentation/state/campaign_reminders_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "../widgets/campaign_card.dart";
@@ -188,10 +190,19 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   void _openDetails(Campaign campaign) {
+    CampaignRemindersNotifier? remindersNotifier;
+    try {
+      remindersNotifier =
+          Provider.of<CampaignRemindersNotifier>(context, listen: false);
+    } catch (_) {
+      remindersNotifier = null;
+    }
+
     unawaited(
       showCampaignDetailsSheet(
         context: context,
         campaign: campaign,
+        remindersNotifier: remindersNotifier,
         onViewLocation: () => _handleViewLocation(campaign),
       ),
     );

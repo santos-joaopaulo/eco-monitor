@@ -45,3 +45,56 @@ extension WasteTypeStyle on WasteType {
   /// Título em letras maiúsculas exibido na AppBar da tela de passo a passo.
   String get appBarTitle => label.toUpperCase();
 }
+
+
+// Aliases ----------------------------------------------------------------- //
+
+
+/// Alias semântico para a categoria ou tipo de resíduo aceito.
+typedef WasteCategory = WasteType;
+
+
+// Classes ----------------------------------------------------------------- //
+
+
+/// Badge padrão oficial para exibição das categorias e tipos de resíduo.
+class WasteTypeBadge extends StatelessWidget {
+  const WasteTypeBadge({super.key, required this.type});
+
+  final WasteType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.iconTint,
+        borderRadius: BorderRadius.circular(20),
+      ),
+
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.3,
+
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(type.icon, size: 18, color: type.color),
+            const SizedBox(width: 6),
+
+            Flexible(
+              child: Text(
+                type.label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
