@@ -5,7 +5,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "../domain/repositories/point_suggestions_repository_contract.dart";
-import "../models/point_suggestion.dart";
+import "../domain/entities/point_suggestion.dart";
 import "firebase_service.dart";
 import "local_store.dart";
 
@@ -22,10 +22,7 @@ const int kPointSuggestionsQueueVersion = 1;
 const String _pendingQueueKey = "pending_point_suggestions_json";
 
 
-
-
-
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Função usada por [PointSuggestionsRepository] para persistir uma sugestão remotamente.
@@ -34,7 +31,7 @@ typedef PointSuggestionSender = Future<void> Function(
 );
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Cria um [PointSuggestionSender] baseado na coleção `pointSuggestions` do Firestore.
@@ -59,7 +56,7 @@ PointSuggestionSender createFirestoreSuggestionSender({
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Envia sugestões anônimas de pontos ao Firestore com uma fila offline de contingência
@@ -85,7 +82,7 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
   bool get hasRemoteSender => sender != null;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Envia [suggestion] anonimamente ao backend remoto.
@@ -176,7 +173,7 @@ class PointSuggestionsRepository implements IPointSuggestionsRepository {
   }
 
 
-  // Helpers ----------------------------------------------------------------- //
+// Helpers ------------------------------------------------------------------ //
 
 
   Future<T> _synchronized<T>(Future<T> Function() computation) {

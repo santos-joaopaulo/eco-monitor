@@ -4,7 +4,7 @@ import "../theme/app_colors.dart";
 import "../utils/formatters.dart";
 
 
-// Home map controls ------------------------------------------------------- //
+// Home map controls -------------------------------------------------------- //
 
 
 /// Botão flutuante que unifica localização e rota ao ponto mais próximo em 1 toque (RF02, RF04, T8.1).
@@ -150,7 +150,7 @@ class HomeViewToggleButton extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Botão flutuante que abre a busca de resíduos no mapa.

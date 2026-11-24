@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../domain/entities/waste_type.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "../services/residue_search_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -12,7 +12,7 @@ import "radius_filter_bar.dart";
 import "waste_style.dart";
 
 
-// Home map top bar -------------------------------------------------------- //
+// Home map top bar --------------------------------------------------------- //
 
 
 /// Barra superior flutuante do mapa: filtros por categorias de resíduos e raio de busca.
@@ -107,6 +107,7 @@ class HomeMapTopBar extends StatelessWidget {
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+
           children: [
             if (isSearchActive) ...[
               HomeSearchBar(
@@ -184,7 +185,7 @@ class HomeMapTopBar extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Campo de busca textual expansível sob demanda para consulta rápida de resíduos no mapa.
@@ -377,6 +378,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
 
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
+
                   child: Row(
                     children: _results.map((WasteTypeSearchResult result) {
                       return Padding(
@@ -419,7 +421,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Botão de ação rápida proeminente que conduz diretamente ao ponto mais próximo (T8.1).
@@ -481,6 +483,7 @@ class NearestPointQuickBanner extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         Text(
                           label,
@@ -542,7 +545,7 @@ class NearestPointQuickBanner extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _MapStatusPill extends StatelessWidget {

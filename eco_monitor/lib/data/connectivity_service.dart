@@ -5,7 +5,7 @@ import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Encapsulamento leve em torno de [Connectivity] que expõe o status online
@@ -57,7 +57,7 @@ class ConnectivityService with WidgetsBindingObserver {
   Stream<bool> get isOnline => _controller.stream;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _updateOnlineState(bool online) {
@@ -132,7 +132,7 @@ class ConnectivityService with WidgetsBindingObserver {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 Stream<List<ConnectivityResult>> _defaultStream() {

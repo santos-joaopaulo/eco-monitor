@@ -3,13 +3,13 @@ import "package:material_ui/material_ui.dart";
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/point_review.dart";
-import "../../models/collection_point.dart";
+import "../../domain/entities/collection_point.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../utils/formatters.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de gestão e moderação das avaliações e reportes enviados pelos cidadãos.
@@ -42,7 +42,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
   int? _selectedRating; // 1 a 5 ou null para todas
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -53,7 +53,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadData() async {
@@ -181,6 +181,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+
         title: const Text(
           "AVALIAÇÕES E REPORTES",
           style: TextStyle(
@@ -216,6 +217,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         const Icon(
                           Icons.warning_amber_rounded,
@@ -227,6 +229,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
                               Text(
                                 "Atenção: ${_criticalPoints.length} ecoponto(s) com múltiplos reportes críticos de \"Coletor cheio\"",
@@ -240,6 +243,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
 
                               Wrap(
                                 spacing: 6,
+
                                 children: _criticalPoints.map((
                                   CollectionPoint p,
                                 ) {
@@ -327,9 +331,11 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                       // Chips de Filtro por Tag
                       Align(
                         alignment: Alignment.centerLeft,
+
                         child: Wrap(
                           spacing: 6,
                           runSpacing: 6,
+
                           children: [
                             _ReviewFilterChip(
                               label: "Todas as tags",
@@ -355,9 +361,11 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                       // Chips de Filtro por Nota
                       Align(
                         alignment: Alignment.centerLeft,
+
                         child: Wrap(
                           spacing: 6,
                           runSpacing: 6,
+
                           children: [
                             _ReviewFilterChip(
                               label: "Todas as notas",
@@ -401,6 +409,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
+
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -430,6 +439,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                       ? const Center(
                           child: Padding(
                             padding: EdgeInsets.all(24),
+
                             child: Text(
                               "Nenhuma avaliação encontrada com os filtros selecionados.",
                               style: TextStyle(color: AppColors.textSecondary),
@@ -536,15 +546,19 @@ class _ReviewCard extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.all(16),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Text(
                         pointName,
@@ -603,6 +617,7 @@ class _ReviewCard extends StatelessWidget {
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
+
                 children: review.tags.map((String tag) {
                   final bool isAlert = tag == PointReviewTags.fullCollector;
                   return Container(
@@ -661,6 +676,7 @@ class _ReviewCard extends StatelessWidget {
 
             Align(
               alignment: Alignment.centerRight,
+
               child: Text(
                 "Enviada em ${formatDate(review.createdAt)}",
                 style: const TextStyle(

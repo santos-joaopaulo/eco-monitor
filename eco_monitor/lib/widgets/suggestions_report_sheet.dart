@@ -4,14 +4,14 @@ import "../data/admin_database_repository.dart";
 import "../domain/entities/collection_point.dart";
 import "../domain/entities/point_suggestion.dart";
 import "../domain/repositories/waste_search_analytics_repository_contract.dart";
-import "../models/civic_demand_summary.dart";
+import "../domain/entities/civic_demand_summary.dart";
 import "../screens/admin/admin_environmental_report_screen.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Modal Bottom Sheet que apresenta o diagnóstico territorial de demandas cívicas,
@@ -31,7 +31,7 @@ class SuggestionsReportSheet extends StatelessWidget {
   final IWasteSearchAnalyticsRepository? analyticsRepository;
 
 
-  // Factory / Static Methods ---------------------------------------------- //
+// Factory / Static Methods ------------------------------------------------- //
 
 
   /// Exibe o bottom sheet modal de diagnóstico territorial.
@@ -56,7 +56,7 @@ class SuggestionsReportSheet extends StatelessWidget {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _openPdfReport(BuildContext context, {String? filterNeighborhood}) {
@@ -144,6 +144,7 @@ class SuggestionsReportSheet extends StatelessWidget {
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           Text(
                             "DIAGNÓSTICO TERRITORIAL",
@@ -197,6 +198,7 @@ class SuggestionsReportSheet extends StatelessWidget {
 
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
+
                           children: [
                             // Botão proeminente de exportação geral do PDF
                             FilledButton.icon(
@@ -237,6 +239,7 @@ class SuggestionsReportSheet extends StatelessWidget {
 
                               child: Padding(
                                 padding: const EdgeInsets.all(14),
+
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -298,6 +301,7 @@ class SuggestionsReportSheet extends StatelessWidget {
 
                                 child: const Padding(
                                   padding: EdgeInsets.all(24),
+
                                   child: Center(
                                     child: Text(
                                       "Nenhuma solicitação cívica registrada.",
@@ -376,8 +380,10 @@ class SuggestionsReportSheet extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.all(14),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               children: [
@@ -441,6 +447,7 @@ class SuggestionsReportSheet extends StatelessWidget {
             Wrap(
               spacing: 12,
               runSpacing: 4,
+
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -487,6 +494,7 @@ class SuggestionsReportSheet extends StatelessWidget {
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
+
                 children: [
                   for (final CivicWasteDemand item in demand.rankedWastes)
                     Container(
@@ -526,6 +534,7 @@ class SuggestionsReportSheet extends StatelessWidget {
             // Botão de atalho em 1 toque para o PDF filtrado deste bairro
             Align(
               alignment: Alignment.centerRight,
+
               child: TextButton.icon(
                 onPressed: () => _openPdfReport(
                   context,

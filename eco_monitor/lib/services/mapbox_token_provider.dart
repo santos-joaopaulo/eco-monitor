@@ -3,7 +3,7 @@ import "dart:convert";
 import "package:flutter/services.dart";
 
 
-// Provider -------------------------------------------------------------- //
+// Provider ----------------------------------------------------------------- //
 
 
 /// Resolve o token público do Mapbox na inicialização do app.

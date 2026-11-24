@@ -1,4 +1,4 @@
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Um passo individual do guia de descarte.
@@ -9,7 +9,7 @@ class DisposalStep {
   final String description;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   factory DisposalStep.fromJson(Map<String, dynamic> json) {
@@ -44,7 +44,7 @@ class DisposalGuide {
   final List<DisposalStep> steps;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   factory DisposalGuide.fromJson(Map<String, dynamic> json) {

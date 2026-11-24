@@ -1,7 +1,7 @@
 import "waste_type.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Status de revisão de uma sugestão de ponto enviada pelo usuário.
@@ -11,7 +11,7 @@ enum SuggestionStatus { pending, reviewing, approved, rejected }
 enum SuggestionSubmitResult { sent, queuedOffline }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Sugestão anônima de um novo ponto de coleta (Entidade de Domínio).
@@ -39,7 +39,7 @@ class PointSuggestion {
   final DateTime createdAt;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Constrói uma sugestão a partir de JSON, tolerando campos ausentes e valores desconhecidos.
@@ -97,7 +97,7 @@ class PointSuggestion {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 SuggestionStatus _suggestionStatusByName(String name) {

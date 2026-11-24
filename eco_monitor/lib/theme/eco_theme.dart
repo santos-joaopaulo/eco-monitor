@@ -1,5 +1,4 @@
-// Layout constants -------------------------------------------------------- //
-
+// Layout constants --------------------------------------------------------- //
 
 
 /// Largura máxima de uma superfície de conteúdo centralizada em telas largas (tablet / web).

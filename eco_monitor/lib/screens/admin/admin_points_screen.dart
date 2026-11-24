@@ -3,14 +3,14 @@ import "package:material_ui/material_ui.dart";
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/waste_type.dart";
-import "../../models/collection_point.dart";
+import "../../domain/entities/collection_point.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../widgets/waste_style.dart";
 import "admin_point_form_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de listagem e gerenciamento de pontos de coleta cadastrados no Firestore.
@@ -37,7 +37,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
   int _statusFilterIndex = 0; // 0: Todos, 1: Ativos, 2: Inativos
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -53,7 +53,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadPoints() async {
@@ -225,6 +225,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+
         title: const Text(
           "PONTOS DE COLETA",
           style: TextStyle(
@@ -299,6 +300,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
 
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+
                         child: Row(
                           children: [
                             _FilterChip(
@@ -339,6 +341,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
+
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -368,6 +371,7 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
+
                             child: Text(
                               _searchController.text.isNotEmpty
                                   ? "Nenhum ponto encontrado para o termo pesquisado."
@@ -477,19 +481,24 @@ class _AdminPointCard extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.all(14),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
+
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -619,6 +628,7 @@ class _AdminPointCard extends StatelessWidget {
             Wrap(
               spacing: 6,
               runSpacing: 4,
+
               children: point.acceptedWasteTypes.map((WasteType type) {
                 return Container(
                   padding: const EdgeInsets.symmetric(

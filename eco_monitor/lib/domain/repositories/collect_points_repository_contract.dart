@@ -1,7 +1,7 @@
 import "../entities/collection_point.dart";
 
 
-// Contracts --------------------------------------------------------------- //
+// Contracts ---------------------------------------------------------------- //
 
 
 /// Contrato do repositório de pontos de coleta (Camada de Domínio).

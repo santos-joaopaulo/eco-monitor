@@ -1,7 +1,7 @@
 import "../entities/point_suggestion.dart";
 
 
-// Contracts --------------------------------------------------------------- //
+// Contracts ---------------------------------------------------------------- //
 
 
 /// Contrato do repositório de sugestões anônimas de pontos (Camada de Domínio).

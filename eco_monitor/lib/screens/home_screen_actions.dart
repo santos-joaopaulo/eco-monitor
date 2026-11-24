@@ -1,10 +1,14 @@
 part of "home_screen.dart";
 
-// Constants --------------------------------------------------------------- //
+
+// Constants ---------------------------------------------------------------- //
+
 
 const double _userZoom = 14;
 
-// Actions ----------------------------------------------------------------- //
+
+// Actions ------------------------------------------------------------------ //
+
 
 /// Ciclo de mapa, localização, sincronização e rota do [HomeScreen].
 ///
@@ -824,7 +828,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Inicia navegação e traçado de rota diretamente para o local da campanha.

@@ -6,7 +6,7 @@ import "package:http/http.dart" as http;
 import "package:url_launcher/url_launcher.dart";
 
 import "../data/route_cache_store.dart";
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
 import "offline_routing_service.dart";
@@ -22,7 +22,7 @@ const double kArrivalThresholdMeters = 25;
 const Duration kRouteApiTimeout = Duration(seconds: 4);
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Informações detalhadas da rota ativa exibidas ao usuário no app (RF04).
@@ -70,7 +70,7 @@ class RouteSummary {
 typedef UriLauncher = Future<bool> Function(Uri uri);
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Constrói estimativas de rota (online via Mapbox Directions e fallback offline)
@@ -111,7 +111,7 @@ class RouteService {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Constrói a estimativa da rota offline baseada em vetor direto e fator viário urbano.

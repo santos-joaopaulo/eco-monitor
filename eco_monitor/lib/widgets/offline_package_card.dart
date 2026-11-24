@@ -1,11 +1,11 @@
 import "package:material_ui/material_ui.dart";
 
-import "../models/offline_package.dart";
+import "../domain/entities/offline_package.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Card individual de um pacote estadual de mapa offline (T14.3).
@@ -94,12 +94,15 @@ class OfflinePackageCard extends StatelessWidget {
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: <Widget>[
           if (isSuggested)
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
+
               child: Row(
                 children: const <Widget>[
                   Icon(
@@ -132,6 +135,7 @@ class OfflinePackageCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
+
                 child: Text(
                   package.stateCode,
                   style: TextStyle(
@@ -149,6 +153,7 @@ class OfflinePackageCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: <Widget>[
                     Text(
                       package.name,

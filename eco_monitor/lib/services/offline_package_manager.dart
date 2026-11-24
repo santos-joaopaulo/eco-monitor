@@ -5,7 +5,7 @@ import "dart:io";
 import "package:flutter/foundation.dart";
 
 import "../data/local_store.dart";
-import "../models/offline_package.dart";
+import "../domain/entities/offline_package.dart";
 
 
 // Constants ---------------------------------------------------------------- //
@@ -21,7 +21,7 @@ const String kBuiltInPackageId = "br-se";
 const int kBuiltInPackageSizeBytes = 2240000;
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato abstrato para gerenciamento do ciclo de vida de pacotes de mapas offline.
@@ -43,7 +43,7 @@ abstract interface class IOfflinePackageManager {
 }
 
 
-// Implementations --------------------------------------------------------- //
+// Implementations ---------------------------------------------------------- //
 
 
 /// Gerenciador padrão de pacotes regionais e estaduais de navegação offline.
@@ -300,7 +300,7 @@ class OfflinePackageManager implements IOfflinePackageManager {
   ];
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Carrega os IDs persistidos no [LocalStore].

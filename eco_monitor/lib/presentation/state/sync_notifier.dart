@@ -3,7 +3,7 @@ import "package:flutter/foundation.dart";
 import "../../data/app_data_sync.dart";
 
 
-// Notifiers --------------------------------------------------------------- //
+// Notifiers ---------------------------------------------------------------- //
 
 
 /// Notificador reativo de estado de sincronização e rede (Presentation).
@@ -27,7 +27,7 @@ class SyncNotifier extends ChangeNotifier {
   AppDataSync get dataSync => _dataSync;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _onSyncChanged() {

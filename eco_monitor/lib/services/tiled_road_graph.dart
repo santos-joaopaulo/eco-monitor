@@ -4,7 +4,7 @@ import "dart:typed_data";
 
 import "package:flutter/foundation.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
 import "../utils/polyline_codec.dart";
@@ -25,14 +25,14 @@ const int kMaxLruCachedTiles = 6;
 const double kTileBorderToleranceDegrees = 0.005;
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Função assíncrona responsável por carregar os dados de um tile sob demanda.
 typedef TileLoader = Future<SpatialTile?> Function(String tileKey);
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Representa uma partição espacial contendo nós e arestas de uma região geográfica limitada.

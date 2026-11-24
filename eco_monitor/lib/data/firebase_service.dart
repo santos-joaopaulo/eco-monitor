@@ -5,14 +5,14 @@ import "package:flutter/foundation.dart";
 import "../firebase_options.dart";
 
 
-// State ------------------------------------------------------------------- //
+// State -------------------------------------------------------------------- //
 
 
 /// Indica se um app padrão do Firebase foi inicializado e está pronto para uso.
 bool get isFirebaseReady => Firebase.apps.isNotEmpty;
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Inicializa o Firebase e habilita a persistência offline do Cloud Firestore.

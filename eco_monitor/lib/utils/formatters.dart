@@ -1,4 +1,4 @@
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Formata uma distância em metros para a interface, usando a vírgula decimal pt-BR.

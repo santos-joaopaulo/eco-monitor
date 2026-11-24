@@ -2,7 +2,7 @@ import "../entities/collection_point.dart";
 import "../entities/waste_type.dart";
 
 
-// Use cases --------------------------------------------------------------- //
+// Use cases ---------------------------------------------------------------- //
 
 
 /// Caso de uso para filtragem de pontos de coleta por resíduos e status (Domínio).

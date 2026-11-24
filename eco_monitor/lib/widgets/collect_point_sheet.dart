@@ -7,8 +7,8 @@ import "package:provider/provider.dart";
 import "../data/app_data_sync.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/point_reviews_repository_contract.dart";
-import "../models/collection_point.dart";
-import "../models/point_review.dart";
+import "../domain/entities/collection_point.dart";
+import "../domain/entities/point_review.dart";
 import "../presentation/state/favorites_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -16,7 +16,7 @@ import "../utils/formatters.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Painel inferior com os detalhes do ponto de coleta selecionado (RF03).
@@ -39,7 +39,7 @@ class CollectPointSheet extends StatelessWidget {
   final VoidCallback onStartRoute;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -91,6 +91,7 @@ class CollectPointSheet extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -101,6 +102,7 @@ class CollectPointSheet extends StatelessWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
+
                       child: Center(
                         child: Container(
                           width: 40,
@@ -117,6 +119,7 @@ class CollectPointSheet extends StatelessWidget {
 
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       _TypeIcon(type: point.type),
                       const SizedBox(width: 12),
@@ -124,6 +127,7 @@ class CollectPointSheet extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Semantics(
                               header: true,
@@ -147,6 +151,7 @@ class CollectPointSheet extends StatelessWidget {
 
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
+
                         children: [
                           _FavoriteHeartButton(pointId: point.id),
                           const SizedBox(height: 4),
@@ -205,6 +210,7 @@ class CollectPointSheet extends StatelessWidget {
 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         const _SectionLabel(label: "MATERIAIS ACEITOS"),
                         const SizedBox(height: 8),
@@ -221,6 +227,7 @@ class CollectPointSheet extends StatelessWidget {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
+
                             children: [
                               for (final WasteType type in sortedWasteTypes)
                                 _WasteChip(type: type),
@@ -354,7 +361,7 @@ class CollectPointSheet extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _TypeIcon extends StatelessWidget {
@@ -413,6 +420,7 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Icon(icon, size: 18, color: AppColors.primary),
         const SizedBox(width: 8),
@@ -569,7 +577,7 @@ class _Notice extends StatelessWidget {
 }
 
 
-// Extensions -------------------------------------------------------------- //
+// Extensions --------------------------------------------------------------- //
 
 
 extension _PointTypeStyle on PointType {
@@ -593,7 +601,7 @@ extension _PointTypeStyle on PointType {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 String _filterWarning(Set<WasteType> activeFilter) {
@@ -605,7 +613,7 @@ String _filterWarning(Set<WasteType> activeFilter) {
 }
 
 
-// Favorites and Reviews --------------------------------------------------- //
+// Favorites and Reviews ---------------------------------------------------- //
 
 
 class _FavoriteHeartButton extends StatefulWidget {
@@ -763,10 +771,12 @@ class _PointReviewStatsDisplayState extends State<_PointReviewStatsDisplay> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 4,
+
           children: [
             const Icon(
               Icons.star_rounded,
@@ -796,6 +806,7 @@ class _PointReviewStatsDisplayState extends State<_PointReviewStatsDisplay> {
           Wrap(
             spacing: 6,
             runSpacing: 4,
+
             children: [
               for (final String tag in stats.topTags.take(3))
                 Container(
@@ -929,6 +940,7 @@ class _PointReviewSectionState extends State<_PointReviewSection> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           const _SectionLabel(label: "AVALIAÇÃO DO ECOPONTO"),
           const SizedBox(height: 8),
@@ -992,6 +1004,7 @@ class _PointReviewSectionState extends State<_PointReviewSection> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
+
               children: [
                 for (final String tag in PointReviewTags.all)
                   _ReviewTagChip(

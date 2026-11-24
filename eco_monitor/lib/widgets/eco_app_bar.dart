@@ -12,7 +12,9 @@ import "../services/admin_auth_service.dart";
 import "../theme/app_colors.dart";
 import "admin_secret_gesture_detector.dart";
 
-// Classes ----------------------------------------------------------------- //
+
+// Classes ------------------------------------------------------------------ //
+
 
 /// AppBar padrão do EcoMonitor: fundo verde-água, título branco centralizado.
 ///
@@ -48,7 +50,9 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
-  // Methods --------------------------------------------------------------- //
+
+// Methods ------------------------------------------------------------------ //
+
 
   Future<void> _handleDefaultAdminTrigger(BuildContext context) async {
     final AdminAuthService service = authService ?? AdminAuthService();
@@ -186,6 +190,7 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(left: 24),
+
       child: SizedBox(
         width: 24,
         height: 24,

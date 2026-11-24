@@ -4,8 +4,8 @@ import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/point_review.dart";
 import "../../domain/entities/waste_type.dart";
-import "../../models/collection_point.dart";
-import "../../models/point_suggestion.dart";
+import "../../domain/entities/collection_point.dart";
+import "../../domain/entities/point_suggestion.dart";
 import "../../services/location_service.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
@@ -14,7 +14,7 @@ import "../../widgets/waste_style.dart";
 import "admin_reviews_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Formulário de criação ou edição de um ponto de coleta oficial.
@@ -58,7 +58,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
   String? _errorMessage;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -117,7 +117,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadReviewStats(String pointId) async {
@@ -318,6 +318,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+
                   children: [
                     // Avaliação Cidadã (durante edição)
                     if (isEditing) ...[
@@ -331,8 +332,10 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
                         child: Padding(
                           padding: const EdgeInsets.all(16),
+
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
                               Row(
                                 mainAxisAlignment:
@@ -390,6 +393,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                                 const Center(
                                   child: Padding(
                                     padding: EdgeInsets.all(12),
+
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: AppColors.primary,
@@ -433,6 +437,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                                   Wrap(
                                     spacing: 6,
                                     runSpacing: 4,
+
                                     children: _reviewStats!.topTags.map((
                                       String tag,
                                     ) {
@@ -515,8 +520,10 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "INFORMAÇÕES BÁSICAS",
@@ -620,11 +627,14 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                               children: [
                                 const Expanded(
                                   child: Text(
@@ -720,8 +730,10 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "MATERIAIS ACEITOS",
@@ -737,6 +749,7 @@ class _AdminPointFormScreenState extends State<AdminPointFormScreen> {
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
+
                               children: WasteType.values.map((WasteType type) {
                                 final bool isSelected =
                                     _selectedWastes.contains(type);

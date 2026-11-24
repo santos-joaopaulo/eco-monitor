@@ -2,10 +2,10 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 
-import "../models/campaign.dart";
-import "../models/collection_point.dart";
-import "../models/point_review.dart";
-import "../models/point_suggestion.dart";
+import "../domain/entities/campaign.dart";
+import "../domain/entities/collection_point.dart";
+import "../domain/entities/point_review.dart";
+import "../domain/entities/point_suggestion.dart";
 import "campaigns_repository.dart";
 import "collect_points_fetcher_firestore.dart";
 import "collect_points_repository.dart";
@@ -16,7 +16,7 @@ import "point_reviews_repository.dart";
 import "point_suggestions_repository.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Coordena a sincronização online com o Firebase e o armazenamento local offline
@@ -95,7 +95,7 @@ class AppDataSync extends ChangeNotifier {
   DataSourceOrigin? get sourceOrigin => collectPointsRepository.sourceOrigin;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Carrega os conjuntos de dados offline imediatamente, monitora mudanças de conectividade

@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../data/app_data_sync.dart";
 import "../data/point_suggestions_repository.dart";
 import "../domain/entities/waste_type.dart";
-import "../models/point_suggestion.dart";
+import "../domain/entities/point_suggestion.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -12,7 +12,7 @@ import "../widgets/opening_hours_row.dart";
 import "../widgets/waste_type_option_card.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Dias da semana exibidos na seção de horário de funcionamento.
@@ -31,7 +31,7 @@ enum _Weekday {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela com formulário completo para sugestão anônima de novos pontos de coleta (RF10, RF11, RNF06).
@@ -88,7 +88,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   String? _hoursErrorMessage;
 
 
-  // Inicialização --------------------------------------------------------- //
+// Inicialização ------------------------------------------------------------ //
 
 
   @override
@@ -99,7 +99,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   }
 
 
-  // Métodos --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -442,7 +442,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   }
 
 
-  // Construção ------------------------------------------------------------ //
+// Construção --------------------------------------------------------------- //
 
 
   @override
@@ -467,6 +467,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+
               children: [
                 _buildHero(),
                 const SizedBox(height: 24),
@@ -506,6 +507,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   Widget _buildHero() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Semantics(
           header: true,
@@ -709,6 +711,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         _buildFieldLabel("Materiais aceitos"),
         const SizedBox(height: 10),
@@ -752,6 +755,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   Widget _buildHoursSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         _buildFieldLabel("Horário de funcionamento"),
         const SizedBox(height: 6),
@@ -769,6 +773,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
         Align(
           alignment: Alignment.centerRight,
+
           child: Tooltip(
             message: "Replicar horário para todos os dias",
             child: TextButton(
@@ -845,6 +850,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
   Widget _buildAnonymousFootnote() {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
+
       children: [
         Icon(
           Icons.lock_outline_rounded,
@@ -870,7 +876,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _DaySchedule {

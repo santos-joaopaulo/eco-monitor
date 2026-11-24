@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:flutter/services.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Detector de gesto secreto para ativação do painel de administração.
@@ -43,7 +43,7 @@ class _AdminSecretGestureDetectorState
   Timer? _expirationTimer;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -54,7 +54,7 @@ class _AdminSecretGestureDetectorState
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _onPointerDown(PointerDownEvent event) {

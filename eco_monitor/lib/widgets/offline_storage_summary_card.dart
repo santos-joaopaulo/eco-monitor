@@ -4,7 +4,7 @@ import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Card de resumo do armazenamento local utilizado por mapas e pacotes de navegação offline.
@@ -100,15 +100,17 @@ class OfflineStorageSummaryCard extends StatelessWidget {
         border: Border.all(color: AppColors.outline),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x0A000000),
+            color: AppColors.shadowSubtle,
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
         ],
       ),
       padding: const EdgeInsets.all(16),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: <Widget>[
           Row(
             children: <Widget>[
@@ -129,6 +131,7 @@ class OfflineStorageSummaryCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: <Widget>[
                     const Text(
                       "Armazenamento de Mapas",

@@ -4,7 +4,7 @@ import "../models/collection_point.dart";
 import "geo.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Opções de raio de proximidade configuráveis para filtragem espacial.
@@ -32,7 +32,7 @@ enum ProximityRadius {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Caixa delimitadora geográfica definida por latitudes e longitudes mínimas e máximas.

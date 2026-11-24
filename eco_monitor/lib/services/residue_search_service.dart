@@ -1,7 +1,7 @@
 import "../domain/entities/waste_type.dart";
 
 
-// Tipos ------------------------------------------------------------------- //
+// Tipos -------------------------------------------------------------------- //
 
 
 /// Resultado da busca textual de tipos de resíduos com o termo correspondente e pontuação.
@@ -23,7 +23,7 @@ class WasteTypeSearchResult {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Serviço de consulta rápida por tipo de resíduo usando busca textual e sinônimos populares.
@@ -164,7 +164,7 @@ class ResidueSearchService {
       };
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Remove acentos e converte para minúsculas para busca insensível a maiúsculas e diacríticos.

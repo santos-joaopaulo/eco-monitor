@@ -13,7 +13,7 @@ import "local_store.dart";
 const String _favoritesStoreKey = "favorite_collect_points_ids_v1";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Implementação offline-first de [IFavoritesRepository] persistida no [LocalStore]
@@ -35,7 +35,7 @@ class FavoritesRepository implements IFavoritesRepository {
   Future<void> _lock = Future<void>.value();
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -103,7 +103,7 @@ class FavoritesRepository implements IFavoritesRepository {
   }
 
 
-  // Helpers ----------------------------------------------------------------- //
+// Helpers ------------------------------------------------------------------ //
 
 
   Future<Set<String>> _loadIdsUnsafe() async {

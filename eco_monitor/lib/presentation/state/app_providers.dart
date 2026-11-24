@@ -31,7 +31,7 @@ import "points_notifier.dart";
 import "sync_notifier.dart";
 
 
-// Providers --------------------------------------------------------------- //
+// Providers ---------------------------------------------------------------- //
 
 
 /// Constrói a lista de provedores de dependências e gerenciadores de estado

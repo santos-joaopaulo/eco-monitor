@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/waste_type.dart";
-import "../../models/point_suggestion.dart";
+import "../../domain/entities/point_suggestion.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../utils/formatters.dart";
@@ -13,7 +13,7 @@ import "admin_environmental_report_screen.dart";
 import "admin_point_form_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Agrupamento de solicitações cívicas de novos pontos por bairro territorial.
@@ -71,7 +71,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
   bool _showTerritorialView = false;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -81,7 +81,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadSuggestions() async {
@@ -335,6 +335,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+
         title: Text(
           _showTerritorialView
               ? "DEMANDA TERRITORIAL"
@@ -388,6 +389,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
+
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -445,8 +447,10 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
 
             child: Padding(
               padding: const EdgeInsets.all(16),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   const Text(
                     "SUMÁRIO TERRITORIAL DE DEMANDA",
@@ -464,6 +468,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Text(
                               "${_allSuggestions.length}",
@@ -487,6 +492,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Text(
                               "${demands.length}",
@@ -596,6 +602,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
+
                 child: Text(
                   "Nenhuma demanda territorial registrada.",
                   style: TextStyle(color: AppColors.textSecondary),
@@ -606,6 +613,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
             ...demands.map((NeighborhoodDemand item) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
+
                 child: _NeighborhoodDemandCard(
                   demand: item,
                   onConvertSuggestion: _convertToPoint,
@@ -630,6 +638,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+
             child: Row(
               children: [
                 _FilterChip(
@@ -678,6 +687,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
               ? const Center(
                   child: Padding(
                     padding: EdgeInsets.all(24),
+
                     child: Text(
                       "Nenhuma sugestão encontrada nesta categoria.",
                       style: TextStyle(color: AppColors.textSecondary),
@@ -786,9 +796,11 @@ class _NeighborhoodDemandCard extends StatelessWidget {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 8),
+
           child: Wrap(
             spacing: 6,
             runSpacing: 4,
+
             children: topWastes.map((MapEntry<WasteType, int> entry) {
               final WasteType type = entry.key;
               final int count = entry.value;
@@ -821,8 +833,10 @@ class _NeighborhoodDemandCard extends StatelessWidget {
           const Divider(height: 1, color: AppColors.outline),
           Padding(
             padding: const EdgeInsets.all(12),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: demand.suggestions.map((PointSuggestion s) {
                 final bool isApproved = s.status == SuggestionStatus.approved;
                 return Container(
@@ -837,6 +851,7 @@ class _NeighborhoodDemandCard extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Text(
                               s.name,
@@ -910,8 +925,10 @@ class _NeighborhoodDemandCard extends StatelessWidget {
           if (onGeneratePdf != null)
             Padding(
               padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
+
               child: Align(
                 alignment: Alignment.centerRight,
+
                 child: TextButton.icon(
                   onPressed: onGeneratePdf,
                   style: TextButton.styleFrom(
@@ -1001,15 +1018,19 @@ class _SuggestionCard extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.all(16),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -1143,6 +1164,7 @@ class _SuggestionCard extends StatelessWidget {
             Wrap(
               spacing: 6,
               runSpacing: 4,
+
               children: suggestion.acceptedWasteTypes.map((WasteType type) {
                 return Container(
                   padding: const EdgeInsets.symmetric(
@@ -1167,6 +1189,7 @@ class _SuggestionCard extends StatelessWidget {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
               children: [
                 Text(
                   "Enviado em ${formatDate(suggestion.createdAt)}",

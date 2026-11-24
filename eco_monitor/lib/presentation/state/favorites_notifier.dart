@@ -3,7 +3,7 @@ import "package:flutter/foundation.dart";
 import "../../domain/repositories/favorites_repository_contract.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Gerenciador de estado reativo para os pontos de coleta favoritados (RF-FAV).
@@ -23,7 +23,7 @@ class FavoritesNotifier extends ChangeNotifier {
   bool isFavorite(String pointId) => _favoriteIds.contains(pointId);
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _init() async {

@@ -11,9 +11,9 @@ import "../data/route_cache_store.dart";
 import "../data/waste_search_analytics_repository.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/usecases/get_nearest_point_use_case.dart";
-import "../models/campaign.dart";
-import "../models/collection_point.dart";
-import "../models/offline_package.dart";
+import "../domain/entities/campaign.dart";
+import "../domain/entities/collection_point.dart";
+import "../domain/entities/offline_package.dart";
 import "../presentation/state/favorites_notifier.dart";
 import "../presentation/state/offline_packages_notifier.dart";
 import "../services/location_service.dart";
@@ -42,7 +42,7 @@ import "offline_maps_screen.dart";
 part "home_screen_actions.dart";
 
 
-// Home screen ------------------------------------------------------------- //
+// Home screen -------------------------------------------------------------- //
 
 
 class HomeScreen extends StatefulWidget {
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver, _HomeScreenActions {
 
 
-  // Init ------------------------------------------------------------------ //
+// Init --------------------------------------------------------------------- //
 
 
   bool _isSearching = false;
@@ -227,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Widget? _buildLocationNotice() {
@@ -306,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
 
-  // Build ----------------------------------------------------------------- //
+// Build -------------------------------------------------------------------- //
 
 
   @override

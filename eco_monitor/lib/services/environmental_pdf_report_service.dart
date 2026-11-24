@@ -6,10 +6,10 @@ import "package:pdf/widgets.dart" as pw;
 import "../domain/entities/collection_point.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/waste_search_analytics_repository_contract.dart";
-import "../models/civic_demand_summary.dart";
+import "../domain/entities/civic_demand_summary.dart";
 
 
-// Constantes de Design PDF (mapeadas estritamente de AppColors) ------------- //
+// Constantes de Design PDF (mapeadas estritamente de AppColors) ------------ //
 
 
 const PdfColor _pdfPrimary = PdfColor.fromInt(0xFF58A29D);
@@ -25,7 +25,7 @@ const PdfColor _pdfActive = PdfColor.fromInt(0xFF58A29D);
 const PdfColor _pdfInactive = PdfColor.fromInt(0xFF9CA3AF);
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Serviço de geração de relatórios oficiais em formato PDF sobre impacto ambiental,
@@ -34,7 +34,7 @@ class EnvironmentalPdfReportService {
   const EnvironmentalPdfReportService();
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Gera o arquivo PDF formatado para padrão A4 em formato de bytes (`Uint8List`).
@@ -265,7 +265,7 @@ class EnvironmentalPdfReportService {
   }
 
 
-  // Layout Helper Widgets ------------------------------------------------- //
+// Layout Helper Widgets ---------------------------------------------------- //
 
 
   pw.Widget _buildHeader({
@@ -1043,7 +1043,7 @@ class EnvironmentalPdfReportService {
   }
 
 
-  // Formatting Helpers ---------------------------------------------------- //
+// Formatting Helpers ------------------------------------------------------- //
 
 
   static String _generateDocumentId(DateTime date, String? neighborhood) {

@@ -3,8 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/app_colors.dart";
 
 
-
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Aviso compacto sobre a permissão ou serviço de localização.
@@ -47,9 +46,11 @@ class LocationNotice extends StatelessWidget {
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     if (isLoading)
                       const SizedBox(
@@ -81,6 +82,7 @@ class LocationNotice extends StatelessWidget {
 
                   Align(
                     alignment: Alignment.centerRight,
+
                     child: TextButton(
                       onPressed: onAction,
                       style: TextButton.styleFrom(

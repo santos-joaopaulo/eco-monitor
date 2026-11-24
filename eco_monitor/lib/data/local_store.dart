@@ -1,7 +1,7 @@
 import "package:shared_preferences/shared_preferences.dart";
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato abstrato para operações assíncronas de armazenamento chave-valor local.
@@ -23,7 +23,7 @@ abstract interface class LocalStore {
 }
 
 
-// Implementations --------------------------------------------------------- //
+// Implementations ---------------------------------------------------------- //
 
 
 /// Implementação de [LocalStore] sobre [SharedPreferences].

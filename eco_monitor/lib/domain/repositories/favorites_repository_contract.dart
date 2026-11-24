@@ -1,7 +1,7 @@
 import "dart:async";
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato para persistência e consulta offline-first dos ecopontos favoritados pelo usuário (RF-FAV).

@@ -6,8 +6,8 @@ import "package:provider/provider.dart";
 
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/point_reviews_repository_contract.dart";
-import "../models/collection_point.dart";
-import "../models/point_review.dart";
+import "../domain/entities/collection_point.dart";
+import "../domain/entities/point_review.dart";
 import "../presentation/state/favorites_notifier.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";
@@ -18,7 +18,7 @@ import "custom_bottom_nav_bar.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Visualização em lista de pontos de coleta (fallback offline e modo alternativo - RF01, RF05, RNF09).
@@ -39,7 +39,7 @@ class CollectPointsListView extends StatelessWidget {
   final bool isDataStale;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   List<CollectionPoint> _sortedPoints() {
@@ -83,7 +83,7 @@ class CollectPointsListView extends StatelessWidget {
   }
 
 
-  // Build ----------------------------------------------------------------- //
+// Build -------------------------------------------------------------------- //
 
 
   @override
@@ -99,6 +99,7 @@ class CollectPointsListView extends StatelessWidget {
 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+
             children: [
               const Icon(
                 Icons.location_off_outlined,
@@ -166,7 +167,7 @@ class CollectPointsListView extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _CollectPointCard extends StatelessWidget {
@@ -200,9 +201,11 @@ class _CollectPointCard extends StatelessWidget {
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   Container(
                     width: 42,
@@ -223,6 +226,7 @@ class _CollectPointCard extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         Text(
                           point.name,
@@ -286,6 +290,7 @@ class _CollectPointCard extends StatelessWidget {
 
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   const Icon(
                     Icons.place_outlined,
@@ -343,6 +348,7 @@ class _CollectPointCard extends StatelessWidget {
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
+
                   children: [
                     for (final WasteType type in wasteTypes)
                       Container(
@@ -384,7 +390,7 @@ class _CollectPointCard extends StatelessWidget {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 IconData _pointIcon(PointType type) {
@@ -412,7 +418,7 @@ String _pointLabel(PointType type) {
 }
 
 
-// Favorites and Ratings --------------------------------------------------- //
+// Favorites and Ratings ---------------------------------------------------- //
 
 
 class _CardFavoriteButton extends StatefulWidget {

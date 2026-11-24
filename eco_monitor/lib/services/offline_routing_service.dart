@@ -5,7 +5,7 @@ import "dart:math" as math;
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../services/location_service.dart";
 import "../utils/geo.dart";
 import "../utils/polyline_codec.dart";
@@ -33,7 +33,7 @@ const String kDefaultRoadNetworkAssetPath =
     "assets/data/aracaju_road_network.json";
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Exceção lançada quando coordenadas estão fora da cobertura da malha de Aracaju.
@@ -232,7 +232,7 @@ class _GridSpatialIndex {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Grafo viário OSM em memória para cálculo de caminhos mínimos offline.

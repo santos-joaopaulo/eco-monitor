@@ -1,7 +1,7 @@
 import "../entities/campaign.dart";
 
 
-// Contracts --------------------------------------------------------------- //
+// Contracts ---------------------------------------------------------------- //
 
 
 /// Contrato do repositório de campanhas de coleta (Camada de Domínio).

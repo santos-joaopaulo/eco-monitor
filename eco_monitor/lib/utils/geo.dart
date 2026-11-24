@@ -13,7 +13,7 @@ const double kEarthRadiusInMeters = 6371000;
 const double kUrbanDetourFactor = 1.30;
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Modos de transporte disponíveis para o cálculo e traçado da rota.
@@ -49,7 +49,7 @@ enum TravelMode {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Distância ortodrômica em metros entre duas coordenadas geográficas.

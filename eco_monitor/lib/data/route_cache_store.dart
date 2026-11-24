@@ -17,7 +17,7 @@ const Duration kRouteCacheDefaultTtl = Duration(hours: 24);
 const int kRouteCacheDefaultMaxEntries = 50;
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Entrada individual de rota viária persistida em cache.
@@ -175,7 +175,7 @@ class RouteCacheStore {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Recupera uma rota do cache pelo par de coordenadas e modo de transporte.

@@ -8,7 +8,7 @@ import "../../domain/usecases/filter_points_use_case.dart";
 import "../../domain/usecases/get_nearest_point_use_case.dart";
 
 
-// Notifiers --------------------------------------------------------------- //
+// Notifiers ---------------------------------------------------------------- //
 
 
 /// Gerenciador de estado reativo para os pontos de coleta e filtros (Presentation).
@@ -59,7 +59,7 @@ class PointsNotifier extends ChangeNotifier {
   bool get isEmpty => filteredPoints.isEmpty && _selectedPoint == null;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _onSyncChanged() {

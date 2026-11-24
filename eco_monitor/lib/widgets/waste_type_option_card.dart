@@ -6,7 +6,7 @@ import "selection_checkbox.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Card selecionável de um tipo de resíduo no formulário de sugestão de ponto.
@@ -55,6 +55,7 @@ class WasteTypeOptionCard extends StatelessWidget {
 
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+
               child: MediaQuery.withClampedTextScaling(
                 maxScaleFactor: 1.3,
                 child: Row(

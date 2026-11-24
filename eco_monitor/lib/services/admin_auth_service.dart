@@ -23,13 +23,13 @@ const int kMaxFailedAttempts = 5;
 const int kLockoutDurationSeconds = 30;
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 enum AdminAuthStatus { success, invalidKey, lockedOut }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Resultado detalhado de uma tentativa de autenticação no painel.
@@ -85,7 +85,7 @@ class AdminAuthService {
   final DateTime Function() _clock;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Indica se o dispositivo já foi autorizado anteriormente.
@@ -159,7 +159,7 @@ class AdminAuthService {
   }
 
 
-  // Helpers ----------------------------------------------------------------- //
+// Helpers ------------------------------------------------------------------ //
 
 
   String _hashKey(String rawKey) {

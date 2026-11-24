@@ -13,7 +13,7 @@ import "../widgets/warning_box.dart";
 import "../widgets/waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de passo a passo de descarte compartilhada por todas as categorias de resíduos (RF07).
@@ -93,12 +93,14 @@ class _Content extends StatelessWidget {
       children: [
         Align(
           alignment: Alignment.topCenter,
+
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: kEcoContentHorizontalPadding,
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+
               child: ListView(
                 // Espaço reservado para o botão flutuante e o menu inferior.
                 padding: EdgeInsets.fromLTRB(
@@ -147,6 +149,7 @@ class _Content extends StatelessWidget {
                   const SizedBox(height: 16),
                   EcoCard(
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+
                     child: Column(
                       children: [
                         for (var i = 0; i < guide.steps.length; i++)
@@ -173,6 +176,7 @@ class _Content extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+
               child: ElevatedButton(
                 onPressed: () => onShowCollectionPoints(wasteType),
                 style: ElevatedButton.styleFrom(
@@ -195,6 +199,7 @@ class _Content extends StatelessWidget {
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+
                   children: [
                     Icon(Icons.location_on_outlined, size: 26),
                     SizedBox(width: 8),

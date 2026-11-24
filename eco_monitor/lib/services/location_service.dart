@@ -3,14 +3,14 @@ import "dart:async";
 import "package:geolocator/geolocator.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Resultado da verificação de permissão de localização, incluindo disponibilidade do serviço.
 enum LocationPermissionState { granted, denied, deniedForever, serviceDisabled }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Posição do dispositivo, mantida apenas em memória (nunca persistida).
@@ -33,7 +33,7 @@ class LocationService {
   final Duration timeLimit;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<LocationPermissionState> currentPermission() async {
@@ -116,7 +116,7 @@ class LocationService {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 LocationPermissionState _mapPermission(LocationPermission permission) {

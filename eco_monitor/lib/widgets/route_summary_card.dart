@@ -2,7 +2,7 @@ import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../services/route_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -10,7 +10,7 @@ import "../utils/formatters.dart";
 import "../utils/geo.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Painel de navegação ativa exibido durante o traçado da rota (RF04, RF05).
@@ -33,7 +33,7 @@ class RouteSummaryCard extends StatelessWidget {
   final VoidCallback? onOpenExternal;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -74,6 +74,7 @@ class RouteSummaryCard extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -84,6 +85,7 @@ class RouteSummaryCard extends StatelessWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
+
                       child: Center(
                         child: Container(
                           width: 40,
@@ -100,10 +102,12 @@ class RouteSummaryCard extends StatelessWidget {
 
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "DESTINO",
@@ -234,6 +238,7 @@ class RouteSummaryCard extends StatelessWidget {
 
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           if (isArrived)
                             const Icon(
@@ -262,6 +267,7 @@ class RouteSummaryCard extends StatelessWidget {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+
                               children: [
                                 Text(
                                   isArrived
@@ -411,7 +417,7 @@ class RouteSummaryCard extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _RouteMetric extends StatelessWidget {
@@ -424,6 +430,7 @@ class _RouteMetric extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Text(
           label,

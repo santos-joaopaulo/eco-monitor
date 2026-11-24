@@ -2,12 +2,12 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 
-import "../../models/offline_package.dart";
+import "../../domain/entities/offline_package.dart";
 import "../../services/location_service.dart";
 import "../../services/offline_package_manager.dart";
 
 
-// Notifier ---------------------------------------------------------------- //
+// Notifier ----------------------------------------------------------------- //
 
 
 /// Gerenciador reativo de estado dos pacotes de mapas e rotas offline (T14.3).
@@ -81,7 +81,7 @@ class OfflinePackagesNotifier extends ChangeNotifier {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Carrega o catálogo de pacotes e o total de armazenamento ocupado.

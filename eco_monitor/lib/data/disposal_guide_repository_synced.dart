@@ -27,7 +27,7 @@ const String _cacheLastUpdatedKey = "disposal_guides_last_updated";
 const Duration kDisposalGuidesMaxAge = Duration(days: 30);
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Snapshot remoto de guias de descarte e resumos de resíduos obtidos do
@@ -48,7 +48,7 @@ class DisposalGuidesRemoteSnapshot {
 typedef DisposalGuidesFetcher = Future<DisposalGuidesRemoteSnapshot> Function();
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Cria um [DisposalGuidesFetcher] baseado na coleção `disposalGuides`
@@ -134,7 +134,7 @@ DisposalGuidesFetcher createFirestoreGuidesFetcher({
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// [DisposalGuideRepository] offline-first com sincronização opcional via Firestore.
@@ -187,7 +187,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -323,7 +323,7 @@ class DisposalGuideRepositorySynced implements DisposalGuideRepository {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _ParsedGuides {
@@ -339,7 +339,7 @@ class _ParsedGuides {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 _ParsedGuides _parseGuidesJson(String source) {

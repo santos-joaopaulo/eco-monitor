@@ -4,7 +4,7 @@ import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "../domain/repositories/collect_points_repository_contract.dart";
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "local_store.dart";
 
 
@@ -24,14 +24,14 @@ const String _cacheLastUpdatedKey = "collect_points_last_updated";
 const Duration kCollectPointsMaxAge = Duration(days: 7);
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Origem do conjunto de dados atualmente mantido por um repositório (RNF10, RNF17).
 enum DataSourceOrigin { bundledAsset, localCache, remoteServer }
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Conjunto de dados retornado por uma atualização remota, com o timestamp da origem.
@@ -64,7 +64,7 @@ typedef CollectPointsDeltaFetcher = Future<CollectPointsRemoteSnapshot> Function
 );
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Fonte dos pontos de coleta exibidos no mapa da tela inicial.
@@ -121,7 +121,7 @@ class CollectPointsRepository implements ICollectPointsRepository {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Carrega os pontos sem rede, priorizando o cache local baixado.
@@ -345,7 +345,7 @@ class CollectPointsRepository implements ICollectPointsRepository {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _ParsedCollectPoints {
@@ -356,7 +356,7 @@ class _ParsedCollectPoints {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 List<CollectionPoint> _parsePointsList(List<dynamic> rawPoints) {

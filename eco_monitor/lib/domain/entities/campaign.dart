@@ -1,14 +1,14 @@
 import "waste_type.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Indica se a campanha está ativa, prevista ou já encerrada.
 enum CampaignStatus { active, upcoming, finished }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Uma campanha de coleta exibida aos usuários (Entidade de Domínio).
@@ -46,7 +46,7 @@ class Campaign {
   bool accepts(WasteType wasteType) => wasteTypes.contains(wasteType);
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Constrói uma campanha a partir de JSON, tolerando campos ausentes e valores desconhecidos.
@@ -100,7 +100,7 @@ class Campaign {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 CampaignStatus _campaignStatusByName(String name) {

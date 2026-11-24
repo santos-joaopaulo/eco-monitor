@@ -3,11 +3,11 @@ import "dart:ui" as ui;
 
 import "package:material_ui/material_ui.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../theme/app_colors.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Marcador de ponto de coleta renderizado em tempo de execução como PNG para anotações do Mapbox.
@@ -21,7 +21,7 @@ abstract final class PointPin {
   static const int _height = 128;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   static Future<Uint8List> render({
@@ -251,7 +251,7 @@ abstract final class PointPin {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 Color _badgeColor(PointType type) {

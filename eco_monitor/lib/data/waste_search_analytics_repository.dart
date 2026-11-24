@@ -3,7 +3,7 @@ import "../domain/repositories/waste_search_analytics_repository_contract.dart";
 import "local_store.dart";
 
 
-// Repositories ------------------------------------------------------------ //
+// Repositories ------------------------------------------------------------- //
 
 
 /// Implementação offline-first para persistência e agregação local de pesquisas de resíduos.
@@ -26,7 +26,7 @@ class WasteSearchAnalyticsRepository
   };
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override

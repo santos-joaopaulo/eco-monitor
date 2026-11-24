@@ -1,7 +1,7 @@
 import "waste_type.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Resumo de um resíduo exibido na listagem do guia.
@@ -23,7 +23,7 @@ class Residue {
   final int totalSteps;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Constrói um [Residue] a partir de JSON, retornando `null` se o tipo for desconhecido.
@@ -55,7 +55,7 @@ class Residue {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 int _asInt(Object? value, {required int fallback}) {

@@ -6,7 +6,7 @@ import "../../domain/repositories/campaigns_repository_contract.dart";
 import "../../domain/usecases/get_campaigns_use_case.dart";
 
 
-// Notifiers --------------------------------------------------------------- //
+// Notifiers ---------------------------------------------------------------- //
 
 
 /// Gerenciador de estado reativo para as campanhas de coleta (Presentation).
@@ -63,7 +63,7 @@ class CampaignsNotifier extends ChangeNotifier {
   bool get hasError => _hasError;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _onSyncChanged() {

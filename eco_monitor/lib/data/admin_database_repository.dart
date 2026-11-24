@@ -1,9 +1,9 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 
-import "../models/campaign.dart";
-import "../models/collection_point.dart";
-import "../models/point_review.dart";
-import "../models/point_suggestion.dart";
+import "../domain/entities/campaign.dart";
+import "../domain/entities/collection_point.dart";
+import "../domain/entities/point_review.dart";
+import "../domain/entities/point_suggestion.dart";
 import "campaigns_repository.dart";
 import "collect_points_fetcher_firestore.dart";
 import "firebase_service.dart";
@@ -12,7 +12,7 @@ import "point_reviews_repository.dart";
 import "point_suggestions_repository.dart";
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato para operações administrativas de manipulação de dados no Cloud Firestore.
@@ -46,7 +46,7 @@ abstract interface class AdminDatabaseRepository {
 }
 
 
-// Implementations --------------------------------------------------------- //
+// Implementations ---------------------------------------------------------- //
 
 
 /// Implementação direta no Cloud Firestore para gestão administrativa do banco.
@@ -66,7 +66,7 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   }
 
 
-  // Pontos de Coleta ------------------------------------------------------ //
+// Collection Points -------------------------------------------------------- //
 
 
   @override
@@ -162,7 +162,7 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   }
 
 
-  // Campanhas ------------------------------------------------------------- //
+// Campaigns ---------------------------------------------------------------- //
 
 
   @override
@@ -221,7 +221,7 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   }
 
 
-  // Sugestões ------------------------------------------------------------- //
+// Suggestions -------------------------------------------------------------- //
 
 
   @override
@@ -267,7 +267,7 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   }
 
 
-  // Avaliações e Reportes Cidadãos ---------------------------------------- //
+// Citizen Reviews and Reports ---------------------------------------------- //
 
 
   @override

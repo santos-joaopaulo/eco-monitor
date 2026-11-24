@@ -2,7 +2,7 @@ import "dart:async";
 
 import "package:material_ui/material_ui.dart";
 
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "../services/location_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -12,7 +12,7 @@ import "campaign_card.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Painel inferior padronizado com os detalhes e ações da campanha em foco no mapa (RF09).
@@ -92,7 +92,7 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -174,9 +174,11 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Container(
                               width: 44,
@@ -197,6 +199,7 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+
                                 children: [
                                   Semantics(
                                     header: true,
@@ -289,6 +292,7 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
 
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+
                               children: [
                                 const _SectionLabel(
                                   label: "MATERIAIS COLETADOS",
@@ -298,6 +302,7 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
                                 Wrap(
                                   spacing: 8,
                                   runSpacing: 8,
+
                                   children: [
                                     for (final WasteCategory type
                                         in sortedWasteTypes)
@@ -362,7 +367,7 @@ class _FocusedCampaignSheetState extends State<FocusedCampaignSheet> {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _CampaignInfoRow extends StatelessWidget {
@@ -380,6 +385,7 @@ class _CampaignInfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Icon(icon, size: 18, color: AppColors.primaryAccessible),
         const SizedBox(width: 8),
@@ -387,6 +393,7 @@ class _CampaignInfoRow extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 title,

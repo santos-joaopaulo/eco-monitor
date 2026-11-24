@@ -16,7 +16,7 @@ import "../widgets/residue_card.dart";
 import "../widgets/waste_style.dart";
 
 
-// Screens ----------------------------------------------------------------- //
+// Screens ------------------------------------------------------------------ //
 
 
 /// Tela 1: listagem de resíduos com busca textual, ranking comunitário e início de guia.
@@ -51,7 +51,7 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   bool _isLoadingStats = true;
 
 
-  // Init ------------------------------------------------------------------ //
+// Init --------------------------------------------------------------------- //
 
 
   @override
@@ -112,7 +112,7 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   }
 
 
-  // Build ----------------------------------------------------------------- //
+// Build -------------------------------------------------------------------- //
 
 
   @override
@@ -125,7 +125,9 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+
       appBar: const EcoAppBar(title: "GUIA DE DESCARTE"),
+
       body: Column(
         children: [
           ?widget.banner,
@@ -133,6 +135,7 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
           Expanded(
             child: Align(
               alignment: Alignment.topCenter,
+
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: kEcoContentHorizontalPadding,
@@ -237,7 +240,7 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
 }
 
 
-// Widgets auxiliares ------------------------------------------------------ //
+// Widgets auxiliares ------------------------------------------------------- //
 
 
 class _SearchBar extends StatelessWidget {
@@ -263,7 +266,7 @@ class _SearchBar extends StatelessWidget {
           border: Border.all(color: AppColors.outline),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0A000000),
+              color: AppColors.shadowSubtle,
               offset: Offset(0, 2),
               blurRadius: 6,
             ),
@@ -320,6 +323,7 @@ class _PopularSearchesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Semantics(
           header: true,
@@ -355,6 +359,7 @@ class _PopularSearchesSection extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+
           children: stats.map((WasteSearchStat stat) {
             final int pct = stat.percentage.round();
 
@@ -422,6 +427,7 @@ class _SearchResultsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
       children: [
         Expanded(
           child: Text(
@@ -471,6 +477,7 @@ class _SearchResultCard extends StatelessWidget {
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Row(
             children: [
@@ -493,6 +500,7 @@ class _SearchResultCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       residue.title,
@@ -634,6 +642,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Semantics(
           header: true,

@@ -4,7 +4,7 @@ import "../domain/entities/waste_type.dart";
 import "../theme/app_colors.dart";
 
 
-// Extensions -------------------------------------------------------------- //
+// Extensions --------------------------------------------------------------- //
 
 
 /// Tokens visuais (ícone, cor e rótulo pt-BR) para cada [WasteType].
@@ -47,14 +47,14 @@ extension WasteTypeStyle on WasteType {
 }
 
 
-// Aliases ----------------------------------------------------------------- //
+// Aliases ------------------------------------------------------------------ //
 
 
 /// Alias semântico para a categoria ou tipo de resíduo aceito.
 typedef WasteCategory = WasteType;
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Badge padrão oficial para exibição das categorias e tipos de resíduo.

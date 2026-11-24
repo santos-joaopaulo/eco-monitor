@@ -5,7 +5,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "../domain/repositories/point_reviews_repository_contract.dart";
-import "../models/point_review.dart";
+import "../domain/entities/point_review.dart";
 import "firebase_service.dart";
 import "local_store.dart";
 
@@ -20,14 +20,14 @@ const String _pendingReviewsQueueKey = "pending_point_reviews_queue_v1";
 const String _localPointReviewsStoreKey = "local_point_reviews_store_v1";
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Função usada por [PointReviewsRepository] para persistir uma avaliação remotamente.
 typedef PointReviewSender = Future<void> Function(PointReview review);
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Cria um [PointReviewSender] anônimo integrado ao Cloud Firestore (RNF06, RNF14).
@@ -48,7 +48,7 @@ PointReviewSender createFirestorePointReviewSender({
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Repositório de avaliações de ecopontos com suporte a submissão anônima remota,
@@ -74,7 +74,7 @@ class PointReviewsRepository implements IPointReviewsRepository {
   bool get hasRemoteSender => sender != null;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   @override
@@ -196,7 +196,7 @@ class PointReviewsRepository implements IPointReviewsRepository {
   }
 
 
-  // Helpers ----------------------------------------------------------------- //
+// Helpers ------------------------------------------------------------------ //
 
 
   Future<Map<String, List<PointReview>>> _loadAllLocalReviewsUnsafe() async {

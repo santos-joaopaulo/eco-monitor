@@ -9,7 +9,7 @@ import "data/app_data_sync.dart";
 import "data/firebase_service.dart";
 import "domain/entities/waste_type.dart";
 import "firebase_options.dart";
-import "models/campaign.dart";
+import "domain/entities/campaign.dart";
 import "presentation/state/app_providers.dart";
 import "presentation/state/sync_notifier.dart";
 import "screens/events_screen.dart";
@@ -23,7 +23,9 @@ import "widgets/custom_bottom_nav_bar.dart";
 import "widgets/eco_app_bar.dart";
 import "widgets/offline_banner.dart";
 
+
 // Inicialização ------------------------------------------------------------ //
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +51,9 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-// Classes ----------------------------------------------------------------- //
+
+// Classes ------------------------------------------------------------------ //
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, this.dataSync, this.locationService});

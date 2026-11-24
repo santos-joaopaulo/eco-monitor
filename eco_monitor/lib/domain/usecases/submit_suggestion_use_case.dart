@@ -3,7 +3,7 @@ import "../entities/waste_type.dart";
 import "../repositories/point_suggestions_repository_contract.dart";
 
 
-// Use cases --------------------------------------------------------------- //
+// Use cases ---------------------------------------------------------------- //
 
 
 /// Caso de uso para validação e submissão de sugestões anônimas de pontos (Domínio).

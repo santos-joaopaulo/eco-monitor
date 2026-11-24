@@ -29,6 +29,7 @@ class StepTimelineItem extends StatelessWidget {
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+
           children: [
             SizedBox(
               width: _diameter,
@@ -66,8 +67,10 @@ class StepTimelineItem extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(top: 2, bottom: isLast ? 0 : 24),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       title,

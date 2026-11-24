@@ -10,13 +10,13 @@ import "../../data/waste_search_analytics_repository.dart";
 import "../../domain/entities/collection_point.dart";
 import "../../domain/entities/point_suggestion.dart";
 import "../../domain/repositories/waste_search_analytics_repository_contract.dart";
-import "../../models/civic_demand_summary.dart";
+import "../../domain/entities/civic_demand_summary.dart";
 import "../../services/environmental_pdf_report_service.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de visualização, exportação e compartilhamento de Relatórios Ambientais em PDF.
@@ -63,7 +63,7 @@ class _AdminEnvironmentalReportScreenState
   String? _selectedNeighborhood;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -79,7 +79,7 @@ class _AdminEnvironmentalReportScreenState
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadReportData() async {
@@ -246,6 +246,7 @@ class _AdminEnvironmentalReportScreenState
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
+
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -286,6 +287,7 @@ class _AdminEnvironmentalReportScreenState
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                           children: [
                             Expanded(
                               child: Text(

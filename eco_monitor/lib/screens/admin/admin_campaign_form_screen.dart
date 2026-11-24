@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/waste_type.dart";
-import "../../models/campaign.dart";
+import "../../domain/entities/campaign.dart";
 import "../../services/location_service.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
@@ -12,7 +12,7 @@ import "../../widgets/eco_app_bar.dart";
 import "../../widgets/waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Formulário de criação ou edição de uma campanha de coleta.
@@ -55,7 +55,7 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
   String? _errorMessage;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -110,7 +110,7 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _fetchCurrentLocation() async {
@@ -284,6 +284,7 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+
                   children: [
                     // Dados Principais
                     Card(
@@ -296,8 +297,10 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "INFORMAÇÕES DA CAMPANHA",
@@ -391,8 +394,10 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "PERÍODO DO EVENTO",
@@ -448,11 +453,14 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                               children: [
                                 const Expanded(
                                   child: Text(
@@ -576,8 +584,10 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
 
                       child: Padding(
                         padding: const EdgeInsets.all(16),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Text(
                               "RESÍDUOS ACEITOS NA CAMPANHA",
@@ -593,6 +603,7 @@ class _AdminCampaignFormScreenState extends State<AdminCampaignFormScreen> {
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
+
                               children: WasteType.values.map((WasteType type) {
                                 final bool isSelected =
                                     _selectedWastes.contains(type);

@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/app_colors.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Caixa de seleção visual com cantos arredondados usada nos cards de material

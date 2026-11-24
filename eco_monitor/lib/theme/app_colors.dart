@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 
-// Paleta ------------------------------------------------------------------ //
+// Palette ------------------------------------------------------------------ //
 
 
 /// Tokens de design compartilhados por todas as telas do aplicativo.
@@ -77,4 +77,22 @@ abstract final class AppColors {
 
   /// Tom neutro usado nas estrelas vazias de avaliação.
   static const Color ratingStarEmpty = Color(0xFFDFE6E5);
+
+  // Badges e gradientes de campanhas
+  static const Color campaignActiveGradientStart = Color(0xFF9CD4C6);
+  static const Color campaignActiveGradientEnd = Color(0xFFCDECE4);
+  static const Color campaignUpcomingGradientStart = Color(0xFFF6CB94);
+  static const Color campaignUpcomingGradientEnd = Color(0xFFFCE4C4);
+  static const Color campaignFinishedGradientStart = Color(0xFFDDE3E2);
+  static const Color campaignFinishedGradientEnd = Color(0xFFEEF2F1);
+
+  static const Color campaignActiveBadgeBackground = Color(0xFFE3F5EC);
+  static const Color campaignActiveBadgeText = Color(0xFF1B5E20);
+  static const Color campaignUpcomingBadgeBackground = Color(0xFFFEF3C7);
+  static const Color campaignUpcomingBadgeDot = Color(0xFFD97706);
+  static const Color campaignUpcomingBadgeText = Color(0xFF92400E);
+
+  // Sombras e superfícies utilitárias
+  static const Color shadowSubtle = Color(0x0A000000);
+  static const Color filterPillLabel = Color(0xFF4A4A4A);
 }

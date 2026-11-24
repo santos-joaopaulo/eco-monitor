@@ -11,7 +11,7 @@ import "../../widgets/eco_app_bar.dart";
 import "admin_dashboard_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de validação da chave de acesso exibida na primeira tentativa de entrada
@@ -44,7 +44,7 @@ class _AdminKeyScreenState extends State<AdminKeyScreen> {
   Timer? _countdownTimer;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -63,7 +63,7 @@ class _AdminKeyScreenState extends State<AdminKeyScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _checkInitialLockout() async {
@@ -176,9 +176,11 @@ class _AdminKeyScreenState extends State<AdminKeyScreen> {
 
                 child: Padding(
                   padding: const EdgeInsets.all(24),
+
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+
                     children: [
                       Center(
                         child: Container(

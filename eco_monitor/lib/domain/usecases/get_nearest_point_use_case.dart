@@ -3,7 +3,7 @@ import "../entities/collection_point.dart";
 import "../entities/waste_type.dart";
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Resultado do cálculo do ponto mais próximo.
@@ -18,7 +18,7 @@ class NearestPointResult {
 }
 
 
-// Use cases --------------------------------------------------------------- //
+// Use cases ---------------------------------------------------------------- //
 
 
 /// Caso de uso para localizar o ponto de coleta mais próximo do usuário (Domínio).

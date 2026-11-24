@@ -5,7 +5,7 @@ import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 import "../domain/repositories/campaigns_repository_contract.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "collect_points_repository.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
@@ -28,7 +28,7 @@ const String _cacheLastUpdatedKey = "campaigns_last_updated";
 const Duration kCampaignsMaxAge = Duration(days: 1);
 
 
-// Types ------------------------------------------------------------------- //
+// Types -------------------------------------------------------------------- //
 
 
 /// Conjunto de dados retornado por uma atualização remota de campanhas, com o timestamp do servidor.
@@ -46,7 +46,7 @@ class CampaignsRemoteSnapshot {
 typedef CampaignsFetcher = Future<CampaignsRemoteSnapshot> Function();
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Cria um [CampaignsFetcher] baseado na coleção `campaigns` do Firestore.
@@ -96,7 +96,7 @@ CampaignsFetcher createFirestoreCampaignsFetcher({
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Fonte de campanhas de coleta exibidas aos usuários (RF08, RF09, RNF11).
@@ -147,7 +147,7 @@ class CampaignsRepository implements ICampaignsRepository {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Carrega campanhas sem rede, priorizando o cache local e recorrendo
@@ -228,7 +228,7 @@ class CampaignsRepository implements ICampaignsRepository {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _ParsedCampaigns {
@@ -239,7 +239,7 @@ class _ParsedCampaigns {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 _ParsedCampaigns _parseCampaignsJson(String source) {

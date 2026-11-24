@@ -1,7 +1,7 @@
 import "../entities/waste_type.dart";
 
 
-// Tipos ------------------------------------------------------------------- //
+// Tipos -------------------------------------------------------------------- //
 
 
 /// Modelo que representa a estatística agregada de pesquisas para um tipo de resíduo.
@@ -23,7 +23,7 @@ class WasteSearchStat {
 }
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato para o repositório de registro e estatísticas de buscas de resíduos.

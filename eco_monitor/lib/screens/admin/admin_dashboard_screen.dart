@@ -15,7 +15,7 @@ import "admin_reviews_screen.dart";
 import "admin_suggestions_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Painel de controle do administrador para gerenciar coleções do banco de dados
@@ -43,7 +43,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   bool _isSyncing = false;
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -55,7 +55,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _lockAdminAccess() async {
@@ -186,6 +186,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+
         title: const Text(
           "PAINEL ADMINISTRATIVO",
           style: TextStyle(
@@ -216,6 +217,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+
                 children: [
                   // Cartão de boas-vindas / status
                   Card(
@@ -228,6 +230,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                     child: Padding(
                       padding: const EdgeInsets.all(16),
+
                       child: Row(
                         children: [
                           Container(
@@ -248,6 +251,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+
                               children: [
                                 const Text(
                                   "Banco de Dados Cloud Firestore",
@@ -380,6 +384,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                     child: Padding(
                       padding: const EdgeInsets.all(16),
+
                       child: Column(
                         children: [
                           ListTile(
@@ -481,6 +486,7 @@ class _AdminModuleCard extends StatelessWidget {
 
         child: Padding(
           padding: const EdgeInsets.all(16),
+
           child: Row(
             children: [
               Container(
@@ -497,6 +503,7 @@ class _AdminModuleCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       title,

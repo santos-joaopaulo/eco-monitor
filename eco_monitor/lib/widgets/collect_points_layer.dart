@@ -4,12 +4,12 @@ import "dart:math" as math;
 import "package:flutter/foundation.dart";
 import "package:mapbox_maps_flutter/mapbox_maps_flutter.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "../utils/geo.dart";
 import "point_pin.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Agrupador de pontos para exibição desclusterizada ou agrupada em cluster no Mapbox.
@@ -73,7 +73,7 @@ class CollectPointsLayer {
   Future<void>? _updateQueue;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   static Future<CollectPointsLayer?> create({
@@ -338,7 +338,7 @@ class CollectPointsLayer {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 String _imageKey(PointType type, {required bool selected}) {

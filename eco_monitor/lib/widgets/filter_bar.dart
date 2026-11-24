@@ -6,7 +6,7 @@ import "../theme/eco_theme.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Filtros horizontais de tipos de resíduos exibidos sobre o mapa (RF12, RF13).
@@ -33,7 +33,7 @@ class FilterBar extends StatelessWidget {
   final VoidCallback? onFavoritesToggle;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   void _toggle(WasteType type) {
@@ -83,7 +83,7 @@ class FilterBar extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _FavoritesFilterPill extends StatelessWidget {
@@ -151,7 +151,7 @@ class _FavoritesFilterPill extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _MapFilterPill extends StatelessWidget {

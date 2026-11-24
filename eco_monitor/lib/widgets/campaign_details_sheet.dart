@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 import "package:provider/provider.dart";
 
 import "../domain/entities/waste_type.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "../presentation/state/campaign_reminders_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -11,7 +11,7 @@ import "campaign_card.dart";
 import "waste_style.dart";
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Abre um modal bottom sheet com os detalhes completos de uma [Campaign] (RF09).
@@ -56,7 +56,7 @@ Future<void> showCampaignDetailsSheet({
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Visualização detalhada de uma campanha de coleta (RF09): descrição, tipos de
@@ -104,6 +104,7 @@ class CampaignDetailsSheet extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   Center(
                     child: Container(
@@ -152,6 +153,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
+
                       children: [
                         for (final WasteType type in sortedWasteTypes)
                           WasteTypeBadge(type: type),
@@ -170,12 +172,14 @@ class CampaignDetailsSheet extends StatelessWidget {
 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         const _SectionLabel(label: "LOCAL"),
                         const SizedBox(height: 6),
 
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             const Icon(
                               Icons.location_on_outlined,
@@ -186,6 +190,7 @@ class CampaignDetailsSheet extends StatelessWidget {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+
                                 children: [
                                   Text(
                                     campaign.locationName,
@@ -377,7 +382,7 @@ class _SectionLabel extends StatelessWidget {
 }
 
 
-// Campaign Reminders ------------------------------------------------------ //
+// Campaign Reminders ------------------------------------------------------- //
 
 
 class _CampaignDetailsReminderButton extends StatelessWidget {

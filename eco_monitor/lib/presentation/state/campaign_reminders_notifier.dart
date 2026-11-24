@@ -1,10 +1,10 @@
 import "package:flutter/foundation.dart";
 
-import "../../models/campaign.dart";
+import "../../domain/entities/campaign.dart";
 import "../../services/campaign_reminder_service.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Gerenciador de estado reativo para os lembretes de campanhas agendados (RF08, RF09).
@@ -28,7 +28,7 @@ class CampaignRemindersNotifier extends ChangeNotifier {
   bool isReminderSet(String campaignId) => isReminderActive(campaignId);
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _init() async {

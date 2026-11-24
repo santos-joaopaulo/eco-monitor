@@ -1,7 +1,7 @@
 import "waste_type.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Tipo de estabelecimento que recebe os resíduos.
@@ -11,7 +11,7 @@ enum PointType { pharmacy, healthCenter, ecoPoint }
 enum PointStatus { active, inactive }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Um ponto de coleta exibido no mapa da tela inicial (Entidade de Domínio).
@@ -48,7 +48,7 @@ class CollectionPoint {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Constrói um ponto a partir de JSON, tolerando campos ausentes e valores desconhecidos.
@@ -100,7 +100,7 @@ class CollectionPoint {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 PointType _pointTypeByName(String name) {

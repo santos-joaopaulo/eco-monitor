@@ -1,4 +1,4 @@
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Decodifica uma polilinha no formato Google Polyline Algorithm (fator 1e5)

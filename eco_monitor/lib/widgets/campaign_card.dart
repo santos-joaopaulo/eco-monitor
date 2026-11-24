@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 import "package:provider/provider.dart";
 
 import "../domain/entities/waste_type.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "../presentation/state/campaign_reminders_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -11,7 +11,7 @@ import "eco_card.dart";
 import "waste_style.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Card que exibe o resumo de uma campanha de coleta na aba de eventos (RF08).
@@ -46,6 +46,7 @@ class CampaignCard extends StatelessWidget {
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               CampaignStatusBadge(status: campaign.status),
               const SizedBox(height: 12),
@@ -66,6 +67,7 @@ class CampaignCard extends StatelessWidget {
               Wrap(
                 spacing: 16,
                 runSpacing: 6,
+
                 children: [
                   _MetaItem(
                     icon: Icons.location_on_outlined,
@@ -167,16 +169,16 @@ class _CampaignBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final (Color start, Color end) = switch (campaign.status) {
       CampaignStatus.active => (
-        const Color(0xFF9CD4C6),
-        const Color(0xFFCDECE4),
+        AppColors.campaignActiveGradientStart,
+        AppColors.campaignActiveGradientEnd,
       ),
       CampaignStatus.upcoming => (
-        const Color(0xFFF6CB94),
-        const Color(0xFFFCE4C4),
+        AppColors.campaignUpcomingGradientStart,
+        AppColors.campaignUpcomingGradientEnd,
       ),
       CampaignStatus.finished => (
-        const Color(0xFFDDE3E2),
-        const Color(0xFFEEF2F1),
+        AppColors.campaignFinishedGradientStart,
+        AppColors.campaignFinishedGradientEnd,
       ),
     };
 
@@ -291,22 +293,22 @@ class _StatusVisual {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 _StatusVisual _visualForStatus(CampaignStatus status) {
   return switch (status) {
     CampaignStatus.active => const _StatusVisual(
       label: "Ativa",
-      background: Color(0xFFE3F5EC),
+      background: AppColors.campaignActiveBadgeBackground,
       dotColor: AppColors.active,
-      textColor: Color(0xFF1B5E20),
+      textColor: AppColors.campaignActiveBadgeText,
     ),
     CampaignStatus.upcoming => const _StatusVisual(
       label: "Em breve",
-      background: Color(0xFFFEF3C7),
-      dotColor: Color(0xFFD97706),
-      textColor: Color(0xFF92400E),
+      background: AppColors.campaignUpcomingBadgeBackground,
+      dotColor: AppColors.campaignUpcomingBadgeDot,
+      textColor: AppColors.campaignUpcomingBadgeText,
     ),
     CampaignStatus.finished => const _StatusVisual(
       label: "Encerrada",
@@ -318,7 +320,7 @@ _StatusVisual _visualForStatus(CampaignStatus status) {
 }
 
 
-// Campaign Reminders ------------------------------------------------------ //
+// Campaign Reminders ------------------------------------------------------- //
 
 
 class _CampaignReminderButton extends StatelessWidget {

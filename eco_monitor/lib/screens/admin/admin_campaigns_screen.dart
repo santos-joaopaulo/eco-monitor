@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../data/admin_database_repository.dart";
 import "../../data/app_data_sync.dart";
 import "../../domain/entities/waste_type.dart";
-import "../../models/campaign.dart";
+import "../../domain/entities/campaign.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/eco_theme.dart";
 import "../../utils/formatters.dart";
@@ -11,7 +11,7 @@ import "../../widgets/waste_style.dart";
 import "admin_campaign_form_screen.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de listagem e gerenciamento de campanhas e eventos de coleta.
@@ -36,7 +36,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
   int _selectedFilterIndex = 0; // 0: Todas, 1: Ativas, 2: Previstas, 3: Encerradas
 
 
-  // Lifecycle ------------------------------------------------------------- //
+// Lifecycle ---------------------------------------------------------------- //
 
 
   @override
@@ -46,7 +46,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
   }
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   Future<void> _loadCampaigns() async {
@@ -182,6 +182,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+
         title: const Text(
           "CAMPANHAS DE COLETA",
           style: TextStyle(
@@ -220,6 +221,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
                   ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
+
                     child: Row(
                       children: [
                         _FilterChip(
@@ -264,6 +266,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
+
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -293,6 +296,7 @@ class _AdminCampaignsScreenState extends State<AdminCampaignsScreen> {
                       ? const Center(
                           child: Padding(
                             padding: EdgeInsets.all(24),
+
                             child: Text(
                               "Nenhuma campanha encontrada nesta categoria.",
                               style: TextStyle(color: AppColors.textSecondary),
@@ -401,15 +405,19 @@ class _CampaignCard extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.all(16),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -542,6 +550,7 @@ class _CampaignCard extends StatelessWidget {
             Wrap(
               spacing: 6,
               runSpacing: 4,
+
               children: campaign.wasteTypes.map((WasteType type) {
                 return Container(
                   padding: const EdgeInsets.symmetric(

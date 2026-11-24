@@ -1,6 +1,6 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 
-import "../models/collection_point.dart";
+import "../domain/entities/collection_point.dart";
 import "collect_points_repository.dart";
 import "firebase_service.dart";
 import "firestore_helpers.dart";
@@ -16,7 +16,7 @@ const String kCollectPointsCollection = "collectPoints";
 const String kTombstonesCollection = "tombstones";
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Cria um [CollectPointsFetcher] para sincronização completa compatível com o padrão anterior.

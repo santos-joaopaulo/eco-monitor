@@ -2,7 +2,7 @@ import "../domain/entities/waste_type.dart";
 import "../models/collection_point.dart";
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Pontos exibidos no mapa para a seleção atual de resíduos e favoritos.

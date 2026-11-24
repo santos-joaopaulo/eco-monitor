@@ -1,7 +1,7 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Converte um mapa de documento do Firestore em valores compatíveis com JSON puro.

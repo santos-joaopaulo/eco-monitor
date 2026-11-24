@@ -5,7 +5,7 @@ import "package:provider/provider.dart";
 
 import "../data/app_data_sync.dart";
 import "../data/campaigns_repository.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 import "../presentation/state/campaign_reminders_notifier.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -14,14 +14,14 @@ import "../widgets/campaign_details_sheet.dart";
 import "../widgets/custom_bottom_nav_bar.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Chips de filtro de status exibidos no topo da lista de campanhas (RF08).
 enum CampaignFilter { all, active, upcoming }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela que lista campanhas de coleta ativas e previstas (RF08, RF09).
@@ -399,7 +399,7 @@ class _FilterPill extends StatelessWidget {
     required this.onTap,
   });
 
-  static const Color _labelColor = Color(0xFF4A4A4A);
+  static const Color _labelColor = AppColors.filterPillLabel;
 
   final String label;
   final IconData icon;
@@ -492,6 +492,7 @@ class _FeedbackState extends StatelessWidget {
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
             Container(
               width: 64,

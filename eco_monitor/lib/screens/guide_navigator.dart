@@ -6,7 +6,9 @@ import "../domain/repositories/disposal_guide_repository.dart";
 import "disposal_guide_screen.dart";
 import "disposal_step_by_step_screen.dart";
 
-// Classes ----------------------------------------------------------------- //
+
+// Classes ------------------------------------------------------------------ //
+
 
 /// Observador de rotas para sincronizar o estado de canPop do navegador aninhado.
 class _GuideRouteObserver extends NavigatorObserver {

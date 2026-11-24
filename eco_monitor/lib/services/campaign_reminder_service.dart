@@ -7,10 +7,10 @@ import "package:timezone/data/latest_all.dart" as tz;
 import "package:timezone/timezone.dart" as tz;
 
 import "../data/local_store.dart";
-import "../models/campaign.dart";
+import "../domain/entities/campaign.dart";
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato abstrato para disparos e agendamento de notificações na plataforma.
@@ -28,7 +28,7 @@ abstract interface class INotificationScheduler {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Agendador padrão sobre o plugin `flutter_local_notifications`.
@@ -170,7 +170,7 @@ class CampaignReminderService {
   Future<void> _lock = Future<void>.value();
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Inicializa o subsistema de notificações da plataforma.
@@ -241,7 +241,7 @@ class CampaignReminderService {
   }
 
 
-  // Helpers ----------------------------------------------------------------- //
+// Helpers ------------------------------------------------------------------ //
 
 
   (int, int) _notificationIdsFor(String campaignId) {

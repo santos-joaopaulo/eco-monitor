@@ -7,7 +7,7 @@ import "../theme/eco_theme.dart";
 import "location_notice.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Banner de status informando modo offline, dados em cache desatualizados
@@ -123,7 +123,7 @@ class OfflineBanner extends StatelessWidget {
 }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 String _formatDateSuffix(DateTime? date) {

@@ -1,9 +1,9 @@
 import "dart:async";
 
-import "../../models/point_review.dart";
+import "../entities/point_review.dart";
 
 
-// Interfaces -------------------------------------------------------------- //
+// Interfaces --------------------------------------------------------------- //
 
 
 /// Contrato para envio anônimo, enfileiramento offline e agregação de avaliações de ecopontos.

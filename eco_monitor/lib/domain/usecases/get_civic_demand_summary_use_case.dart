@@ -1,9 +1,9 @@
-import "../../models/civic_demand_summary.dart";
-import "../../models/collection_point.dart";
-import "../../models/point_suggestion.dart";
+import "../entities/civic_demand_summary.dart";
+import "../entities/collection_point.dart";
+import "../entities/point_suggestion.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Caso de uso para agregação e cálculo analítico de demandas cívicas e carência territorial.
@@ -11,7 +11,7 @@ class GetCivicDemandSummaryUseCase {
   const GetCivicDemandSummaryUseCase();
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Executa o cálculo consolidado de carência territorial e ranking de resíduos.

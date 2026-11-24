@@ -2,14 +2,14 @@ import "../entities/campaign.dart";
 import "../repositories/campaigns_repository_contract.dart";
 
 
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Filtros de listagem de campanhas de coleta.
 enum CampaignStatusFilter { all, active, upcoming }
 
 
-// Use cases --------------------------------------------------------------- //
+// Use cases ---------------------------------------------------------------- //
 
 
 /// Caso de uso para consulta e filtragem de campanhas de coleta (Domínio).

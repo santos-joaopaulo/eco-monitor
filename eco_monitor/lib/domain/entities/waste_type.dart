@@ -1,11 +1,11 @@
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Categorias de resíduos tratadas pelo aplicativo (guia, pontos de coleta e campanhas).
 enum WasteType { medicines, sharps, batteries, electronics, glass }
 
 
-// Methods ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Converte um nome de resíduo em [WasteType].

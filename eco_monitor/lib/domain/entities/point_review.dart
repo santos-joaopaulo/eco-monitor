@@ -1,4 +1,4 @@
-// Enums ------------------------------------------------------------------- //
+// Enums -------------------------------------------------------------------- //
 
 
 /// Resultado do envio ou enfileiramento de uma avaliação de ponto (RNF10).
@@ -24,7 +24,7 @@ abstract final class PointReviewTags {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Avaliação e reporte de qualidade de um ecoponto enviada pelo cidadão (Entidade de Domínio).
@@ -46,7 +46,7 @@ class PointReview {
   final String comment;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   factory PointReview.fromJson(Map<String, dynamic> json) {

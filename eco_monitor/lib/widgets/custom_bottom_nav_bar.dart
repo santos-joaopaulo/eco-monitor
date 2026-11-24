@@ -154,6 +154,7 @@ class _NavButton extends StatelessWidget {
         onTap: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
             Icon(item.icon, size: 24, color: color),
             const SizedBox(height: 2),

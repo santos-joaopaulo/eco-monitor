@@ -3,7 +3,7 @@ import "dart:async";
 import "package:material_ui/material_ui.dart";
 import "package:provider/provider.dart";
 
-import "../models/offline_package.dart";
+import "../domain/entities/offline_package.dart";
 import "../presentation/state/location_notifier.dart";
 import "../presentation/state/offline_packages_notifier.dart";
 import "../services/offline_package_manager.dart";
@@ -14,7 +14,7 @@ import "../widgets/offline_package_card.dart";
 import "../widgets/offline_storage_summary_card.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Tela de gerenciamento e download de pacotes de mapas offline por estado (T14.3).
@@ -140,10 +140,12 @@ class _OfflineMapsContentState extends State<_OfflineMapsContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+
       appBar: EcoAppBar(
         title: "Mapas Offline",
         onBack: () => Navigator.of(context).pop(),
       ),
+
       body: Consumer<OfflinePackagesNotifier>(
         builder: (
           BuildContext context,
@@ -166,6 +168,7 @@ class _OfflineMapsContentState extends State<_OfflineMapsContent> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
+
                 child: ListView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kEcoContentHorizontalPadding,
@@ -296,6 +299,7 @@ class _OfflineMapsContentState extends State<_OfflineMapsContent> {
                     // Lista de Estados
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                       children: <Widget>[
                         const Text(
                           "Estados Brasileiros",
@@ -320,6 +324,7 @@ class _OfflineMapsContentState extends State<_OfflineMapsContent> {
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 36),
                         alignment: Alignment.center,
+
                         child: Column(
                           children: const <Widget>[
                             Icon(

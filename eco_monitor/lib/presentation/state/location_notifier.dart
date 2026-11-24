@@ -3,7 +3,7 @@ import "package:flutter/foundation.dart";
 import "../../services/location_service.dart";
 
 
-// Notifiers --------------------------------------------------------------- //
+// Notifiers ---------------------------------------------------------------- //
 
 
 /// Gerenciador de estado reativo para a geolocalização do usuário (Presentation).
@@ -30,7 +30,7 @@ class LocationNotifier extends ChangeNotifier {
   bool get hasLocation => _userLocation != null;
 
 
-  // Methods --------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
   /// Verifica a permissão atual de geolocalização do dispositivo.

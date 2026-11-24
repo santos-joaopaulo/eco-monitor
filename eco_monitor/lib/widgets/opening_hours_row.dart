@@ -4,7 +4,7 @@ import "../theme/app_colors.dart";
 import "selection_checkbox.dart";
 
 
-// Métodos ----------------------------------------------------------------- //
+// Methods ------------------------------------------------------------------ //
 
 
 /// Formata um [TimeOfDay] no padrão de 24 horas exibido nas pílulas de horário.
@@ -16,7 +16,7 @@ String formatTimeOfDayValue(TimeOfDay time) {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Linha de um dia da semana na seção "Horário de funcionamento".
@@ -55,6 +55,7 @@ class OpeningHoursRow extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 8,
           runSpacing: 6,
+
           children: [
             Semantics(
               button: true,
@@ -82,6 +83,7 @@ class OpeningHoursRow extends StatelessWidget {
 
                       ConstrainedBox(
                         constraints: const BoxConstraints(minWidth: 32),
+
                         child: Text(
                           dayLabel,
                           style: TextStyle(
@@ -110,6 +112,7 @@ class OpeningHoursRow extends StatelessWidget {
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 6),
+
                     child: Text(
                       "às",
                       style: TextStyle(
@@ -128,6 +131,7 @@ class OpeningHoursRow extends StatelessWidget {
             else
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 6),
+
                 child: Text(
                   "Fechado",
                   style: TextStyle(
@@ -145,7 +149,7 @@ class OpeningHoursRow extends StatelessWidget {
 }
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 class _TimePill extends StatelessWidget {
@@ -177,6 +181,7 @@ class _TimePill extends StatelessWidget {
 
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+
             child: Text(
               formatTimeOfDayValue(time),
               style: const TextStyle(

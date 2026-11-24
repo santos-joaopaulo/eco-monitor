@@ -35,9 +35,11 @@ class ResidueCard extends StatelessWidget {
     return EcoCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               ExcludeSemantics(
                 child: Container(
@@ -54,6 +56,7 @@ class ResidueCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       title,
@@ -88,6 +91,7 @@ class ResidueCard extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 12,
               runSpacing: 12,
+
               children: [
                 _ActionButton(label: buttonLabel, onPressed: onPressed),
                 _Indicator(text: info, withClock: infoWithClock),

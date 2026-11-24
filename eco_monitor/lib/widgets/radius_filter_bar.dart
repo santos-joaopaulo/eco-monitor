@@ -6,7 +6,7 @@ import "../utils/spatial_index.dart";
 import "location_notice.dart";
 
 
-// Classes ----------------------------------------------------------------- //
+// Classes ------------------------------------------------------------------ //
 
 
 /// Barra de seleção de raio de proximidade configurável para busca geoespacial (T11.1).
@@ -54,6 +54,7 @@ class RadiusFilterBar extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 8, right: 4),
+
                   child: Icon(
                     Icons.radar_rounded,
                     size: 16,
