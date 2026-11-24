@@ -194,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(_checkLocationAvailability());
+      unawaited(widget.dataSync?.connectivityService.checkNow());
     }
   }
 

@@ -94,7 +94,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   static const int _homeTab = 0;
   static const int _guideTab = 1;
   static const int _eventsTab = 2;
@@ -121,10 +121,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _ownsDataSync = widget.dataSync == null;
     _dataSync = widget.dataSync ?? AppDataSync.createDefault();
     unawaited(_dataSync.initialize());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_dataSync.connectivityService.checkNow());
+    }
   }
 
   @override
@@ -142,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     if (_ownsDataSync) {
       _dataSync.dispose();
     }

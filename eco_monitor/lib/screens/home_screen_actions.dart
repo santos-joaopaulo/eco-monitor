@@ -155,6 +155,38 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _isLoadingPoints = false;
     });
     _syncPointsLayer();
+
+    if (sync.isOnline && (_routeSummary?.isOfflineFallback ?? false)) {
+      final CollectionPoint? point = _selectedPoint;
+      if (point != null) {
+        unawaited(_refreshActiveRouteOnline(point));
+      }
+    }
+  }
+
+  Future<void> _refreshActiveRouteOnline(CollectionPoint point) async {
+    final UserLocation? userLocation = _userLocation;
+    if (userLocation == null || !mounted) {
+      return;
+    }
+
+    final RouteSummary summary = await _routeService.fetchRoute(
+      origin: userLocation,
+      destination: point,
+      travelMode: _activeTravelMode,
+      isOnline: true,
+      accessToken: _accessToken,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _routeSummary = summary;
+    });
+
+    await _drawRouteLine(point, coordinates: summary.routeCoordinates);
   }
 
   Future<void> _loadInitialPoints() async {
