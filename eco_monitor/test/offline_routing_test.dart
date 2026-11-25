@@ -384,5 +384,67 @@ void main() {
       expect(secondSummary.distanceMeters, firstSummary.distanceMeters);
       expect(secondSummary.routeCoordinates.length, firstSummary.routeCoordinates.length);
     });
+
+    test(
+      "rota de carro ignora nós exclusivos de pedestre/bicicleta e encontra via dirigível",
+      () async {
+        // Nó 0 e nó 1 são exclusivos de caminhada/bicicleta (modes = 6), mais próximos
+        // da origem/destino. Nós 2 -> 3 -> 4 formam a via dirigível (modes = 7).
+        const String graphJson = '''
+        {
+          "bbox": [-10.95, -37.08, -10.90, -37.04],
+          "nodes": [
+            [-10.9200, -37.0600],
+            [-10.9200, -37.0500],
+            [-10.9202, -37.0600],
+            [-10.9205, -37.0550],
+            [-10.9202, -37.0500]
+          ],
+          "edges": [
+            [0, 1, 6, 15, 0, "", 1100.0],
+            [2, 3, 7, 40, 1, "", 560.0],
+            [3, 4, 7, 40, 1, "", 560.0]
+          ]
+        }
+        ''';
+
+        final OfflineRoadGraph customGraph = OfflineRoadGraph.fromJsonString(
+          graphJson,
+        );
+        final OfflineRoutingService customService = OfflineRoutingService(
+          roadGraph: customGraph,
+        );
+
+        const UserLocation origin = UserLocation(
+          latitude: -10.92001,
+          longitude: -37.0600,
+        );
+        final CollectionPoint destination = _buildPoint(
+          id: "dest_car",
+          name: "Destino Carro",
+          latitude: -10.92001,
+          longitude: -37.0500,
+        );
+
+        final RouteSummary? drivingRoute = await customService.findRoute(
+          origin: origin,
+          destination: destination,
+          travelMode: TravelMode.driving,
+        );
+
+        expect(drivingRoute, isNotNull);
+        // Deve passar por nó 2 -> 3 -> 4 (total > 2 pontos, não linha reta)
+        expect(drivingRoute!.routeCoordinates.length, greaterThan(3));
+        expect(drivingRoute.travelMode, TravelMode.driving);
+
+        final RouteSummary? walkingRoute = await customService.findRoute(
+          origin: origin,
+          destination: destination,
+          travelMode: TravelMode.walking,
+        );
+        expect(walkingRoute, isNotNull);
+        expect(walkingRoute!.travelMode, TravelMode.walking);
+      },
+    );
   });
 }

@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "package:eco_monitor/widgets/home_map_top_bar.dart";
 import "package:eco_monitor/widgets/offline_banner.dart";
 
 void main() {
@@ -63,5 +64,35 @@ void main() {
     );
     await tester.tap(find.text("Atualizar"));
     expect(retried, isTrue);
+  });
+
+  testWidgets("renders floating inside HomeMapTopBar without extra background", (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: HomeMapTopBar(
+            selectedWasteTypes: const {},
+            onFilterChanged: (_) {},
+            showMapboxTokenWarning: false,
+            isLoadingPoints: false,
+            isEmptyResult: false,
+            emptyMessage: "",
+            locationNotice: null,
+            isListMode: false,
+            offlineBanner: const OfflineBanner(
+              isOffline: true,
+              isStale: false,
+              pendingSuggestionsCount: 3,
+              padding: EdgeInsets.only(bottom: 6),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text("Sem conexão · Dados salvos (+3)"), findsOneWidget);
   });
 }

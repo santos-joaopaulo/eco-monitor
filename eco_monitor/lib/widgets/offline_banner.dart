@@ -1,8 +1,5 @@
 import "package:material_ui/material_ui.dart";
-import "package:provider/provider.dart";
 
-import "../presentation/state/offline_packages_notifier.dart";
-import "../screens/offline_maps_screen.dart";
 import "../theme/eco_theme.dart";
 import "location_notice.dart";
 
@@ -12,7 +9,6 @@ import "location_notice.dart";
 
 /// Banner de status informando modo offline, dados em cache desatualizados
 /// ou sugestões offline pendentes aguardando sincronização (RNF10, RNF17).
-/// Permite abrir o gerenciador de mapas offline em 1 toque quando desconectado (T14.4).
 class OfflineBanner extends StatelessWidget {
   const OfflineBanner({
     super.key,
@@ -22,7 +18,7 @@ class OfflineBanner extends StatelessWidget {
     this.pendingSuggestionsCount = 0,
     this.isSyncing = false,
     this.onRetry,
-    this.onManageOfflineMaps,
+    this.padding,
   });
 
   final bool isOffline;
@@ -31,28 +27,7 @@ class OfflineBanner extends StatelessWidget {
   final int pendingSuggestionsCount;
   final bool isSyncing;
   final VoidCallback? onRetry;
-  final VoidCallback? onManageOfflineMaps;
-
-  void _handleOpenOfflineMaps(BuildContext context) {
-    if (onManageOfflineMaps != null) {
-      onManageOfflineMaps!();
-    } else {
-      OfflinePackagesNotifier? notifier;
-      try {
-        notifier = Provider.of<OfflinePackagesNotifier>(
-          context,
-          listen: false,
-        );
-      } catch (_) {}
-
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (BuildContext routeContext) =>
-              OfflineMapsScreen(notifier: notifier),
-        ),
-      );
-    }
-  }
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +47,8 @@ class OfflineBanner extends StatelessWidget {
           : "";
       message = "Sem conexão · Dados salvos$pendingSuffix";
       icon = Icons.wifi_off_rounded;
-      actionLabel = "Mapas offline";
-      onAction = () => _handleOpenOfflineMaps(context);
+      actionLabel = null;
+      onAction = null;
     } else if (isStale) {
       final String dateSuffix = _formatDateSuffix(lastUpdated);
       message = "Dados desatualizados$dateSuffix";
@@ -89,7 +64,7 @@ class OfflineBanner extends StatelessWidget {
       onAction = null;
     }
 
-    Widget notice = LocationNotice(
+    final Widget notice = LocationNotice(
       icon: icon,
       message: message,
       isLoading: !isOffline && isSyncing,
@@ -97,23 +72,16 @@ class OfflineBanner extends StatelessWidget {
       onAction: onAction,
     );
 
-    if (isOffline) {
-      notice = InkWell(
-        onTap: () => _handleOpenOfflineMaps(context),
-        borderRadius: BorderRadius.circular(12),
-        child: notice,
-      );
-    }
-
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kEcoContentHorizontalPadding,
-            vertical: 6,
-          ),
+          padding: padding ??
+              const EdgeInsets.symmetric(
+                horizontal: kEcoContentHorizontalPadding,
+                vertical: 6,
+              ),
 
           child: notice,
         ),

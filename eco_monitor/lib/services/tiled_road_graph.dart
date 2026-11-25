@@ -50,6 +50,14 @@ class SpatialTile {
     for (int i = 0; i < nodeIds.length; i++) {
       _nodeIndexMap[nodeIds[i]] = i;
     }
+    for (final MapEntry<int, List<RoadEdge>> entry in adjacency.entries) {
+      for (final RoadEdge edge in entry.value) {
+        _nodeOutgoingModes[entry.key] =
+            (_nodeOutgoingModes[entry.key] ?? 0) | edge.modesMask;
+        _nodeIncomingModes[edge.targetNode] =
+            (_nodeIncomingModes[edge.targetNode] ?? 0) | edge.modesMask;
+      }
+    }
   }
 
   /// Identificador único da célula (ex.: "-55_-186").
@@ -74,6 +82,8 @@ class SpatialTile {
   final Set<int> boundaryNodes;
 
   final Map<int, int> _nodeIndexMap;
+  final Map<int, int> _nodeOutgoingModes = <int, int>{};
+  final Map<int, int> _nodeIncomingModes = <int, int>{};
 
   int get nodeCount => nodeIds.length;
 
@@ -90,7 +100,12 @@ class SpatialTile {
   }
 
   /// Localiza o nó mais próximo de uma coordenada dentro deste tile.
-  int findNearestNode(double lat, double lon) {
+  int findNearestNode(
+    double lat,
+    double lon, {
+    int? requiredOutgoingModes,
+    int? requiredIncomingModes,
+  }) {
     if (nodeIds.isEmpty) {
       return -1;
     }
@@ -99,6 +114,16 @@ class SpatialTile {
     int bestNodeId = -1;
 
     for (int i = 0; i < nodeIds.length; i++) {
+      final int nodeId = nodeIds[i];
+      if (requiredOutgoingModes != null &&
+          ((_nodeOutgoingModes[nodeId] ?? 0) & requiredOutgoingModes) == 0) {
+        continue;
+      }
+      if (requiredIncomingModes != null &&
+          ((_nodeIncomingModes[nodeId] ?? 0) & requiredIncomingModes) == 0) {
+        continue;
+      }
+
       final double dist = distanceInMeters(
         lat,
         lon,
@@ -108,7 +133,7 @@ class SpatialTile {
 
       if (dist < bestDist) {
         bestDist = dist;
-        bestNodeId = nodeIds[i];
+        bestNodeId = nodeId;
       }
     }
 
@@ -275,8 +300,23 @@ class TiledRoadGraph {
       return null;
     }
 
-    final int startNode = startTile.findNearestNode(origin.latitude, origin.longitude);
-    final int endNode = endTile.findNearestNode(destination.latitude, destination.longitude);
+    // Modal viário
+    final int targetModeMask = switch (travelMode) {
+      TravelMode.driving => kModeDriving,
+      TravelMode.cycling => kModeCycling,
+      TravelMode.walking => kModeWalking,
+    };
+
+    final int startNode = startTile.findNearestNode(
+      origin.latitude,
+      origin.longitude,
+      requiredOutgoingModes: targetModeMask,
+    );
+    final int endNode = endTile.findNearestNode(
+      destination.latitude,
+      destination.longitude,
+      requiredIncomingModes: targetModeMask,
+    );
 
     if (startNode == -1 || endNode == -1) {
       return null;
@@ -312,13 +352,6 @@ class TiledRoadGraph {
         ],
       );
     }
-
-    // Modal viário
-    final int targetModeMask = switch (travelMode) {
-      TravelMode.driving => kModeDriving,
-      TravelMode.cycling => kModeCycling,
-      TravelMode.walking => kModeWalking,
-    };
 
     final List<double>? destCoords = endTile.getNodeCoordinates(endNode) ??
         findNodeCoordinates(endNode);

@@ -89,7 +89,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     });
 
     try {
-      await dataSync.refreshAll();
+      await dataSync.refreshAll(forceFullPoints: true);
       if (!mounted) {
         return;
       }

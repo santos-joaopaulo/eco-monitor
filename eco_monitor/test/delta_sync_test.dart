@@ -209,5 +209,71 @@ void main() {
 
       sync.dispose();
     });
+
+    test(
+      "AppDataSync.refreshAll(forceFullPoints: true) removes deleted points even without tombstones",
+      () async {
+        final List<CollectionPoint> remoteDb = <CollectionPoint>[
+          _point(id: "p1", name: "Ponto A"),
+          _point(id: "p2", name: "Ponto B"),
+        ];
+
+        final CollectPointsRepository repo = CollectPointsRepository(
+          localStore: store,
+          clock: () => now,
+          deltaFetcher: (DateTime? since) async {
+            if (since != null) {
+              // Simula delta vazio sem tombstone após exclusão remota
+              return CollectPointsRemoteSnapshot(
+                points: const <CollectionPoint>[],
+                updatedAt: now.add(const Duration(minutes: 5)),
+                isDelta: true,
+              );
+            }
+            return CollectPointsRemoteSnapshot(
+              points: List<CollectionPoint>.of(remoteDb),
+              updatedAt: now.add(const Duration(minutes: 10)),
+              isDelta: false,
+            );
+          },
+        );
+
+        final ConnectivityService connectivity = ConnectivityService(
+          connectivityStream: Stream<List<ConnectivityResult>>.value([
+            ConnectivityResult.wifi,
+          ]),
+          checkConnectivity: () async => [ConnectivityResult.wifi],
+        );
+
+        final AppDataSync sync = AppDataSync(
+          collectPointsRepository: repo,
+          campaignsRepository: CampaignsRepository(localStore: store),
+          suggestionsRepository: PointSuggestionsRepository(localStore: store),
+          guideRepository: DisposalGuideRepositorySynced(),
+          connectivityService: connectivity,
+        );
+
+        await repo.refreshFull();
+        await sync.initialize();
+        expect(sync.points.map((CollectionPoint p) => p.id), ["p1", "p2"]);
+
+        // Remove p2 no banco remoto sem emitir tombstone
+        remoteDb.removeWhere((CollectionPoint p) => p.id == "p2");
+
+        // Delta normal mantém p2
+        await sync.refreshAll();
+        expect(sync.points.map((CollectionPoint p) => p.id), ["p1", "p2"]);
+
+        // Carga completa reconcilia a exclusão
+        await sync.refreshAll(forceFullPoints: true);
+        expect(sync.points.map((CollectionPoint p) => p.id), ["p1"]);
+        expect(
+          (await repo.loadOffline()).map((CollectionPoint p) => p.id),
+          ["p1"],
+        );
+
+        sync.dispose();
+      },
+    );
   });
 }

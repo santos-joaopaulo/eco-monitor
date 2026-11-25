@@ -353,5 +353,43 @@ void main() {
         expect(cleared, isTrue);
       },
     );
+
+    testWidgets(
+      "HomeSearchButton e HomeViewToggleButton respeitam kEcoMaxContentWidth em telas largas",
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(900, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Stack(
+                children: [
+                  HomeSearchButton(bottom: 20, onPressed: () {}),
+                  HomeViewToggleButton(
+                    bottom: 20,
+                    isListMode: false,
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect searchRect = tester.getRect(find.byType(HomeSearchButton));
+        final Rect toggleRect = tester.getRect(
+          find.byType(HomeViewToggleButton),
+        );
+
+        // Em tela de 900px com largura máxima de 500px e padding de 16px:
+        // recuo lateral = (900 - 500) / 2 + 16 = 216px.
+        expect(searchRect.left, closeTo(216.0, 0.1));
+        expect(toggleRect.right, closeTo(900.0 - 216.0, 0.1));
+      },
+    );
   });
 }

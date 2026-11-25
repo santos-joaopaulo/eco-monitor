@@ -147,10 +147,10 @@ class _AdminPointsScreenState extends State<AdminPointsScreen> {
 
     try {
       await widget.databaseRepository.deletePoint(point.id);
+      await widget.dataSync?.refreshAll(forceFullPoints: true);
       if (!mounted) {
         return;
       }
-      widget.dataSync?.refreshAll();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Ponto excluído com sucesso.")),
       );

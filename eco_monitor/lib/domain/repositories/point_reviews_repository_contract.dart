@@ -23,6 +23,9 @@ abstract interface class IPointReviewsRepository {
   /// Envia todas as avaliações retidas na fila offline para o servidor remoto.
   Future<int> flushPending();
 
+  /// Atualiza o cache local com as avaliações armazenadas no servidor remoto.
+  Future<void> refresh();
+
   /// Retorna o número de avaliações pendentes de sincronização remota.
   Future<int> pendingCount();
 

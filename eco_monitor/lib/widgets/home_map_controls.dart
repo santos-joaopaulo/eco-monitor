@@ -1,6 +1,9 @@
+import "dart:math" as math;
+
 import "package:material_ui/material_ui.dart";
 
 import "../theme/app_colors.dart";
+import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
 
 
@@ -114,37 +117,15 @@ class HomeViewToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Alinha a altura do centro deste botão (48px) ao centro do botão principal (72px).
-    final double alignedBottom = bottom + (72 - 48) / 2;
-
-    return Positioned(
-      right: 16,
-      bottom: alignedBottom,
-
-      child: SizedBox(
-        width: 48,
-        height: 48,
-
-        child: FloatingActionButton(
-          heroTag: "home_toggle_view_fab",
-          elevation: 4,
-          backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.primary,
-          shape: const CircleBorder(
-            side: BorderSide(color: AppColors.primary, width: 2),
-          ),
-          tooltip: isListMode
-              ? "Visualização em mapa"
-              : "Visualização em lista",
-          onPressed: onPressed,
-
-          child: Icon(
-            isListMode ? Icons.map_outlined : Icons.view_list_rounded,
-            size: 24,
-            color: AppColors.primary,
-          ),
-        ),
-      ),
+    return _HomeSideFloatingButton(
+      bottom: bottom,
+      alignRight: true,
+      heroTag: "home_toggle_view_fab",
+      tooltip: isListMode
+          ? "Visualização em mapa"
+          : "Visualização em lista",
+      icon: isListMode ? Icons.map_outlined : Icons.view_list_rounded,
+      onPressed: onPressed,
     );
   }
 }
@@ -166,11 +147,46 @@ class HomeSearchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _HomeSideFloatingButton(
+      bottom: bottom,
+      alignRight: false,
+      heroTag: "home_search_fab",
+      tooltip: "Buscar resíduo",
+      icon: Icons.search_rounded,
+      onPressed: onPressed,
+    );
+  }
+}
+
+class _HomeSideFloatingButton extends StatelessWidget {
+  const _HomeSideFloatingButton({
+    required this.bottom,
+    required this.alignRight,
+    required this.heroTag,
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final double bottom;
+  final bool alignRight;
+  final String heroTag;
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
     // Alinha a altura do centro deste botão (48px) ao centro do botão principal (72px).
     final double alignedBottom = bottom + (72 - 48) / 2;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final double sideInset =
+        math.max(0.0, (screenWidth - kEcoMaxContentWidth) / 2) +
+        kEcoContentHorizontalPadding;
 
     return Positioned(
-      left: 16,
+      left: alignRight ? null : sideInset,
+      right: alignRight ? sideInset : null,
       bottom: alignedBottom,
 
       child: SizedBox(
@@ -178,18 +194,18 @@ class HomeSearchButton extends StatelessWidget {
         height: 48,
 
         child: FloatingActionButton(
-          heroTag: "home_search_fab",
+          heroTag: heroTag,
           elevation: 4,
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.primary,
           shape: const CircleBorder(
             side: BorderSide(color: AppColors.primary, width: 2),
           ),
-          tooltip: "Buscar resíduo",
+          tooltip: tooltip,
           onPressed: onPressed,
 
-          child: const Icon(
-            Icons.search_rounded,
+          child: Icon(
+            icon,
             size: 24,
             color: AppColors.primary,
           ),

@@ -192,7 +192,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
             coordinates: Position(campaign.longitude, campaign.latitude),
           ),
           image: pinBytes,
-          iconAnchor: IconAnchor.CENTER,
+          iconAnchor: IconAnchor.BOTTOM,
           iconSize: 1.0,
           symbolSortKey: 300,
         ),
@@ -487,6 +487,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _routeSummary = null;
       _isRouteActive = false;
     });
+    widget.onListViewChanged?.call(false);
     widget.onActiveSheetChanged?.call(true);
     _syncPointsLayer();
 
@@ -556,6 +557,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
     widget.onActiveSheetChanged?.call(false);
     _syncPointsLayer();
     await _clearRouteLine();
+    await _clearCampaignMarker();
   }
 
   Future<void> _handleStartRoute() async {
@@ -637,30 +639,6 @@ mixin _HomeScreenActions on State<HomeScreen> {
             behavior: SnackBarBehavior.floating,
             content: Text(
               "Navegação aproximada: pacote de $stateName não instalado.",
-            ),
-            action: SnackBarAction(
-              label: "Baixar",
-              textColor: Colors.white,
-              onPressed: () {
-                OfflinePackagesNotifier? notifier;
-                try {
-                  notifier = Provider.of<OfflinePackagesNotifier>(
-                    context,
-                    listen: false,
-                  );
-                } catch (_) {}
-
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>
-                        OfflineMapsScreen(notifier: notifier),
-                  ),
-                ).then((_) {
-                  if (mounted && _isRouteActive && _selectedPoint != null) {
-                    unawaited(_refreshActiveRouteOnline(_selectedPoint!));
-                  }
-                });
-              },
             ),
           ),
         );
@@ -833,7 +811,6 @@ mixin _HomeScreenActions on State<HomeScreen> {
 
   /// Inicia navegação e traçado de rota diretamente para o local da campanha.
   Future<void> _handleStartRouteToCampaign(Campaign campaign) async {
-    await _clearCampaignMarker();
     final CollectionPoint campaignPoint = CollectionPoint(
       id: "campaign_${campaign.id}",
       name: campaign.title,
@@ -848,8 +825,8 @@ mixin _HomeScreenActions on State<HomeScreen> {
       status: PointStatus.active,
     );
 
-    widget.onClearCampaign?.call();
     await _handlePointSelected(campaignPoint);
+    widget.onClearCampaign?.call();
     await _handleStartRoute();
   }
 
@@ -925,6 +902,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
       _routeSummary = null;
       _isRouteActive = false;
     });
+    widget.onListViewChanged?.call(false);
     widget.onActiveSheetChanged?.call(true);
     _syncPointsLayer();
 
@@ -936,9 +914,18 @@ mixin _HomeScreenActions on State<HomeScreen> {
   Future<void> _handleResidueSearched(WasteType type) async {
     _handleFilterChanged(<WasteType>{type});
 
-    unawaited(WasteSearchAnalyticsRepository().recordSearch(type));
-
     final UserLocation? userLocation = _userLocation;
+    final String? stateCode = userLocation != null
+        ? BrazilStates.findCodeByCoordinates(
+            userLocation.latitude,
+            userLocation.longitude,
+          )
+        : null;
+    final IWasteSearchAnalyticsRepository analytics =
+        widget.dataSync?.analyticsRepository ??
+        WasteSearchAnalyticsRepository();
+    unawaited(analytics.recordSearch(type, stateCode: stateCode));
+
     if (userLocation != null) {
       final NearestPointResult? nearest = const GetNearestPointUseCase()
           .execute(

@@ -20,7 +20,8 @@ import "admin_secret_gesture_detector.dart";
 ///
 /// Sem [onBack], exibe o logo (ícone de reciclagem branco) à esquerda com suporte
 /// ao gesto secreto de administrador; com [onBack], exibe a seta de retorno.
-/// Inclui atalho direto de 1 toque para o gerenciador de mapas offline (T14.4).
+/// Inclui atalho direto de 1 toque para o gerenciador de mapas offline (T14.4)
+/// exclusivamente quando [showOfflineMapsAction] for verdadeiro (somente na HomeScreen).
 class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EcoAppBar({
     super.key,
@@ -32,7 +33,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.enableAdminTrigger = true,
     this.adminHoldDuration = const Duration(seconds: 3),
     this.actions,
-    this.showOfflineMapsAction,
+    this.showOfflineMapsAction = false,
     this.onOfflineMapsPressed,
   });
 
@@ -44,7 +45,7 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool enableAdminTrigger;
   final Duration adminHoldDuration;
   final List<Widget>? actions;
-  final bool? showOfflineMapsAction;
+  final bool showOfflineMapsAction;
   final VoidCallback? onOfflineMapsPressed;
 
   @override
@@ -80,7 +81,10 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   List<Widget>? _buildEffectiveActions(BuildContext context) {
-    final bool shouldShowOffline = showOfflineMapsAction ?? (onBack == null);
+    if (!showOfflineMapsAction) {
+      return actions;
+    }
+
     final Widget offlineButton = IconButton(
       icon: const Icon(Icons.download_for_offline_rounded),
       iconSize: 24,
@@ -113,23 +117,17 @@ class EcoAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     if (actions == null) {
-      return shouldShowOffline ? <Widget>[offlineButton] : null;
+      return <Widget>[offlineButton];
     }
 
-    if (showOfflineMapsAction == true) {
+    final bool alreadyPresent = actions!.any(
+      (Widget w) =>
+          w is IconButton &&
+          w.icon is Icon &&
+          (w.icon as Icon).icon == Icons.download_for_offline_rounded,
+    );
+    if (!alreadyPresent) {
       return <Widget>[offlineButton, ...actions!];
-    }
-
-    if (shouldShowOffline) {
-      final bool alreadyPresent = actions!.any(
-        (Widget w) =>
-            w is IconButton &&
-            w.icon is Icon &&
-            (w.icon as Icon).icon == Icons.download_for_offline_rounded,
-      );
-      if (!alreadyPresent) {
-        return <Widget>[offlineButton, ...actions!];
-      }
     }
 
     return actions;

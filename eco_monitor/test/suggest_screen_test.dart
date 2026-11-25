@@ -75,6 +75,10 @@ void main() {
     );
     expect(find.text("Nome do estabelecimento"), findsOneWidget);
     expect(find.text("Endereço"), findsOneWidget);
+    expect(find.text("Coordenadas (opcional)"), findsOneWidget);
+    expect(find.text("Latitude (ex.: -10.9472)"), findsOneWidget);
+    expect(find.text("Longitude (ex.: -37.0731)"), findsOneWidget);
+    expect(find.text("Usar localização atual (GPS)"), findsOneWidget);
     expect(find.text("Materiais aceitos"), findsOneWidget);
     expect(find.text("Remédios"), findsOneWidget);
     expect(find.text("Pilhas"), findsOneWidget);
@@ -156,15 +160,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip("Preencher com localização atual (GPS)"));
+    await tester.tap(find.text("Usar localização atual (GPS)"));
     await tester.pumpAndSettle();
 
     expect(
       find.text("Coordenadas GPS capturadas com sucesso!"),
       findsOneWidget,
     );
-    expect(find.textContaining("-10.94720"), findsOneWidget);
-    expect(find.textContaining("-37.07310"), findsOneWidget);
+    expect(find.text("-10.94720"), findsOneWidget);
+    expect(find.text("-37.07310"), findsOneWidget);
   });
 
   testWidgets("opens the time picker from a schedule pill", (
@@ -408,33 +412,40 @@ void main() {
     );
   });
 
-  testWidgets("dismisses GPS coordinates badge when close button is tapped", (
+  testWidgets("submits manually entered latitude and longitude coordinates", (
     WidgetTester tester,
   ) async {
     useTallSurface(tester);
 
-    const UserLocation fakeLoc = UserLocation(
-      latitude: -10.9472,
-      longitude: -37.0731,
-    );
-    const LocationService service = _MockLocationService(position: fakeLoc);
+    final _FakeSuggestionsRepository repository = _FakeSuggestionsRepository();
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: SuggestScreen(locationService: service)),
+      MaterialApp(
+        home: Scaffold(body: SuggestScreen(repository: repository)),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip("Preencher com localização atual (GPS)"));
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      "EcoPonto Centro",
+    );
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      "Rua João Pessoa, 320",
+    );
+    await tester.enterText(find.byType(TextFormField).at(2), "-10.91111");
+    await tester.enterText(find.byType(TextFormField).at(3), "-37.05555");
+
+    await tester.tap(find.text("Pilhas"));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining("GPS: -10.94720"), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.tap(find.text("Enviar sugestão"));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining("GPS: -10.94720"), findsNothing);
+    expect(repository.submitted.length, 1);
+    expect(repository.submitted.first.latitude, closeTo(-10.91111, 0.00001));
+    expect(repository.submitted.first.longitude, closeTo(-37.05555, 0.00001));
   });
 
   testWidgets("shows error snackbar when location service returns null", (

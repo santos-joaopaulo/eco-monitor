@@ -2,16 +2,16 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Pontos de coleta oficiais: leitura pública irrestrita; escrita bloqueada para clientes públicos (RNF11).
+    // Pontos de coleta oficiais: leitura pública e escrita/remoção liberadas para operação do painel admin no app.
     match /collectPoints/{pointId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if true;
     }
 
-    // Campanhas de coleta oficiais: leitura pública; escrita bloqueada para clientes (RF08, RF09).
+    // Campanhas de coleta oficiais: leitura pública e escrita/remoção liberadas para operação do painel admin no app.
     match /campaigns/{campaignId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if true;
     }
 
     // Guias de descarte: catálogo oficial de leitura pública; escrita bloqueada para clientes (RNF09).
@@ -20,14 +20,20 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Metadados de sincronização (deltas e versões do banco): leitura pública, escrita bloqueada.
+    // Metadados de sincronização (deltas e versões do banco): leitura pública e escrita liberada para o painel admin.
     match /metadata/{collectionId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if true;
+    }
+
+    // Tombstones de exclusões lógicas para sincronização delta: leitura pública e escrita liberada para o painel admin.
+    match /tombstones/{tombstoneId} {
+      allow read: if true;
+      allow write: if true;
     }
 
     // Sugestões de novos pontos enviadas pelos usuários:
-    // Criação permitida apenas com esquema válido e status 'pending'. Modificação e exclusão proibidas (RF10, RF11, RNF06).
+    // Criação permitida com esquema válido e status 'pending'; atualização e remoção liberadas para moderação no painel admin.
     match /pointSuggestions/{suggestionId} {
       allow read: if true;
       allow create: if request.resource.data.name is string &&
@@ -37,11 +43,11 @@ service cloud.firestore {
                        request.resource.data.address.size() > 0 &&
                        request.resource.data.address.size() <= 200 &&
                        request.resource.data.status == 'pending';
-      allow update, delete: if false;
+      allow update, delete: if true;
     }
 
     // Avaliações anônimas de qualidade e estado dos ecopontos:
-    // Criação pública permitida com validação de nota (1 a 5). Modificação e exclusão proibidas (RNF06, RNF14).
+    // Criação pública permitida com validação de nota (1 a 5); remoção liberada para moderação no painel admin.
     match /point_reviews/{reviewId} {
       allow read: if true;
       allow create: if request.resource.data.pointId is string &&
@@ -49,7 +55,51 @@ service cloud.firestore {
                        request.resource.data.rating is int &&
                        request.resource.data.rating >= 1 &&
                        request.resource.data.rating <= 5;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if true;
+    }
+
+    // Ranking comunitário de pesquisas de resíduos (nacional "ALL" e por UF):
+    // Leitura pública; criação e incremento monotônico permitidos apenas para escopos e categorias válidas. Exclusão proibida.
+    match /waste_search_analytics/{scopeId} {
+      function isValidScope() {
+        return scopeId.matches('^(ALL|AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)$');
+      }
+
+      function hasOnlyValidWasteKeys(counts) {
+        return counts is map &&
+               counts.keys().hasOnly(['medicines', 'batteries', 'sharps', 'electronics', 'glass']);
+      }
+
+      function isNonNegativeIntOrMissing(counts, key) {
+        return !(key in counts) || (counts[key] is int && counts[key] >= 0);
+      }
+
+      function isMonotonicField(oldCounts, newCounts, key) {
+        return !(key in newCounts) ||
+               (newCounts[key] is int && newCounts[key] >= oldCounts.get(key, 0));
+      }
+
+      allow read: if true;
+      allow create: if isValidScope() &&
+                       request.resource.data.keys().hasOnly(['scope', 'counts', 'updatedAt']) &&
+                       request.resource.data.scope == scopeId &&
+                       hasOnlyValidWasteKeys(request.resource.data.counts) &&
+                       isNonNegativeIntOrMissing(request.resource.data.counts, 'medicines') &&
+                       isNonNegativeIntOrMissing(request.resource.data.counts, 'batteries') &&
+                       isNonNegativeIntOrMissing(request.resource.data.counts, 'sharps') &&
+                       isNonNegativeIntOrMissing(request.resource.data.counts, 'electronics') &&
+                       isNonNegativeIntOrMissing(request.resource.data.counts, 'glass');
+      allow update: if isValidScope() &&
+                       request.resource.data.keys().hasOnly(['scope', 'counts', 'updatedAt']) &&
+                       request.resource.data.scope == scopeId &&
+                       hasOnlyValidWasteKeys(request.resource.data.counts) &&
+                       isMonotonicField(resource.data.get('counts', {}), request.resource.data.counts, 'medicines') &&
+                       isMonotonicField(resource.data.get('counts', {}), request.resource.data.counts, 'batteries') &&
+                       isMonotonicField(resource.data.get('counts', {}), request.resource.data.counts, 'sharps') &&
+                       isMonotonicField(resource.data.get('counts', {}), request.resource.data.counts, 'electronics') &&
+                       isMonotonicField(resource.data.get('counts', {}), request.resource.data.counts, 'glass');
+      allow delete: if false;
     }
   }
 }

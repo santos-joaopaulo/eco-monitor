@@ -191,5 +191,83 @@ void main() {
       final PointReviewStats stats = await repo.getStatsForPoint(rev.pointId);
       expect(stats.totalReviews, 1);
     });
+
+    test("refresh sincroniza avaliações remotas de outros dispositivos", () async {
+      final InMemoryLocalStore store = InMemoryLocalStore();
+      final PointReview remoteRev1 = createReview(
+        id: "remote_1",
+        pointId: "ponto_x",
+        rating: 4,
+      );
+      final PointReview remoteRev2 = createReview(
+        id: "remote_2",
+        pointId: "ponto_x",
+        rating: 2,
+      );
+
+      final PointReviewsRepository repo = PointReviewsRepository(
+        localStore: store,
+        fetcher: () async => <PointReview>[remoteRev1, remoteRev2],
+      );
+
+      expect(await repo.getReviewsForPoint("ponto_x"), isEmpty);
+
+      await repo.refresh();
+
+      final List<PointReview> synced = await repo.getReviewsForPoint("ponto_x");
+      expect(synced.map((PointReview r) => r.id), <String>[
+        "remote_1",
+        "remote_2",
+      ]);
+
+      final PointReviewStats stats = await repo.getStatsForPoint("ponto_x");
+      expect(stats.totalReviews, 2);
+      expect(stats.averageRating, 3.0);
+    });
+
+    test("refresh preserva avaliações pendentes offline e remove excluídas remotamente", () async {
+      final InMemoryLocalStore store = InMemoryLocalStore();
+      final List<PointReview> remoteDb = <PointReview>[
+        createReview(id: "remote_keep", pointId: "ponto_y", rating: 5),
+        createReview(id: "remote_deleted", pointId: "ponto_y", rating: 1),
+      ];
+
+      final PointReviewsRepository repo = PointReviewsRepository(
+        localStore: store,
+        fetcher: () async => List<PointReview>.of(remoteDb),
+      );
+
+      await repo.refresh();
+      expect((await repo.getReviewsForPoint("ponto_y")).length, 2);
+
+      // Enfileira uma avaliação offline local (sender == null)
+      await repo.submitReview(
+        createReview(id: "local_pending", pointId: "ponto_y", rating: 3),
+      );
+
+      // Remove uma avaliação no banco remoto
+      remoteDb.removeWhere((PointReview r) => r.id == "remote_deleted");
+      await repo.refresh();
+
+      final List<String> ids = (await repo.getReviewsForPoint("ponto_y"))
+          .map((PointReview r) => r.id)
+          .toList();
+      expect(ids, containsAll(<String>["local_pending", "remote_keep"]));
+      expect(ids, isNot(contains("remote_deleted")));
+    });
+
+    test("refresh mantém cache local quando o fetcher remoto falha", () async {
+      final InMemoryLocalStore store = InMemoryLocalStore();
+      final PointReviewsRepository repo = PointReviewsRepository(
+        localStore: store,
+        fetcher: () async => throw Exception("Falha de rede"),
+      );
+
+      await repo.submitReview(createReview(id: "local_1", pointId: "ponto_z"));
+      await repo.refresh();
+
+      final List<PointReview> list = await repo.getReviewsForPoint("ponto_z");
+      expect(list.map((PointReview r) => r.id), <String>["local_1"]);
+    });
   });
 }

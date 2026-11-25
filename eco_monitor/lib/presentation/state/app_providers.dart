@@ -66,7 +66,8 @@ List<SingleChildWidget> buildAppProviders({
       value: dataSync.suggestionsRepository,
     ),
     Provider<IWasteSearchAnalyticsRepository>.value(
-      value: analyticsRepository ?? WasteSearchAnalyticsRepository(),
+      value: analyticsRepository ??
+          (dataSync.analyticsRepository ?? WasteSearchAnalyticsRepository()),
     ),
     Provider<IFavoritesRepository>.value(value: favRepo),
     Provider<IPointReviewsRepository>.value(value: revRepo),

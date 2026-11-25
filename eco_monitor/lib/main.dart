@@ -124,6 +124,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   /// Controla a exibição da busca rápida na Home via ação da EcoAppBar.
   bool _isSearchActive = false;
 
+  /// Controla se a lista de ecopontos está aberta na Home.
+  bool _isHomeListOpen = false;
+
   void _initProviders() {
     _providers = buildAppProviders(
       dataSync: _dataSync,
@@ -219,6 +222,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     String? title,
     Widget? banner,
     List<Widget>? actions,
+    bool showOfflineMapsAction = false,
   }) {
     return Scaffold(
       extendBody: true,
@@ -226,6 +230,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         title: title ?? widget.title,
         dataSync: _dataSync,
         actions: actions,
+        showOfflineMapsAction: showOfflineMapsAction,
       ),
       body: banner != null
           ? Column(
@@ -253,8 +258,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               isOffline: !sync.isOnline,
               isStale: sync.isStale,
               lastUpdated: sync.lastUpdated,
-              pendingSuggestionsCount: sync.pendingSuggestionsCount,
+              pendingSuggestionsCount: sync.pendingSyncCount,
               isSyncing: sync.isSyncing,
+              onRetry: () {
+                unawaited(sync.refreshAll());
+              },
+            );
+
+            final Widget mapOfflineBanner = OfflineBanner(
+              isOffline: !sync.isOnline,
+              isStale: sync.isStale,
+              lastUpdated: sync.lastUpdated,
+              pendingSuggestionsCount: sync.pendingSyncCount,
+              isSyncing: sync.isSyncing,
+              padding: const EdgeInsets.only(bottom: 6),
               onRetry: () {
                 unawaited(sync.refreshAll());
               },
@@ -304,19 +321,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   onPressed: () => unawaited(sync.refreshAll()),
                 ),
 
-              IconButton(
-                icon: Icon(
-                  _isSearchActive ? Icons.close_rounded : Icons.search_rounded,
-                  color: Colors.white,
-                  size: 24,
+              if (_isHomeListOpen)
+                IconButton(
+                  icon: Icon(
+                    _isSearchActive
+                        ? Icons.close_rounded
+                        : Icons.search_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  tooltip: _isSearchActive ? "Fechar busca" : "Buscar resíduo",
+                  onPressed: () {
+                    setState(() {
+                      _isSearchActive = !_isSearchActive;
+                    });
+                  },
                 ),
-                tooltip: _isSearchActive ? "Fechar busca" : "Buscar resíduo",
-                onPressed: () {
-                  setState(() {
-                    _isSearchActive = !_isSearchActive;
-                  });
-                },
-              ),
             ];
 
             return IndexedStack(
@@ -330,6 +350,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     onClearCampaign: _clearFocusedCampaign,
                     repository: _dataSync.collectPointsRepository,
                     dataSync: _dataSync,
+                    offlineBanner: mapOfflineBanner,
                     locationService:
                         widget.locationService ?? const LocationService(),
                     isActive: _selectedIndex == _homeTab,
@@ -348,11 +369,21 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         });
                       }
                     },
+                    onListViewChanged: (bool isOpen) {
+                      if (_isHomeListOpen != isOpen && mounted) {
+                        setState(() {
+                          _isHomeListOpen = isOpen;
+                        });
+                      }
+                    },
                   ),
                   actions: homeAppBarActions,
+                  showOfflineMapsAction:
+                      _selectedIndex == _homeTab && !_isHomeListOpen,
                 ),
                 GuideNavigator(
                   repository: _dataSync.guideRepository,
+                  analyticsRepository: _dataSync.analyticsRepository,
                   active: _selectedIndex == _guideTab,
                   onShowCollectionPoints: _showCollectionPoints,
                   onBackToHome: () => _selectTab(_homeTab),

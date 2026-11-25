@@ -22,7 +22,9 @@ class SyncNotifier extends ChangeNotifier {
 
   DateTime? get lastUpdated => _dataSync.lastUpdated;
 
-  int get pendingSuggestionsCount => _dataSync.pendingSuggestionsCount;
+  int get pendingSyncCount => _dataSync.pendingSyncCount;
+
+  int get pendingSuggestionsCount => _dataSync.pendingSyncCount;
 
   AppDataSync get dataSync => _dataSync;
 

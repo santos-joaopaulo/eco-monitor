@@ -9,13 +9,14 @@ import "../data/app_data_sync.dart";
 import "../data/collect_points_repository.dart";
 import "../data/route_cache_store.dart";
 import "../data/waste_search_analytics_repository.dart";
+import "../domain/entities/brazil_state.dart";
 import "../domain/entities/waste_type.dart";
+import "../domain/repositories/waste_search_analytics_repository_contract.dart";
 import "../domain/usecases/get_nearest_point_use_case.dart";
 import "../domain/entities/campaign.dart";
 import "../domain/entities/collection_point.dart";
 import "../domain/entities/offline_package.dart";
 import "../presentation/state/favorites_notifier.dart";
-import "../presentation/state/offline_packages_notifier.dart";
 import "../services/location_service.dart";
 import "../services/mapbox_token_provider.dart";
 import "../services/offline_package_manager.dart";
@@ -37,7 +38,6 @@ import "../widgets/home_map_top_bar.dart";
 import "../widgets/location_notice.dart";
 import "../widgets/point_pin.dart";
 import "../widgets/route_summary_card.dart";
-import "offline_maps_screen.dart";
 
 part "home_screen_actions.dart";
 
@@ -61,6 +61,8 @@ class HomeScreen extends StatefulWidget {
     this.routeCacheStore,
     this.isSearchActive,
     this.onSearchActiveChanged,
+    this.onListViewChanged,
+    this.offlineBanner,
   });
 
   /// Tipo de resíduo recebido da aba do guia; inicializa o filtro do mapa.
@@ -98,6 +100,12 @@ class HomeScreen extends StatefulWidget {
 
   /// Notifica externamente quando o estado de busca é alterado.
   final ValueChanged<bool>? onSearchActiveChanged;
+
+  /// Notifica externamente quando a lista de ecopontos é aberta ou fechada.
+  final ValueChanged<bool>? onListViewChanged;
+
+  /// Banner flutuante de status offline/sincronização exibido sem fundo sobre o mapa.
+  final Widget? offlineBanner;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -346,6 +354,7 @@ class _HomeScreenState extends State<HomeScreen>
         onRadiusChanged: _handleRadiusChanged,
         isRadiusEmpty: _isRadiusEmpty,
         onExpandRadius: _handleExpandRadius,
+        offlineBanner: widget.offlineBanner,
       );
     }
 
@@ -435,9 +444,11 @@ class _HomeScreenState extends State<HomeScreen>
               bottom: navInset + 20,
               isListMode: isListMode,
               onPressed: () {
+                final bool next = !_isListView;
                 setState(() {
-                  _isListView = !_isListView;
+                  _isListView = next;
                 });
+                widget.onListViewChanged?.call(next);
               },
             ),
 

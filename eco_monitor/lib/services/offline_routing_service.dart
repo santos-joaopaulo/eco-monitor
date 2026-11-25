@@ -169,6 +169,7 @@ class _GridSpatialIndex {
     Float64List nodeLats,
     Float64List nodeLons, {
     double maxDistanceMeters = kMaxSnapDistanceMeters,
+    bool Function(int node)? nodeFilter,
   }) {
     final int centerRow = ((lat - minLat) / cellSize).floor();
     final int centerCol = ((lon - minLon) / cellSize).floor();
@@ -191,6 +192,9 @@ class _GridSpatialIndex {
           }
 
           for (final int node in cellNodes) {
+            if (nodeFilter != null && !nodeFilter(node)) {
+              continue;
+            }
             final double dist = distanceInMeters(
               lat,
               lon,
@@ -215,6 +219,9 @@ class _GridSpatialIndex {
 
     // Se não encontrou nas células próximas, varredura de fallback
     for (int i = 0; i < nodeLats.length; i++) {
+      if (nodeFilter != null && !nodeFilter(i)) {
+        continue;
+      }
       final double dist = distanceInMeters(
         lat,
         lon,
@@ -242,7 +249,14 @@ class OfflineRoadGraph {
     required this.nodeLats,
     required this.nodeLons,
     required this.adjacency,
-  }) {
+  }) : _nodeOutgoingModes = Uint8List(nodeLats.length),
+       _nodeIncomingModes = Uint8List(nodeLats.length) {
+    for (int u = 0; u < adjacency.length; u++) {
+      for (final RoadEdge edge in adjacency[u]) {
+        _nodeOutgoingModes[u] |= edge.modesMask;
+        _nodeIncomingModes[edge.targetNode] |= edge.modesMask;
+      }
+    }
     _initSpatialIndex();
   }
 
@@ -258,6 +272,8 @@ class OfflineRoadGraph {
   /// Lista de adjacência direcionada.
   final List<List<RoadEdge>> adjacency;
 
+  final Uint8List _nodeOutgoingModes;
+  final Uint8List _nodeIncomingModes;
   late final _GridSpatialIndex _spatialIndex;
 
   int get nodeCount => nodeLats.length;
@@ -285,17 +301,38 @@ class OfflineRoadGraph {
   }
 
   /// Localiza o nó da malha viária mais próximo de uma coordenada geográfica.
+  ///
+  /// Quando [requiredOutgoingModes] ou [requiredIncomingModes] forem informados,
+  /// restringe a busca a nós que possuam arestas compatíveis com o modal desejado.
   int findNearestNode(
     double lat,
     double lon, {
     double maxDistanceMeters = kMaxSnapDistanceMeters,
+    int? requiredOutgoingModes,
+    int? requiredIncomingModes,
   }) {
+    final bool Function(int)? filter =
+        (requiredOutgoingModes == null && requiredIncomingModes == null)
+            ? null
+            : (int node) {
+                if (requiredOutgoingModes != null &&
+                    (_nodeOutgoingModes[node] & requiredOutgoingModes) == 0) {
+                  return false;
+                }
+                if (requiredIncomingModes != null &&
+                    (_nodeIncomingModes[node] & requiredIncomingModes) == 0) {
+                  return false;
+                }
+                return true;
+              };
+
     return _spatialIndex.findNearestNode(
       lat,
       lon,
       nodeLats,
       nodeLons,
       maxDistanceMeters: maxDistanceMeters,
+      nodeFilter: filter,
     );
   }
 
@@ -489,14 +526,22 @@ class OfflineRoutingService {
       }
     }
 
-    // 2. Mapeamento dos pontos nos nós viários mais próximos
+    // 2. Mapeamento dos pontos nos nós viários compatíveis com o modal
+    final int targetModeMask = switch (travelMode) {
+      TravelMode.driving => kModeDriving,
+      TravelMode.cycling => kModeCycling,
+      TravelMode.walking => kModeWalking,
+    };
+
     final int startNode = graph.findNearestNode(
       origin.latitude,
       origin.longitude,
+      requiredOutgoingModes: targetModeMask,
     );
     final int endNode = graph.findNearestNode(
       destination.latitude,
       destination.longitude,
+      requiredIncomingModes: targetModeMask,
     );
 
     if (startNode == -1 || endNode == -1) {
@@ -534,11 +579,6 @@ class OfflineRoutingService {
     }
 
     // 3. Execução do algoritmo A* com min-heap
-    final int targetModeMask = switch (travelMode) {
-      TravelMode.driving => kModeDriving,
-      TravelMode.cycling => kModeCycling,
-      TravelMode.walking => kModeWalking,
-    };
 
     final int nodeCount = graph.nodeCount;
     final Float64List lats = graph.nodeLats;

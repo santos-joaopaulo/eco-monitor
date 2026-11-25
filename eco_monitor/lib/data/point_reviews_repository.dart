@@ -7,6 +7,7 @@ import "package:shared_preferences/shared_preferences.dart";
 import "../domain/repositories/point_reviews_repository_contract.dart";
 import "../domain/entities/point_review.dart";
 import "firebase_service.dart";
+import "firestore_helpers.dart";
 import "local_store.dart";
 
 
@@ -32,6 +33,9 @@ const String _localPointReviewsStoreKey = "local_point_reviews_store_v1";
 /// Função usada por [PointReviewsRepository] para persistir uma avaliação remotamente.
 typedef PointReviewSender = Future<void> Function(PointReview review);
 
+/// Função usada por [PointReviewsRepository] para buscar avaliações remotas.
+typedef PointReviewsFetcher = Future<List<PointReview>> Function();
+
 
 // Methods ------------------------------------------------------------------ //
 
@@ -53,6 +57,41 @@ PointReviewSender createFirestorePointReviewSender({
   };
 }
 
+/// Cria um [PointReviewsFetcher] integrado à coleção `point_reviews` do Firestore.
+PointReviewsFetcher createFirestorePointReviewsFetcher({
+  FirebaseFirestore? firestore,
+}) {
+  return () async {
+    if (firestore == null && !isFirebaseReady) {
+      throw StateError("Firebase is not initialized.");
+    }
+
+    final FirebaseFirestore db = firestore ?? FirebaseFirestore.instance;
+    final QuerySnapshot<Map<String, dynamic>> snapshot = await db
+        .collection(kPointReviewsCollection)
+        .get();
+
+    final List<PointReview> reviews = snapshot.docs.map((
+      QueryDocumentSnapshot<Map<String, dynamic>> doc,
+    ) {
+      final Map<String, dynamic> raw = doc.data();
+      final Object? rawId = raw["id"];
+      final String? clientId = rawId is String && rawId.isNotEmpty ? rawId : null;
+
+      final Map<String, dynamic> normalized = normalizeFirestoreData(
+        raw,
+        documentId: clientId == null ? doc.id : null,
+      );
+      return PointReview.fromJson(normalized);
+    }).toList();
+
+    reviews.sort(
+      (PointReview a, PointReview b) => b.createdAt.compareTo(a.createdAt),
+    );
+    return reviews;
+  };
+}
+
 
 // Classes ------------------------------------------------------------------ //
 
@@ -62,6 +101,7 @@ PointReviewSender createFirestorePointReviewSender({
 class PointReviewsRepository implements IPointReviewsRepository {
   PointReviewsRepository({
     this.sender,
+    this.fetcher,
     this.isOnlineChecker,
     LocalStore? localStore,
     Future<SharedPreferences> Function()? preferencesFactory,
@@ -74,6 +114,7 @@ class PointReviewsRepository implements IPointReviewsRepository {
        _clock = clock ?? DateTime.now;
 
   final PointReviewSender? sender;
+  final PointReviewsFetcher? fetcher;
   final Future<bool> Function()? isOnlineChecker;
   final Duration minSubmissionInterval;
   final DateTime Function() _clock;
@@ -84,6 +125,7 @@ class PointReviewsRepository implements IPointReviewsRepository {
   Map<String, List<PointReview>>? _cachedReviewsByPoint;
 
   bool get hasRemoteSender => sender != null;
+  bool get hasRemoteFetcher => fetcher != null;
 
 
 // Methods ------------------------------------------------------------------ //
@@ -203,6 +245,64 @@ class PointReviewsRepository implements IPointReviewsRepository {
   }
 
   @override
+  Future<void> refresh() {
+    return _synchronized(() async {
+      final PointReviewsFetcher? remoteFetcher = fetcher;
+      if (remoteFetcher == null) {
+        return;
+      }
+
+      if (isOnlineChecker != null) {
+        try {
+          final bool online = await isOnlineChecker!();
+          if (!online) {
+            return;
+          }
+        } catch (_) {
+          // Segue com a tentativa de busca caso o verificador falhe
+        }
+      }
+
+      final List<PointReview> remoteReviews;
+      try {
+        remoteReviews = await remoteFetcher().timeout(
+          const Duration(seconds: 6),
+        );
+      } catch (_) {
+        // Mantém o cache local existente em caso de erro ou timeout
+        return;
+      }
+
+      final List<PointReview> pending = await _readQueueUnsafe();
+      final Map<String, List<PointReview>> merged = <String, List<PointReview>>{};
+      final Set<String> seenIds = <String>{};
+
+      for (final PointReview item in pending) {
+        if (seenIds.add(item.id)) {
+          (merged[item.pointId] ??= <PointReview>[]).add(item);
+        }
+      }
+
+      for (final PointReview item in remoteReviews) {
+        if (item.pointId.isEmpty) {
+          continue;
+        }
+        if (item.id.isEmpty || seenIds.add(item.id)) {
+          (merged[item.pointId] ??= <PointReview>[]).add(item);
+        }
+      }
+
+      for (final List<PointReview> list in merged.values) {
+        list.sort(
+          (PointReview a, PointReview b) => b.createdAt.compareTo(a.createdAt),
+        );
+      }
+
+      await _writeLocalReviewsUnsafe(merged);
+    });
+  }
+
+  @override
   Future<int> pendingCount() {
     return _synchronized(() async {
       final List<PointReview> pending = await _readQueueUnsafe();
@@ -262,6 +362,12 @@ class PointReviewsRepository implements IPointReviewsRepository {
     list.removeWhere((PointReview existing) => existing.id == review.id);
     list.insert(0, review);
     all[review.pointId] = list;
+    await _writeLocalReviewsUnsafe(all);
+  }
+
+  Future<void> _writeLocalReviewsUnsafe(
+    Map<String, List<PointReview>> all,
+  ) async {
     _cachedReviewsByPoint = all;
 
     final List<Map<String, dynamic>> flat = <Map<String, dynamic>>[];

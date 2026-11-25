@@ -67,6 +67,8 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _latitudeController = TextEditingController();
+  final TextEditingController _longitudeController = TextEditingController();
 
   final Set<WasteType> _selectedWasteTypes = <WasteType>{};
 
@@ -79,8 +81,6 @@ class _SuggestScreenState extends State<SuggestScreen> {
       ),
   };
 
-  double? _latitude;
-  double? _longitude;
   bool _isLocating = false;
   bool _isSubmitting = false;
   bool _wasteTypeHasError = false;
@@ -95,6 +95,8 @@ class _SuggestScreenState extends State<SuggestScreen> {
   void dispose() {
     _nameController.dispose();
     _addressController.dispose();
+    _latitudeController.dispose();
+    _longitudeController.dispose();
     super.dispose();
   }
 
@@ -131,8 +133,8 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
       if (location != null) {
         setState(() {
-          _latitude = location.latitude;
-          _longitude = location.longitude;
+          _latitudeController.text = location.latitude.toStringAsFixed(5);
+          _longitudeController.text = location.longitude.toStringAsFixed(5);
         });
 
         _showSnackBar("Coordenadas GPS capturadas com sucesso!");
@@ -376,14 +378,17 @@ class _SuggestScreenState extends State<SuggestScreen> {
       _isSubmitting = true;
     });
 
+    final double? parsedLatitude = _parseCoordinate(_latitudeController.text);
+    final double? parsedLongitude = _parseCoordinate(_longitudeController.text);
+
     final PointSuggestion suggestion = PointSuggestion(
       id: "",
       name: _nameController.text.trim(),
       address: _addressController.text.trim(),
       acceptedWasteTypes: _selectedWasteTypes,
       hours: _formatSchedule(),
-      latitude: _latitude,
-      longitude: _longitude,
+      latitude: parsedLatitude,
+      longitude: parsedLongitude,
       status: SuggestionStatus.pending,
       createdAt: DateTime.now().toUtc(),
     );
@@ -408,10 +413,10 @@ class _SuggestScreenState extends State<SuggestScreen> {
       setState(() {
         _nameController.clear();
         _addressController.clear();
+        _latitudeController.clear();
+        _longitudeController.clear();
         _selectedWasteTypes.clear();
         _resetSchedules();
-        _latitude = null;
-        _longitude = null;
         _wasteTypeHasError = false;
         _hoursHasError = false;
         _hoursErrorMessage = null;
@@ -480,10 +485,11 @@ class _SuggestScreenState extends State<SuggestScreen> {
                 _buildFieldLabel("Endereço"),
                 const SizedBox(height: 8),
                 _buildAddressField(),
-                if (_latitude != null && _longitude != null) ...[
-                  const SizedBox(height: 8),
-                  _buildCoordinatesBadge(),
-                ],
+                const SizedBox(height: 18),
+
+                _buildFieldLabel("Coordenadas (opcional)"),
+                const SizedBox(height: 8),
+                _buildCoordinatesSection(),
                 const SizedBox(height: 24),
 
                 _buildWasteTypeSection(),
@@ -612,6 +618,14 @@ class _SuggestScreenState extends State<SuggestScreen> {
     );
   }
 
+  double? _parseCoordinate(String raw) {
+    final String normalized = raw.trim().replaceAll(",", ".");
+    if (normalized.isEmpty) {
+      return null;
+    }
+    return double.tryParse(normalized);
+  }
+
   Widget _buildAddressField() {
     return TextFormField(
       controller: _addressController,
@@ -619,24 +633,6 @@ class _SuggestScreenState extends State<SuggestScreen> {
       decoration: _fieldDecoration(
         hint: "Ex.: Rua das Flores, 120",
         prefixIcon: Icons.location_on_outlined,
-        suffixIcon: IconButton(
-          tooltip: "Preencher com localização atual (GPS)",
-          icon: _isLocating
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.primary,
-                  ),
-                )
-              : const Icon(
-                  Icons.my_location_rounded,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
-          onPressed: _isLocating ? null : _captureLocation,
-        ),
       ),
       validator: (String? value) {
         final String trimmed = value?.trim() ?? "";
@@ -654,52 +650,118 @@ class _SuggestScreenState extends State<SuggestScreen> {
     );
   }
 
-  Widget _buildCoordinatesBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primaryTint,
-        borderRadius: BorderRadius.circular(8),
-      ),
+  Widget _buildCoordinatesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
 
-      child: Row(
-        children: [
-          const Icon(
-            Icons.check_circle_rounded,
-            size: 16,
-            color: AppColors.primary,
-          ),
-          const SizedBox(width: 6),
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
 
-          Expanded(
-            child: Text(
-              "GPS: ${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}",
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _latitudeController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
+                textInputAction: TextInputAction.next,
+                decoration: _fieldDecoration(
+                  hint: "Latitude (ex.: -10.9472)",
+                  prefixIcon: Icons.explore_outlined,
+                ),
+                validator: (String? value) {
+                  final String trimmed = value?.trim() ?? "";
+                  final String lonTrimmed = _longitudeController.text.trim();
+                  if (trimmed.isEmpty) {
+                    if (lonTrimmed.isNotEmpty) {
+                      return "Informe a latitude.";
+                    }
+                    return null;
+                  }
+                  final double? parsed = _parseCoordinate(trimmed);
+                  if (parsed == null || parsed < -90 || parsed > 90) {
+                    return "Latitude inválida.";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: TextFormField(
+                controller: _longitudeController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
+                textInputAction: TextInputAction.done,
+                decoration: _fieldDecoration(
+                  hint: "Longitude (ex.: -37.0731)",
+                  prefixIcon: Icons.explore_outlined,
+                ),
+                validator: (String? value) {
+                  final String trimmed = value?.trim() ?? "";
+                  final String latTrimmed = _latitudeController.text.trim();
+                  if (trimmed.isEmpty) {
+                    if (latTrimmed.isNotEmpty) {
+                      return "Informe a longitude.";
+                    }
+                    return null;
+                  }
+                  final double? parsed = _parseCoordinate(trimmed);
+                  if (parsed == null || parsed < -180 || parsed > 180) {
+                    return "Longitude inválida.";
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        Tooltip(
+          message: "Preencher com localização atual (GPS)",
+          child: OutlinedButton.icon(
+            onPressed: _isLocating ? null : _captureLocation,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: AppColors.surface,
+              foregroundColor: AppColors.primaryAccessible,
+              side: const BorderSide(color: AppColors.primary),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: _isLocating
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : const Icon(
+                    Icons.my_location_rounded,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+            label: Text(
+              _isLocating
+                  ? "Obtendo localização..."
+                  : "Usar localização atual (GPS)",
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
               ),
             ),
           ),
-
-          Tooltip(
-            message: "Remover coordenadas",
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _latitude = null;
-                  _longitude = null;
-                });
-              },
-              child: const Icon(
-                Icons.close_rounded,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -717,6 +779,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
         const SizedBox(height: 10),
 
         GridView.builder(
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _wasteTypeOrder.length,

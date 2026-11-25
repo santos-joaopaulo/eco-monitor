@@ -14,6 +14,7 @@ import "disposal_guide_repository_synced.dart";
 import "firebase_service.dart";
 import "point_reviews_repository.dart";
 import "point_suggestions_repository.dart";
+import "waste_search_analytics_repository.dart";
 
 
 // Classes ------------------------------------------------------------------ //
@@ -29,8 +30,13 @@ class AppDataSync extends ChangeNotifier {
     required this.guideRepository,
     required this.connectivityService,
     this.reviewsRepository,
+    this.analyticsRepository,
     this.syncInterval,
-  });
+  }) {
+    analyticsRepository?.onPendingChanged = () {
+      unawaited(refreshPendingCount());
+    };
+  }
 
   /// Constrói a instância de produção de [AppDataSync] conectada ao Cloud Firestore
   /// quando o Firebase estiver inicializado, ou apenas offline caso contrário.
@@ -58,6 +64,12 @@ class AppDataSync extends ChangeNotifier {
       ),
       reviewsRepository: PointReviewsRepository(
         sender: useRemote ? createFirestorePointReviewSender() : null,
+        fetcher: useRemote ? createFirestorePointReviewsFetcher() : null,
+        isOnlineChecker: () => connectivity.checkNow(),
+      ),
+      analyticsRepository: WasteSearchAnalyticsRepository(
+        sender: useRemote ? createFirestoreWasteSearchSender() : null,
+        fetcher: useRemote ? createFirestoreWasteSearchFetcher() : null,
         isOnlineChecker: () => connectivity.checkNow(),
       ),
       connectivityService: connectivity,
@@ -71,6 +83,7 @@ class AppDataSync extends ChangeNotifier {
   final DisposalGuideRepositorySynced guideRepository;
   final ConnectivityService connectivityService;
   final PointReviewsRepository? reviewsRepository;
+  final WasteSearchAnalyticsRepository? analyticsRepository;
   final Duration? syncInterval;
 
   StreamSubscription<bool>? _connectivitySubscription;
@@ -83,14 +96,20 @@ class AppDataSync extends ChangeNotifier {
   bool _isOnline = true;
   bool _isSyncing = false;
   bool _isStale = false;
-  int _pendingSuggestionsCount = 0;
+  int _pendingSyncCount = 0;
 
   List<CollectionPoint> get points => _points;
   List<Campaign> get campaigns => _campaigns;
   bool get isOnline => _isOnline;
   bool get isSyncing => _isSyncing;
   bool get isStale => _isStale;
-  int get pendingSuggestionsCount => _pendingSuggestionsCount;
+
+  /// Total de itens pendentes na fila offline aguardando sincronização
+  /// (sugestões de pontos, avaliações de ecopontos e pesquisas de resíduos).
+  int get pendingSyncCount => _pendingSyncCount;
+
+  /// Alias mantido para compatibilidade com assinaturas existentes.
+  int get pendingSuggestionsCount => _pendingSyncCount;
   DateTime? get lastUpdated => collectPointsRepository.lastUpdated;
   DataSourceOrigin? get sourceOrigin => collectPointsRepository.sourceOrigin;
 
@@ -152,7 +171,7 @@ class AppDataSync extends ChangeNotifier {
 
   /// Atualiza pontos de coleta, campanhas e guias de descarte a partir do
   /// backend remoto e envia quaisquer sugestões offline enfileiradas.
-  Future<void> refreshAll() async {
+  Future<void> refreshAll({bool forceFullPoints = false}) async {
     if (_disposed || _isSyncing) {
       return;
     }
@@ -164,13 +183,17 @@ class AppDataSync extends ChangeNotifier {
       _isOnline = await connectivityService.checkNow();
 
       if (_isOnline) {
-        final List<CollectionPoint> fetchedPoints =
-            await collectPointsRepository.refresh();
+        final List<CollectionPoint> fetchedPoints = forceFullPoints
+            ? await collectPointsRepository.refreshFull()
+            : await collectPointsRepository.refresh();
         final List<Campaign> fetchedCampaigns = await campaignsRepository
             .refresh();
         await guideRepository.refresh();
         await suggestionsRepository.flushPending();
         await reviewsRepository?.flushPending();
+        await reviewsRepository?.refresh();
+        await analyticsRepository?.flushPending();
+        await analyticsRepository?.getRankedStats();
 
         _points = List<CollectionPoint>.unmodifiable(fetchedPoints);
         _campaigns = List<Campaign>.unmodifiable(fetchedCampaigns);
@@ -178,12 +201,32 @@ class AppDataSync extends ChangeNotifier {
         await _loadOfflineDatasets();
       }
 
-      _pendingSuggestionsCount = await suggestionsRepository.pendingCount();
+      _pendingSyncCount = await _computePendingSyncCount();
       _isStale = collectPointsRepository.isStale;
     } finally {
       _isSyncing = false;
       _notifySafely();
     }
+  }
+
+  /// Recalcula o total consolidado de itens pendentes na fila offline e notifica ouvintes.
+  Future<void> refreshPendingCount() async {
+    if (_disposed) {
+      return;
+    }
+    final int next = await _computePendingSyncCount();
+    if (_disposed || next == _pendingSyncCount) {
+      return;
+    }
+    _pendingSyncCount = next;
+    _notifySafely();
+  }
+
+  Future<int> _computePendingSyncCount() async {
+    final int suggestions = await suggestionsRepository.pendingCount();
+    final int reviews = await (reviewsRepository?.pendingCount() ?? Future<int>.value(0));
+    final int searches = await (analyticsRepository?.pendingCount() ?? Future<int>.value(0));
+    return suggestions + reviews + searches;
   }
 
   /// Envia uma sugestão anônima de ponto, enfileirando-a offline automaticamente
@@ -194,7 +237,7 @@ class AppDataSync extends ChangeNotifier {
     final SuggestionSubmitResult result = await suggestionsRepository.submit(
       suggestion,
     );
-    _pendingSuggestionsCount = await suggestionsRepository.pendingCount();
+    _pendingSyncCount = await _computePendingSyncCount();
     _notifySafely();
     return result;
   }
@@ -209,6 +252,7 @@ class AppDataSync extends ChangeNotifier {
       return PointReviewSubmitResult.queuedOffline;
     }
     final PointReviewSubmitResult result = await repo.submitReview(review);
+    _pendingSyncCount = await _computePendingSyncCount();
     _notifySafely();
     return result;
   }
@@ -222,7 +266,7 @@ class AppDataSync extends ChangeNotifier {
 
     _points = List<CollectionPoint>.unmodifiable(offlinePoints);
     _campaigns = List<Campaign>.unmodifiable(offlineCampaigns);
-    _pendingSuggestionsCount = await suggestionsRepository.pendingCount();
+    _pendingSyncCount = await _computePendingSyncCount();
     _isStale = collectPointsRepository.isStale;
     _notifySafely();
   }
@@ -236,7 +280,7 @@ class AppDataSync extends ChangeNotifier {
     _isOnline = online;
     _notifySafely();
 
-    if (reconnected || (online && (_isStale || _pendingSuggestionsCount > 0))) {
+    if (reconnected || (online && (_isStale || _pendingSyncCount > 0))) {
       unawaited(refreshAll());
     }
   }

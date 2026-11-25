@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../domain/entities/residue.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
+import "../domain/repositories/waste_search_analytics_repository_contract.dart";
 import "disposal_guide_screen.dart";
 import "disposal_step_by_step_screen.dart";
 
@@ -51,11 +52,13 @@ class GuideNavigator extends StatefulWidget {
     required this.repository,
     required this.active,
     required this.onShowCollectionPoints,
+    this.analyticsRepository,
     this.onBackToHome,
     this.banner,
   });
 
   final DisposalGuideRepository repository;
+  final IWasteSearchAnalyticsRepository? analyticsRepository;
 
   /// `true` quando a aba "guia" está visível (controla o botão voltar).
   final bool active;
@@ -177,6 +180,7 @@ class _GuideNavigatorState extends State<GuideNavigator> {
           repository: widget.repository,
           onStartGuide: _startGuide,
           banner: widget.banner,
+          analyticsRepository: widget.analyticsRepository,
           onShowCollectionPoints: _showCollectionPoints,
         );
       },

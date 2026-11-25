@@ -1,12 +1,16 @@
 import "dart:async";
 
 import "package:material_ui/material_ui.dart";
+import "package:provider/provider.dart";
 
 import "../data/waste_search_analytics_repository.dart";
+import "../domain/entities/brazil_state.dart";
 import "../domain/entities/residue.dart";
 import "../domain/entities/waste_type.dart";
 import "../domain/repositories/disposal_guide_repository.dart";
 import "../domain/repositories/waste_search_analytics_repository_contract.dart";
+import "../presentation/state/location_notifier.dart";
+import "../services/location_service.dart";
 import "../services/residue_search_service.dart";
 import "../theme/app_colors.dart";
 import "../theme/eco_theme.dart";
@@ -46,9 +50,11 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   late final TextEditingController _searchController;
   late final IWasteSearchAnalyticsRepository _analytics;
   Timer? _searchDebounceTimer;
+  bool _dependenciesInitialized = false;
 
   List<WasteSearchStat> _stats = const <WasteSearchStat>[];
   String _searchQuery = "";
+  String? _selectedStateCode;
   bool _isLoadingStats = true;
 
 
@@ -59,9 +65,47 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _analytics =
-        widget.analyticsRepository ?? WasteSearchAnalyticsRepository();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_dependenciesInitialized) {
+      return;
+    }
+    _dependenciesInitialized = true;
+    _analytics = widget.analyticsRepository ?? _resolveAnalyticsFromContext();
     unawaited(_loadStats());
+  }
+
+  IWasteSearchAnalyticsRepository _resolveAnalyticsFromContext() {
+    try {
+      return Provider.of<IWasteSearchAnalyticsRepository>(
+        context,
+        listen: false,
+      );
+    } catch (_) {
+      return WasteSearchAnalyticsRepository();
+    }
+  }
+
+  String? _resolveCurrentUserStateCode() {
+    try {
+      final LocationNotifier notifier = Provider.of<LocationNotifier>(
+        context,
+        listen: false,
+      );
+      final UserLocation? location = notifier.userLocation;
+      if (location == null) {
+        return null;
+      }
+      return BrazilStates.findCodeByCoordinates(
+        location.latitude,
+        location.longitude,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -72,9 +116,12 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   }
 
   Future<void> _loadStats() async {
+    final String? requestedState = _selectedStateCode;
     try {
-      final List<WasteSearchStat> loaded = await _analytics.getRankedStats();
-      if (!mounted) {
+      final List<WasteSearchStat> loaded = await _analytics.getRankedStats(
+        stateCode: requestedState,
+      );
+      if (!mounted || _selectedStateCode != requestedState) {
         return;
       }
       setState(() {
@@ -82,11 +129,31 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
         _isLoadingStats = false;
       });
     } catch (_) {
-      if (mounted) {
+      if (mounted && _selectedStateCode == requestedState) {
         setState(() {
           _isLoadingStats = false;
         });
       }
+    }
+  }
+
+  void _onStateFilterChanged(String? stateCode) {
+    final String? normalized = BrazilStates.normalizeCode(stateCode);
+    if (_selectedStateCode == normalized) {
+      return;
+    }
+    setState(() {
+      _selectedStateCode = normalized;
+      _isLoadingStats = true;
+    });
+    unawaited(_loadStats());
+  }
+
+  Future<void> _recordSearchAndRefresh(WasteType type) async {
+    final String? userState = _resolveCurrentUserStateCode();
+    await _analytics.recordSearch(type, stateCode: userState);
+    if (mounted) {
+      await _loadStats();
     }
   }
 
@@ -117,12 +184,12 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
   }
 
   void _handleStartGuide(Residue residue) {
-    unawaited(_analytics.recordSearch(residue.type));
+    unawaited(_recordSearchAndRefresh(residue.type));
     widget.onStartGuide(residue);
   }
 
   void _handleShowOnMap(WasteType type) {
-    unawaited(_analytics.recordSearch(type));
+    unawaited(_recordSearchAndRefresh(type));
     widget.onShowCollectionPoints?.call(type);
   }
 
@@ -207,22 +274,23 @@ class _DisposalGuideScreenState extends State<DisposalGuideScreen> {
                             const SizedBox(height: 12),
                           ],
                       ] else ...[
-                        if (!_isLoadingStats && _stats.isNotEmpty) ...[
-                          _PopularSearchesSection(
-                            stats: _stats,
-                            onSelectWasteType: (WasteType type) {
-                              final Residue? residue = allResidues
-                                  .where((Residue r) => r.type == type)
-                                  .firstOrNull;
-                              if (residue != null) {
-                                _handleStartGuide(residue);
-                              } else {
-                                _handleShowOnMap(type);
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                        ],
+                        _PopularSearchesSection(
+                          stats: _stats,
+                          selectedStateCode: _selectedStateCode,
+                          isLoading: _isLoadingStats,
+                          onStateFilterChanged: _onStateFilterChanged,
+                          onSelectWasteType: (WasteType type) {
+                            final Residue? residue = allResidues
+                                .where((Residue r) => r.type == type)
+                                .firstOrNull;
+                            if (residue != null) {
+                              _handleStartGuide(residue);
+                            } else {
+                              _handleShowOnMap(type);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 24),
 
                         const _Header(),
                         const SizedBox(height: 20),
@@ -328,14 +396,26 @@ class _SearchBar extends StatelessWidget {
 class _PopularSearchesSection extends StatelessWidget {
   const _PopularSearchesSection({
     required this.stats,
+    required this.selectedStateCode,
+    required this.isLoading,
+    required this.onStateFilterChanged,
     required this.onSelectWasteType,
   });
 
   final List<WasteSearchStat> stats;
+  final String? selectedStateCode;
+  final bool isLoading;
+  final ValueChanged<String?> onStateFilterChanged;
   final ValueChanged<WasteType> onSelectWasteType;
 
   @override
   Widget build(BuildContext context) {
+    final BrazilState? selectedState = BrazilStates.byCode(selectedStateCode);
+    final bool hasAnySearch = stats.any((WasteSearchStat s) => s.count > 0);
+    final String subtitle = selectedState == null
+        ? "Ranking nacional de todos os dispositivos."
+        : "Ranking filtrado para ${selectedState.name} (${selectedState.code}).";
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -362,68 +442,141 @@ class _PopularSearchesSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          "Categorias mais consultadas pelos cidadãos.",
-          style: TextStyle(
+        Text(
+          subtitle,
+          style: const TextStyle(
             fontSize: 13,
             color: AppColors.textSecondary,
           ),
         ),
+        const SizedBox(height: 10),
+
+        Semantics(
+          label: "Filtrar ranking por estado",
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.outline),
+            ),
+
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                value: selectedState?.code,
+                isExpanded: true,
+                icon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.primaryAccessible,
+                ),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+                items: <DropdownMenuItem<String?>>[
+                  const DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text("Todos os estados (Brasil)"),
+                  ),
+                  for (final BrazilState state in kBrazilStates)
+                    DropdownMenuItem<String?>(
+                      value: state.code,
+                      child: Text("${state.name} (${state.code})"),
+                    ),
+                ],
+                onChanged: onStateFilterChanged,
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
 
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        if (isLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              "Carregando ranking...",
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          )
+        else if (!hasAnySearch)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.outline),
+            ),
 
-          children: stats.map((WasteSearchStat stat) {
-            final int pct = stat.percentage.round();
+            child: Text(
+              selectedState == null
+                  ? "Nenhuma pesquisa registrada ainda. Consulte um resíduo para iniciar o ranking."
+                  : "Nenhuma pesquisa registrada para ${selectedState.name} (${selectedState.code}) ainda.",
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
 
-            return Semantics(
-              button: true,
-              label:
-                  "Ver orientações de ${stat.type.label}, $pct por cento das buscas",
-              child: InkWell(
-                onTap: () => onSelectWasteType(stat.type),
-                borderRadius: BorderRadius.circular(20),
+            children: stats.map((WasteSearchStat stat) {
+              final int pct = stat.percentage.round();
 
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: stat.type.color.withValues(alpha: 0.4),
-                      width: 1.2,
+              return Semantics(
+                button: true,
+                label:
+                    "Ver orientações de ${stat.type.label}, $pct por cento das buscas",
+                child: InkWell(
+                  onTap: () => onSelectWasteType(stat.type),
+                  borderRadius: BorderRadius.circular(20),
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: stat.type.color.withValues(alpha: 0.4),
+                        width: 1.2,
+                      ),
+                    ),
+
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          stat.type.icon,
+                          size: 16,
+                          color: stat.type.color,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "${stat.type.filterLabel} $pct%",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        stat.type.icon,
-                        size: 16,
-                        color: stat.type.color,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "${stat.type.filterLabel} $pct%",
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
+              );
+            }).toList(),
+          ),
       ],
     );
   }

@@ -107,6 +107,15 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
 
     await docRef.set(data, SetOptions(merge: true));
 
+    // Remove eventual tombstone caso um ponto com o mesmo ID seja recriado
+    if (point.id.isNotEmpty) {
+      try {
+        await _db.collection(kTombstonesCollection).doc(docRef.id).delete();
+      } catch (_) {
+        // Coleção de tombstones pode estar restrita nas regras de segurança
+      }
+    }
+
     // Atualiza metadados globais da coleção para acionar sincronização
     await _db
         .collection("metadata")
@@ -152,6 +161,19 @@ class FirestoreAdminDatabaseRepository implements AdminDatabaseRepository {
   @override
   Future<void> deletePoint(String pointId) async {
     await _db.collection(kCollectPointsCollection).doc(pointId).delete();
+
+    // Registra tombstone para que clientes em sincronização delta removam o ponto do cache local
+    try {
+      await _db
+          .collection(kTombstonesCollection)
+          .doc(pointId)
+          .set(<String, dynamic>{
+            "collection": kCollectPointsCollection,
+            "deletedAt": FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+    } catch (_) {
+      // Coleção de tombstones pode estar restrita nas regras de segurança
+    }
 
     await _db
         .collection("metadata")

@@ -188,7 +188,7 @@ void main() {
       expect(find.text("Limpar extras"), findsNothing);
     });
 
-    testWidgets("EcoAppBar inclui atalho para mapas offline e navega ao tocar", (
+    testWidgets("EcoAppBar inclui atalho para mapas offline e navega ao tocar quando showOfflineMapsAction é true", (
       WidgetTester tester,
     ) async {
       bool opened = false;
@@ -198,6 +198,7 @@ void main() {
           home: Scaffold(
             appBar: EcoAppBar(
               title: "TESTE",
+              showOfflineMapsAction: true,
               onOfflineMapsPressed: () => opened = true,
             ),
           ),
@@ -212,27 +213,41 @@ void main() {
       expect(opened, isTrue);
     });
 
-    testWidgets("OfflineBanner permite abrir gerenciador de mapas offline ao tocar quando desconectado", (
+    testWidgets("EcoAppBar não exibe botão de mapas offline quando showOfflineMapsAction é false (padrão)", (
       WidgetTester tester,
     ) async {
-      bool bannerOpened = false;
-
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
-            body: OfflineBanner(
-              isOffline: true,
-              isStale: false,
-              onManageOfflineMaps: () => bannerOpened = true,
+            appBar: EcoAppBar(
+              title: "TESTE",
             ),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("Mapas offline"), findsOneWidget);
-      await tester.tap(find.text("Mapas offline"));
-      expect(bannerOpened, isTrue);
+      final Finder offlineBtn = find.byIcon(Icons.download_for_offline_rounded);
+      expect(offlineBtn, findsNothing);
+    });
+
+    testWidgets("OfflineBanner não exibe botão de mapas offline quando desconectado", (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: OfflineBanner(
+              isOffline: true,
+              isStale: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("Mapas offline"), findsNothing);
+      expect(find.byIcon(Icons.download_for_offline_rounded), findsNothing);
     });
 
     testWidgets("renderiza com sucesso em modo autônomo sem Provider ancestral", (
@@ -250,7 +265,7 @@ void main() {
       expect(find.widgetWithText(OfflinePackageCard, "Acre"), findsOneWidget);
     });
 
-    testWidgets("EcoAppBar com onPressed padrão abre OfflineMapsScreen e exibe conteúdo", (
+    testWidgets("EcoAppBar com showOfflineMapsAction: true e onPressed padrão abre OfflineMapsScreen e exibe conteúdo", (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(800, 1600);
@@ -271,6 +286,7 @@ void main() {
             child: const Scaffold(
               appBar: EcoAppBar(
                 title: "Início",
+                showOfflineMapsAction: true,
               ),
             ),
           ),
@@ -289,7 +305,7 @@ void main() {
       expect(find.widgetWithText(OfflinePackageCard, "Acre"), findsOneWidget);
     });
 
-    testWidgets("OfflineBanner com onManageOfflineMaps padrão abre OfflineMapsScreen e exibe conteúdo", (
+    testWidgets("OfflineBanner quando desconectado não abre OfflineMapsScreen", (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(800, 1600);
@@ -318,13 +334,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("Mapas offline"), findsOneWidget);
-      await tester.tap(find.text("Mapas offline"));
-      await tester.pumpAndSettle();
-
-      expect(find.text("Mapas Offline"), findsOneWidget);
-      expect(find.text("Estados Brasileiros"), findsOneWidget);
-      expect(find.widgetWithText(OfflinePackageCard, "Acre"), findsOneWidget);
+      expect(find.text("Mapas offline"), findsNothing);
+      expect(find.text("Estados Brasileiros"), findsNothing);
     });
   });
 }

@@ -46,6 +46,7 @@ class HomeMapTopBar extends StatelessWidget {
     this.onQuickNearestPoint,
     this.nearestDistanceMeters,
     this.showQuickAction = true,
+    this.offlineBanner,
   });
 
   final Set<WasteType> selectedWasteTypes;
@@ -91,6 +92,7 @@ class HomeMapTopBar extends StatelessWidget {
   final VoidCallback? onQuickNearestPoint;
   final double? nearestDistanceMeters;
   final bool showQuickAction;
+  final Widget? offlineBanner;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +111,8 @@ class HomeMapTopBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
 
           children: [
+            ?offlineBanner,
+
             if (isSearchActive) ...[
               HomeSearchBar(
                 searchService: searchService,

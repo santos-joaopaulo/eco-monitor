@@ -191,12 +191,47 @@ void main() {
   });
 
   group("T8.2 e T8.3 — Busca Textual e Estatísticas no Guia de Descarte", () {
-    testWidgets("exibe estatísticas de mais pesquisados com percentuais", (
+    testWidgets(
+      "exibe estado vazio realista quando não há pesquisas registradas",
+      (WidgetTester tester) async {
+        useTallSurface(tester);
+        final store = InMemoryLocalStore();
+        final analytics = WasteSearchAnalyticsRepository(localStore: store);
+        final repo = const DisposalGuideRepositoryLocal();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DisposalGuideScreen(
+              repository: repo,
+              onStartGuide: (_) {},
+              analyticsRepository: analytics,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text("Resíduos mais pesquisados"), findsOneWidget);
+        expect(find.text("Todos os estados (Brasil)"), findsOneWidget);
+        expect(
+          find.text(
+            "Nenhuma pesquisa registrada ainda. Consulte um resíduo para iniciar o ranking.",
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets("exibe estatísticas reais de mais pesquisados e filtra por UF", (
       WidgetTester tester,
     ) async {
       useTallSurface(tester);
       final store = InMemoryLocalStore();
       final analytics = WasteSearchAnalyticsRepository(localStore: store);
+      await analytics.recordSearch(WasteType.medicines, stateCode: "SE");
+      await analytics.recordSearch(WasteType.medicines, stateCode: "SE");
+      await analytics.recordSearch(WasteType.batteries, stateCode: "SP");
+      await analytics.recordSearch(WasteType.glass, stateCode: "SP");
+
       final repo = const DisposalGuideRepositoryLocal();
 
       await tester.pumpWidget(
@@ -210,12 +245,24 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // Visão padrão nacional: 2 remédios (50%), 1 pilha (25%), 1 vidro (25%)
       expect(find.text("Resíduos mais pesquisados"), findsOneWidget);
-      expect(find.text("Remédios 45%"), findsOneWidget);
+      expect(find.text("Ranking nacional de todos os dispositivos."), findsOneWidget);
+      expect(find.text("Remédios 50%"), findsOneWidget);
       expect(find.text("Pilhas 25%"), findsOneWidget);
-      expect(find.text("Seringas 18%"), findsOneWidget);
-      expect(find.text("Eletrônicos 8%"), findsOneWidget);
-      expect(find.text("Vidro 4%"), findsOneWidget);
+      expect(find.text("Vidro 25%"), findsOneWidget);
+
+      // Filtra pelo estado de Sergipe (SE)
+      await tester.tap(find.text("Todos os estados (Brasil)"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Sergipe (SE)").last);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text("Ranking filtrado para Sergipe (SE)."),
+        findsOneWidget,
+      );
+      expect(find.text("Remédios 100%"), findsOneWidget);
     });
 
     testWidgets("toque no chip de estatística abre o guia da categoria", (
@@ -224,6 +271,7 @@ void main() {
       useTallSurface(tester);
       final store = InMemoryLocalStore();
       final analytics = WasteSearchAnalyticsRepository(localStore: store);
+      await analytics.recordSearch(WasteType.medicines);
       final repo = const DisposalGuideRepositoryLocal();
       Residue? openedResidue;
 
@@ -240,7 +288,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text("Remédios 45%"));
+      await tester.tap(find.text("Remédios 100%"));
       await tester.pumpAndSettle();
 
       expect(openedResidue, isNotNull);
@@ -289,10 +337,17 @@ void main() {
     ) async {
       useTallSurface(tester);
       final repo = const DisposalGuideRepositoryLocal();
+      final analytics = WasteSearchAnalyticsRepository(
+        localStore: InMemoryLocalStore(),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
-          home: DisposalGuideScreen(repository: repo, onStartGuide: (_) {}),
+          home: DisposalGuideScreen(
+            repository: repo,
+            onStartGuide: (_) {},
+            analyticsRepository: analytics,
+          ),
         ),
       );
       await tester.pumpAndSettle();
