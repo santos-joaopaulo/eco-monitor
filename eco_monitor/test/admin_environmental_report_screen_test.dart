@@ -313,7 +313,7 @@ void main() {
       expect(find.text("RELATÓRIO AMBIENTAL"), findsOneWidget);
     });
 
-    testWidgets("AdminSuggestionsScreen has PDF icon in AppBar and action buttons in territorial view", (
+    testWidgets("AdminSuggestionsScreen does not show report buttons in AppBar", (
       WidgetTester tester,
     ) async {
       useTallSurface(tester);
@@ -339,23 +339,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verificar ícone de PDF na AppBar
-      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsOneWidget);
-
-      // Alternar para visão territorial
-      await tester.tap(find.byIcon(Icons.location_city_rounded));
-      await tester.pumpAndSettle();
-
-      expect(find.text("DEMANDA TERRITORIAL"), findsOneWidget);
-      expect(find.text("Exportar PDF Geral"), findsOneWidget);
-      expect(find.text("Diagnóstico Bairros"), findsOneWidget);
-
-      // Tocar no botão de diagnóstico
-      await tester.tap(find.text("Diagnóstico Bairros"));
-      await tester.pumpAndSettle();
-
-      expect(find.text("DIAGNÓSTICO TERRITORIAL"), findsOneWidget);
-      expect(find.text("Ranking de Carência Cívica por Bairro"), findsOneWidget);
+      // Verificar ausência dos botões de relatório na AppBar
+      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsNothing);
+      expect(find.byIcon(Icons.assessment_rounded), findsNothing);
+      expect(find.byIcon(Icons.location_city_rounded), findsNothing);
     });
   });
 }

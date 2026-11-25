@@ -425,7 +425,7 @@ class _SuggestScreenState extends State<SuggestScreen> {
 
       final String message = result == SuggestionSubmitResult.sent
           ? "Sugestão enviada com sucesso! Obrigado por colaborar."
-          : "Sugestão salva na fila offline. Será enviada assim que houver conexão.";
+          : kOfflineQueuedMessage;
 
       _showSnackBar(message);
     } catch (_) {

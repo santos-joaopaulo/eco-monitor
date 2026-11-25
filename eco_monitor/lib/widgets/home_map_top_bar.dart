@@ -8,6 +8,7 @@ import "../theme/eco_theme.dart";
 import "../utils/formatters.dart";
 import "../utils/spatial_index.dart";
 import "filter_bar.dart";
+import "location_notice.dart";
 import "radius_filter_bar.dart";
 import "waste_style.dart";
 
@@ -568,46 +569,10 @@ class _MapStatusPill extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: kEcoMaxContentWidth),
 
-      child: Material(
-        color: AppColors.surface.withValues(alpha: 0.95),
-        elevation: 2,
-        shadowColor: Colors.black.withAlpha(30),
-        borderRadius: BorderRadius.circular(20),
-
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isLoading)
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                Icon(
-                  icon ?? Icons.info_outline,
-                  size: 18,
-                  color: AppColors.textSecondary,
-                ),
-
-              const SizedBox(width: 8),
-
-              Flexible(
-                child: Text(
-                  message,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      child: LocationNotice(
+        icon: icon ?? Icons.info_outline,
+        message: message,
+        isLoading: isLoading,
       ),
     );
   }

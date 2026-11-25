@@ -211,7 +211,8 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text("Resíduos mais pesquisados"), findsOneWidget);
-        expect(find.text("Todos os estados (Brasil)"), findsOneWidget);
+        expect(find.text("Todos os estados (Brasil)"), findsNothing);
+        expect(find.text("Ranking nacional de todos os dispositivos."), findsNothing);
         expect(
           find.text(
             "Nenhuma pesquisa registrada ainda. Consulte um resíduo para iniciar o ranking.",
@@ -221,16 +222,16 @@ void main() {
       },
     );
 
-    testWidgets("exibe estatísticas reais de mais pesquisados e filtra por UF", (
+    testWidgets("exibe estatísticas gerais de mais pesquisados sem filtro de UF", (
       WidgetTester tester,
     ) async {
       useTallSurface(tester);
       final store = InMemoryLocalStore();
       final analytics = WasteSearchAnalyticsRepository(localStore: store);
-      await analytics.recordSearch(WasteType.medicines, stateCode: "SE");
-      await analytics.recordSearch(WasteType.medicines, stateCode: "SE");
-      await analytics.recordSearch(WasteType.batteries, stateCode: "SP");
-      await analytics.recordSearch(WasteType.glass, stateCode: "SP");
+      await analytics.recordSearch(WasteType.medicines);
+      await analytics.recordSearch(WasteType.medicines);
+      await analytics.recordSearch(WasteType.batteries);
+      await analytics.recordSearch(WasteType.glass);
 
       final repo = const DisposalGuideRepositoryLocal();
 
@@ -245,24 +246,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Visão padrão nacional: 2 remédios (50%), 1 pilha (25%), 1 vidro (25%)
+      // Visão geral: 2 remédios (50%), 1 pilha (25%), 1 vidro (25%)
       expect(find.text("Resíduos mais pesquisados"), findsOneWidget);
-      expect(find.text("Ranking nacional de todos os dispositivos."), findsOneWidget);
+      expect(find.text("Ranking nacional de todos os dispositivos."), findsNothing);
+      expect(find.text("Todos os estados (Brasil)"), findsNothing);
       expect(find.text("Remédios 50%"), findsOneWidget);
       expect(find.text("Pilhas 25%"), findsOneWidget);
       expect(find.text("Vidro 25%"), findsOneWidget);
-
-      // Filtra pelo estado de Sergipe (SE)
-      await tester.tap(find.text("Todos os estados (Brasil)"));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text("Sergipe (SE)").last);
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text("Ranking filtrado para Sergipe (SE)."),
-        findsOneWidget,
-      );
-      expect(find.text("Remédios 100%"), findsOneWidget);
     });
 
     testWidgets("toque no chip de estatística abre o guia da categoria", (

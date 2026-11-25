@@ -916,15 +916,15 @@ class _PointReviewSectionState extends State<_PointReviewSection> {
 
     final String message = result == PointReviewSubmitResult.sent
         ? "Avaliação enviada com sucesso! Obrigado pela colaboração."
-        : "Avaliação salva offline. Será sincronizada assim que você reconectar.";
+        : kOfflineQueuedMessage;
 
     messenger
       ?..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: AppColors.primaryAccessible,
-          duration: const Duration(seconds: 4),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 3),
         ),
       );
   }

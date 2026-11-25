@@ -49,20 +49,25 @@ class DisposalStepByStepScreen extends StatelessWidget {
         onBack: () => Navigator.of(context).maybePop(),
       ),
 
-      body: Column(
+      body: Stack(
         children: [
-          ?banner,
+          if (guide == null)
+            const Center(child: Text("Guia indisponível no momento."))
+          else
+            _Content(
+              wasteType: wasteType,
+              guide: guide,
+              buttonHeight: _buttonHeight,
+              onShowCollectionPoints: onShowCollectionPoints,
+            ),
 
-          Expanded(
-            child: guide == null
-                ? const Center(child: Text("Guia indisponível no momento."))
-                : _Content(
-                    wasteType: wasteType,
-                    guide: guide,
-                    buttonHeight: _buttonHeight,
-                    onShowCollectionPoints: onShowCollectionPoints,
-                  ),
-          ),
+          if (banner != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: banner!,
+            ),
         ],
       ),
     );

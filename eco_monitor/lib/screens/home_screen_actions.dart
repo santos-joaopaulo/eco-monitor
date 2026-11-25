@@ -910,6 +910,27 @@ mixin _HomeScreenActions on State<HomeScreen> {
     await _handleStartRoute();
   }
 
+  Future<void> _recordAnalyticsSearch(
+    IWasteSearchAnalyticsRepository analytics,
+    WasteType type,
+    String? stateCode,
+  ) async {
+    final int pendingBefore = await analytics.pendingCount();
+    await analytics.recordSearch(type, stateCode: stateCode);
+    final int pendingAfter = await analytics.pendingCount();
+    if (pendingAfter > pendingBefore && mounted) {
+      ScaffoldMessenger.maybeOf(context)
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(kOfflineQueuedMessage),
+            backgroundColor: AppColors.primary,
+            duration: Duration(seconds: 3),
+          ),
+        );
+    }
+  }
+
   /// Aplica busca textual rápida de resíduo e foca o ecoponto compatível mais próximo (T8.2).
   Future<void> _handleResidueSearched(WasteType type) async {
     _handleFilterChanged(<WasteType>{type});
@@ -924,7 +945,7 @@ mixin _HomeScreenActions on State<HomeScreen> {
     final IWasteSearchAnalyticsRepository analytics =
         widget.dataSync?.analyticsRepository ??
         WasteSearchAnalyticsRepository();
-    unawaited(analytics.recordSearch(type, stateCode: stateCode));
+    unawaited(_recordAnalyticsSearch(analytics, type, stateCode));
 
     if (userLocation != null) {
       final NearestPointResult? nearest = const GetNearestPointUseCase()

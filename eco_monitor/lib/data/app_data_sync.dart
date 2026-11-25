@@ -17,6 +17,14 @@ import "point_suggestions_repository.dart";
 import "waste_search_analytics_repository.dart";
 
 
+// Constants ---------------------------------------------------------------- //
+
+
+/// Mensagem exibida quando um item é salvo na fila offline para sincronização posterior.
+const String kOfflineQueuedMessage =
+    "Sugestão salva na fila offline. Será enviada assim que houver conexão.";
+
+
 // Classes ------------------------------------------------------------------ //
 
 

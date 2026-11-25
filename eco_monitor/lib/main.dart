@@ -220,7 +220,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Widget _withAppBar(
     Widget body, {
     String? title,
-    Widget? banner,
     List<Widget>? actions,
     bool showOfflineMapsAction = false,
   }) {
@@ -232,14 +231,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         actions: actions,
         showOfflineMapsAction: showOfflineMapsAction,
       ),
-      body: banner != null
-          ? Column(
-              children: [
-                banner,
-                Expanded(child: body),
-              ],
-            )
-          : body,
+      body: body,
     );
   }
 
@@ -252,19 +244,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
         body: Consumer<SyncNotifier>(
           builder: (BuildContext context, SyncNotifier sync, Widget? child) {
-            // Banner de conectividade, desatualização e fila pendente posicionado
-            // abaixo da AppBar de cada tela (RNF10, RNF17).
-            final Widget offlineBanner = OfflineBanner(
-              isOffline: !sync.isOnline,
-              isStale: sync.isStale,
-              lastUpdated: sync.lastUpdated,
-              pendingSuggestionsCount: sync.pendingSyncCount,
-              isSyncing: sync.isSyncing,
-              onRetry: () {
-                unawaited(sync.refreshAll());
-              },
-            );
-
+            // Banner de conectividade, desatualização e fila pendente exibido
+            // exclusivamente na tela inicial (mapa e lista).
             final Widget mapOfflineBanner = OfflineBanner(
               isOffline: !sync.isOnline,
               isStale: sync.isStale,
@@ -278,49 +259,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             );
 
             final List<Widget> homeAppBarActions = [
-              if (!sync.isOnline)
-                IconButton(
-                  icon: const Icon(
-                    Icons.wifi_off_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  tooltip: "Modo offline (dados salvos localmente)",
-                  onPressed: () {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        const SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          content: Text(
-                            "Modo offline: exibindo ecopontos salvos na memória do aparelho.",
-                          ),
-                        ),
-                      );
-                  },
-                )
-              else if (sync.isStale)
-                IconButton(
-                  icon: const Icon(
-                    Icons.update_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  tooltip: "Dados desatualizados · Toque para atualizar",
-                  onPressed: () => unawaited(sync.refreshAll()),
-                )
-              else if (sync.pendingSuggestionsCount > 0)
-                IconButton(
-                  icon: const Icon(
-                    Icons.cloud_upload_outlined,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  tooltip:
-                      "${sync.pendingSuggestionsCount} pendente(s) para sincronização",
-                  onPressed: () => unawaited(sync.refreshAll()),
-                ),
-
               if (_isHomeListOpen)
                 IconButton(
                   icon: Icon(
@@ -387,7 +325,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   active: _selectedIndex == _guideTab,
                   onShowCollectionPoints: _showCollectionPoints,
                   onBackToHome: () => _selectTab(_homeTab),
-                  banner: offlineBanner,
                 ),
                 _withAppBar(
                   TickerMode(
@@ -399,7 +336,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     ),
                   ),
                   title: "CAMPANHAS ATIVAS",
-                  banner: offlineBanner,
                 ),
                 _withAppBar(
                   SuggestScreen(
@@ -407,7 +343,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     dataSync: _dataSync,
                   ),
                   title: "SUGERIR NOVO PONTO",
-                  banner: offlineBanner,
                 ),
               ],
             );

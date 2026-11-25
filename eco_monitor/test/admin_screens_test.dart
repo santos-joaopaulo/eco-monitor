@@ -454,7 +454,7 @@ void main() {
       expect(find.text("Criar Ponto"), findsOneWidget);
     });
 
-    testWidgets("toggles territorial view, groups demands by neighborhood, and converts suggestion", (
+    testWidgets("hides report buttons in AppBar and converts suggestion to point", (
       WidgetTester tester,
     ) async {
       useTallSurface(tester);
@@ -471,17 +471,6 @@ void main() {
           status: SuggestionStatus.pending,
           createdAt: DateTime.utc(2026, 11, 20),
         ),
-        PointSuggestion(
-          id: "sug-2",
-          name: "Posto Jardins",
-          address: "Av. Ministro Geraldo Barreto - Jardins",
-          acceptedWasteTypes: const {WasteType.glass},
-          hours: "08h às 17h",
-          latitude: -10.93,
-          longitude: -37.06,
-          status: SuggestionStatus.pending,
-          createdAt: DateTime.utc(2026, 11, 21),
-        ),
       ]);
 
       await tester.pumpWidget(
@@ -492,23 +481,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("SUGESTÕES DE USUÁRIOS"), findsOneWidget);
+      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsNothing);
+      expect(find.byIcon(Icons.assessment_rounded), findsNothing);
+      expect(find.byIcon(Icons.location_city_rounded), findsNothing);
 
-      // Alternar para visão territorial
-      await tester.tap(find.byIcon(Icons.location_city_rounded));
-      await tester.pumpAndSettle();
-
-      expect(find.text("DEMANDA TERRITORIAL"), findsOneWidget);
-      expect(find.text("SUMÁRIO TERRITORIAL DE DEMANDA"), findsOneWidget);
-      expect(find.text("Centro"), findsOneWidget);
-      expect(find.text("Jardins"), findsOneWidget);
-      expect(find.textContaining("Vidro"), findsWidgets);
-
-      // Tocar no bairro Centro para expandir e aprovar
-      await tester.tap(find.text("Centro"));
-      await tester.pumpAndSettle();
-
-      expect(find.text("Aprovar e Criar"), findsOneWidget);
-      await tester.tap(find.text("Aprovar e Criar"));
+      expect(find.text("Criar Ponto"), findsOneWidget);
+      await tester.tap(find.text("Criar Ponto"));
       await tester.pumpAndSettle();
 
       expect(find.text("NOVO PONTO DE COLETA"), findsOneWidget);

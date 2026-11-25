@@ -68,7 +68,7 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   int _selectedFilterIndex = 0; // 0: Todas, 1: Pendentes, 2: Em análise, 3: Aprovadas, 4: Rejeitadas
-  bool _showTerritorialView = false;
+  final bool _showTerritorialView = false;
 
 
 // Lifecycle ---------------------------------------------------------------- //
@@ -347,33 +347,6 @@ class _AdminSuggestionsScreenState extends State<AdminSuggestionsScreen> {
             letterSpacing: 0.6,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_rounded),
-            tooltip: "Exportar Relatório Ambiental (PDF)",
-            onPressed: () => _openPdfReport(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.assessment_rounded),
-            tooltip: "Diagnóstico Territorial & Carência",
-            onPressed: _openReportSheet,
-          ),
-          IconButton(
-            icon: Icon(
-              _showTerritorialView
-                  ? Icons.view_list_rounded
-                  : Icons.location_city_rounded,
-            ),
-            tooltip: _showTerritorialView
-                ? "Lista de Moderação"
-                : "Visão Territorial / Bairros",
-            onPressed: () {
-              setState(() {
-                _showTerritorialView = !_showTerritorialView;
-              });
-            },
-          ),
-        ],
       ),
 
       body: SafeArea(
